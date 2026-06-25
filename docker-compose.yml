@@ -1,0 +1,23 @@
+services:
+  web:
+    build: .
+    env_file: .env
+    environment:
+      QUIZ_DB_PATH: /data/quiz.db
+    volumes:
+      - quizdata:/data
+      - ./content:/srv/content
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      QUIZ_DB_PATH: /data/quiz.db
+    volumes:
+      - quizdata:/data
+      - ./content:/srv/content
+    command: ["python", "-m", "app.bot"]
+volumes:
+  quizdata:
