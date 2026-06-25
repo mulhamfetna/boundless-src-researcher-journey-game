@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS answers (
 
 
 def connect(db_path: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path)
+    # check_same_thread=False: the app holds one shared connection that the
+    # web framework reuses across request worker threads.
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
