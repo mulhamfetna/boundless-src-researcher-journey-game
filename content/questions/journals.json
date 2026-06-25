@@ -1,0 +1,98 @@
+{
+  "slug": "journals",
+  "title_ar": "تصنيف المجلات العلمية",
+  "pdf_filename": "المحور الثاني -تصنيف المجلات العلمية.pdf",
+  "display_order": 1,
+  "questions": [
+    {
+      "type": "mcq",
+      "prompt_ar": "أيّ قاعدة بيانات يصدر عنها «معامل التأثير» (Journal Impact Factor – JIF)؟",
+      "base_points": 100,
+      "explanation_ar": "معامل التأثير JIF تُصدره شركة Clarivate ضمن قاعدة Web of Science، بينما تعتمد Scopus مؤشرات أخرى مثل CiteScore وSJR.",
+      "source_page": 2,
+      "options_ar": ["Scopus", "Web of Science (Clarivate)", "DOAJ", "PubMed"],
+      "correct_index": 1
+    },
+    {
+      "type": "mcq",
+      "prompt_ar": "في نظام الأرباع (Quartiles)، ماذا يعني تصنيف المجلة ضمن الربع الأول Q1؟",
+      "base_points": 100,
+      "explanation_ar": "Q1 يضم أعلى 25% من المجلات في مجال التخصص حسب مؤشر التأثير (JIF أو CiteScore)، بينما Q4 هو أدنى 25%.",
+      "source_page": 8,
+      "options_ar": ["أدنى 25% من المجلات", "أعلى 25% من المجلات (الأفضل)", "المجلات المتوقفة عن النشر", "المجلات مفتوحة الوصول فقط"],
+      "correct_index": 1
+    },
+    {
+      "type": "tf",
+      "prompt_ar": "معامل التأثير (JIF) لعام 2024 يُحسب من الاستشهادات في عام 2024 بأبحاث نُشرت في العامين السابقين (2022 و2023).",
+      "base_points": 80,
+      "explanation_ar": "صحيح. بسط JIF هو عدد الاستشهادات في السنة الحالية لأبحاث المجلة المنشورة في العامين السابقين، مقسومًا على عدد تلك الأبحاث.",
+      "source_page": 6,
+      "options_ar": ["صحيح", "خطأ"],
+      "correct_index": 0
+    },
+    {
+      "type": "mcq",
+      "prompt_ar": "قاعدة البيانات DOAJ (Directory of Open Access Journals) مخصّصة لـ؟",
+      "base_points": 100,
+      "explanation_ar": "DOAJ فهرس عالمي للمجلات مفتوحة الوصول الموثوقة، ويتحقق من الشفافية والتحكيم ووجود ISSN؛ ولا يقبل المجلات الوهمية.",
+      "source_page": 3,
+      "options_ar": ["المجلات المفترسة", "المجلات مفتوحة الوصول الموثوقة", "مجلات الطب الحيوي فقط", "المؤتمرات العلمية"],
+      "correct_index": 1
+    },
+    {
+      "type": "mcq",
+      "prompt_ar": "أيّ مما يلي يُعدّ علامة تحذيرية على مجلة مفترسة (Predatory)؟",
+      "base_points": 120,
+      "explanation_ar": "ضمان النشر السريع مقابل رسوم، مع رسائل دعوة مبالغ فيها وغياب التحكيم الحقيقي، من أبرز علامات المجلات المفترسة.",
+      "source_page": 16,
+      "options_ar": ["تحكيم علمي صارم قبل القبول", "ضمان النشر خلال أيام مقابل رسوم", "فهرسة حقيقية في Scopus", "هيئة تحرير معروفة بأسمائها"],
+      "correct_index": 1
+    },
+    {
+      "type": "tf",
+      "prompt_ar": "القواعد الرصينة مثل Scopus وClarivate قد تحتوي على مجلات مفترسة، لذا فالفهرسة فيها لا تكفي للحكم على المجلة.",
+      "base_points": 80,
+      "explanation_ar": "خطأ. القواعد الرصينة (Scopus، Clarivate…) لا تحتوي مجلات مفترسة؛ والفهرسة فيها مؤشر موثوقية، أما الادعاء الكاذب بالفهرسة فهو من علامات المجلات المفترسة.",
+      "source_page": 17,
+      "options_ar": ["صحيح", "خطأ"],
+      "correct_index": 1
+    },
+    {
+      "type": "mcq",
+      "prompt_ar": "في نموذج الوصول المفتوح (Open Access)، من يتحمّل رسوم النشر (APC) عادةً؟",
+      "base_points": 100,
+      "explanation_ar": "في الوصول المفتوح يدفع المؤلف رسوم المعالجة APC ويبقى البحث مجانيًا للقارئ؛ بينما في نموذج الاشتراك يدفع القارئ. وفي الماسي (Diamond) لا يدفع أحدهما.",
+      "source_page": 13,
+      "options_ar": ["القارئ", "المؤلف", "الجامعة مجانًا دائمًا", "لا أحد"],
+      "correct_index": 1
+    },
+    {
+      "type": "mcq",
+      "prompt_ar": "أيّ مؤشر يقيس إنتاجية الباحث وأثره معًا، بحيث يعني h-index = X أن لديه X بحثًا استُشهد بكلٍّ منها X مرة على الأقل؟",
+      "base_points": 110,
+      "explanation_ar": "مؤشر h-index يجمع بين الكمّ (عدد الأبحاث) والأثر (عدد الاستشهادات)، ويُحسب للباحث أو المجلة.",
+      "source_page": 9,
+      "options_ar": ["معامل التأثير JIF", "مؤشر هيرش h-index", "نظام الأرباع Quartile", "CiteScore"],
+      "correct_index": 1
+    },
+    {
+      "type": "mcq",
+      "prompt_ar": "أيّ أداة تُوصف بأنها أهم أداة توعية، وتقدّم قائمة مراجعة بسيطة لتقييم أي مجلة خطوة بخطوة قبل إرسال البحث؟",
+      "base_points": 100,
+      "explanation_ar": "«Think. Check. Submit.» أداة توعية مجانية بقائمة مراجعة بسيطة؛ أما Cabells فقاعدة مدفوعة، وBeall's List قائمة أرشيفية متوقفة رسميًا.",
+      "source_page": 17,
+      "options_ar": ["Beall's List", "Think. Check. Submit.", "Cabells Predatory Reports", "SCImago (SJR)"],
+      "correct_index": 1
+    },
+    {
+      "type": "mcq",
+      "prompt_ar": "عند اختيار مجلة للنشر، ماذا يعني معيار «مطابقة النطاق» (The Scope Match)؟",
+      "base_points": 100,
+      "explanation_ar": "مطابقة النطاق تعني قراءة أقسام About Journal وAims & Scope ومراجعة 3–5 أبحاث حديثة للتأكد من ملاءمة موضوعك ومنهجيتك للمجلة.",
+      "source_page": 11,
+      "options_ar": ["قراءة Aims & Scope وأبحاث حديثة للتأكد من ملاءمة الموضوع", "حساب رسوم النشر APC", "قياس سرعة التحكيم", "ترتيب المجلة في الأرباع"],
+      "correct_index": 0
+    }
+  ]
+}
