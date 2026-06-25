@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>مسابقة المجلات العلمية</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <main id="app">
+    <section id="screen-home" class="screen">
+      <h1>مسابقة الجلسات</h1>
+      <div id="quiz-list"></div>
+    </section>
+
+    <section id="screen-runner" class="screen hidden">
+      <div class="topbar">
+        <span id="progress"></span>
+        <span id="timer">0.0s</span>
+      </div>
+      <h2 id="q-prompt"></h2>
+      <img id="q-image" class="q-image hidden" alt="" />
+      <div id="q-options"></div>
+    </section>
+
+    <section id="screen-report" class="screen hidden">
+      <h2>نتيجتك</h2>
+      <div id="report-summary"></div>
+      <div id="report-items"></div>
+      <button id="btn-board">عرض لوحة الصدارة</button>
+    </section>
+
+    <section id="screen-board" class="screen hidden">
+      <h2>لوحة الصدارة</h2>
+      <ol id="board-list"></ol>
+      <button id="btn-home">العودة</button>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
