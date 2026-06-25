@@ -93,6 +93,51 @@
       "source_page": 11,
       "options_ar": ["قراءة Aims & Scope وأبحاث حديثة للتأكد من ملاءمة الموضوع", "حساب رسوم النشر APC", "قياس سرعة التحكيم", "ترتيب المجلة في الأرباع"],
       "correct_index": 0
+    },
+    {
+      "type": "image",
+      "prompt_ar": "أمامك دعوة للنشر وصلت بالبريد الإلكتروني من مجلة. ما أبرز ما يكشف أنها مجلة مفترسة (Predatory)؟",
+      "base_points": 120,
+      "explanation_ar": "الوعود بنشر سريع مضمون (40–90 يومًا) مع دعوة فورية للانضمام لهيئة التحرير وخصم على رسوم النشر والإطراء المبالغ — كلها علامات مجلة مفترسة. أمّا وجود ISSN وادعاء التحكيم فيستخدمهما المفترسون أنفسهم لإيهام الباحث بالشرعية (ص 15–16).",
+      "source_page": 16,
+      "options_ar": ["وعود بنشر سريع (40–90 يومًا) ودعوة فورية للانضمام لهيئة التحرير مع خصم على رسوم النشر", "وجود رقمي ISSN للطباعة والنسخة الإلكترونية", "ذكر أن المجلة محكّمة (Peer-reviewing)", "احتواء الرسالة على شعار المجلة"],
+      "correct_index": 0,
+      "asset": {
+        "file": "assets/journals/predatory_email.png",
+        "source_url": "https://libguides.astate.edu/predatory/email",
+        "anonymized": true,
+        "caption_ar": "دعوة نشر حقيقية من مجلة مفترسة (مع تمويه بيانات المُرسَل إليه)"
+      }
+    },
+    {
+      "type": "image",
+      "prompt_ar": "حسب شارة SCImago (SJR) الظاهرة في الصورة، ما تصنيف هذه المجلة في نظام الأرباع؟",
+      "base_points": 100,
+      "explanation_ar": "تعرض الشارة Q3 أي الربع الثالث ضمن تخصص (Animal Science and Zoology). يعني Q3 أن المجلة في النطاق المتوسط–الأدنى ضمن مجالها، بينما Q1 هو الأعلى 25% (الأفضل) وQ4 هو الأدنى 25% (ص 7–8).",
+      "source_page": 8,
+      "options_ar": ["Q1", "Q2", "Q3", "Q4"],
+      "correct_index": 2,
+      "asset": {
+        "file": "assets/journals/journal_quartile.png",
+        "source_url": "https://www.scimagojr.com/journalsearch.php?q=19700188151",
+        "anonymized": false,
+        "caption_ar": "شارة SCImago الرسمية تُظهر الربع Q3"
+      }
+    },
+    {
+      "type": "image",
+      "prompt_ar": "تعرض هذه الصورة نتائج أداة JANE (Journal/Author Name Estimator). ما وظيفة هذه الأداة؟",
+      "base_points": 100,
+      "explanation_ar": "أدوات مثل JANE وElsevier Journal Finder وSpringer Journal Suggester تقترح مجلات مناسبة لموضوع بحثك اعتمادًا على العنوان أو الملخص، وتعرض مؤشرات مثل الفهرسة (Medline-indexed) وArticle Influence لمساعدتك على الاختيار (ص 14).",
+      "source_page": 14,
+      "options_ar": ["اقتراح مجلات مناسبة لمخطوطتك بناءً على العنوان/الملخص", "حساب معامل التأثير الخاص بالباحث", "كشف الانتحال في البحث", "تنسيق قائمة المراجع تلقائيًا"],
+      "correct_index": 0,
+      "asset": {
+        "file": "assets/journals/journal_finder.jpg",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6300233/",
+        "anonymized": false,
+        "caption_ar": "شاشة نتائج أداة JANE لاقتراح المجلات"
+      }
     }
   ]
 }
