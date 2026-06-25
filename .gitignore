@@ -5,3 +5,5 @@ node_modules/
 content/raw/
 *.db
 *.sqlite3
+.venv/
+*.egg-info/
