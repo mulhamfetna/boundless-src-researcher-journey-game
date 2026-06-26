@@ -1,4 +1,6 @@
+import glob
 import json
+import os
 import sqlite3
 
 from app.content_schema import validate_quiz
@@ -65,3 +67,13 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
 def seed_from_file(conn: sqlite3.Connection, path: str) -> int:
     with open(path, encoding="utf-8") as f:
         return seed_quiz(conn, json.load(f))
+
+
+def seed_all(conn: sqlite3.Connection, dir: str = "content/questions") -> list[str]:
+    slugs = []
+    for path in sorted(glob.glob(os.path.join(dir, "*.json"))):
+        with open(path, encoding="utf-8") as f:
+            doc = json.load(f)
+        seed_quiz(conn, doc)
+        slugs.append(doc["slug"])
+    return slugs
