@@ -44,3 +44,14 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
   padding:6px 10px; margin:4px 2px; }
 .board-toggle { display:flex; gap:8px; margin-bottom:8px; }
 .lb-badge { margin-inline-start:6px; }
+.hint-btn { background:#3a3f55; margin-top:10px; }
+.hint-box { background:#2a2f45; border-radius:10px; padding:10px; margin-top:8px; }
+.feedback-box { margin-top:10px; min-height:1.2em; }
+.opt.wrong { background:var(--bad); opacity:.7; }
+.opt.correct { background:var(--good); }
+.opt:disabled { cursor:default; }
+.opt-explain { font-size:.9rem; color:#cdd3e6; margin:4px 0 8px; }
+#screen-funfact { text-align:center; }
+#funfact-text { background:var(--card); border-radius:12px; padding:18px; margin:12px 0; font-size:1.05rem; }
+.slot.wrong, .order-row.wrong { outline:2px solid var(--bad); }
+.slot.correct, .order-row.correct { outline:2px solid var(--good); }
