@@ -23,15 +23,12 @@ def build_report(conn, attempt_id: int) -> dict:
             "SELECT file_path FROM assets WHERE question_id = ? LIMIT 1", (q["id"],)
         ).fetchone()
 
-        your_ar, correct_ar = _describe(q["type"], data, given)
+        your_ar, correct_ar = _describe(q["type"], data, {})
         items.append({
-            "type": q["type"],
-            "prompt_ar": q["prompt_ar"],
-            "is_correct": bool(ans["is_correct"]),
-            "your_ar": your_ar,
-            "correct_ar": correct_ar,
-            "explanation_ar": q["explanation_ar"],
-            "source_page": q["source_page"],
+            "type": q["type"], "prompt_ar": q["prompt_ar"], "is_correct": bool(ans["is_correct"]),
+            "correct_ar": correct_ar, "retries": ans["retries"], "hint_used": bool(ans["hint_used"]),
+            "first_try": ans["retries"] == 0 and not ans["hint_used"],
+            "explanation_ar": q["explanation_ar"], "source_page": q["source_page"],
             "asset_file": asset["file_path"] if asset else None,
         })
 

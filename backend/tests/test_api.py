@@ -51,19 +51,18 @@ def test_list_quizzes(api_client):
     assert resp.json()[0]["slug"] == "journals"
 
 
-def test_get_questions_hides_correct_index(api_client):
-    resp = api_client.get("/api/quizzes/journals/questions")
-    body = resp.json()
-    assert len(body["questions"]) == 2
-    assert "correct_index" not in body["questions"][0]
+def test_get_questions_exposes_answer_key(api_client):
+    body = api_client.get("/api/quizzes/journals/questions").json()
+    assert "correct_index" in body["questions"][0]
+    assert "fun_facts_ar" in body
 
 
 def test_submit_scores_and_returns_report(api_client):
     init = _init_data({"id": 99, "first_name": "Omar"})
     questions = api_client.get("/api/quizzes/journals/questions").json()["questions"]
     answers = [
-        {"question_id": questions[0]["id"], "index": 2, "time_ms": 1000},
-        {"question_id": questions[1]["id"], "index": 0, "time_ms": 1500},
+        {"question_id": questions[0]["id"], "retries": 0, "hint_used": False},
+        {"question_id": questions[1]["id"], "retries": 0, "hint_used": False},
     ]
     resp = api_client.post(
         "/api/quizzes/journals/submit",
@@ -92,7 +91,7 @@ def test_leaderboard_after_submit(api_client):
     api_client.post(
         "/api/quizzes/journals/submit",
         headers={"X-Init-Data": init},
-        json={"answers": [{"question_id": questions[0]["id"], "index": 2, "time_ms": 500}], "duration_ms": 500},
+        json={"answers": [{"question_id": questions[0]["id"], "retries": 0, "hint_used": False}], "duration_ms": 500},
     )
     board = api_client.get("/api/leaderboard?slug=journals").json()
     assert board[0]["first_name"] == "Omar"
@@ -115,7 +114,7 @@ def test_questions_exposes_order_items_no_answer(api_client):
     qs = api_client.get("/api/quizzes/journals/questions").json()["questions"]
     oq = [q for q in qs if q["type"] == "order"][0]
     assert oq["items_ar"] == ["A", "B", "C"]
-    assert "correct_sequence" not in oq
+    assert "correct_sequence" in oq
 
 
 def test_submit_order_partial_and_first_finish_badge(api_client, monkeypatch):
@@ -130,7 +129,7 @@ def test_submit_order_partial_and_first_finish_badge(api_client, monkeypatch):
     resp = api_client.post(
         "/api/quizzes/journals/submit",
         headers={"X-Init-Data": init},
-        json={"answers": [{"question_id": oq["id"], "sequence": [2, 0, 1], "time_ms": 800}], "duration_ms": 800},
+        json={"answers": [{"question_id": oq["id"], "retries": 0, "hint_used": False}], "duration_ms": 800},
     )
     body = resp.json()
     assert resp.status_code == 200
@@ -149,7 +148,7 @@ def test_partial_submission_does_not_earn_perfect(api_client, monkeypatch):
     resp = api_client.post(
         "/api/quizzes/journals/submit",
         headers={"X-Init-Data": init},
-        json={"answers": [{"question_id": oq["id"], "sequence": [2, 0, 1], "time_ms": 500}], "duration_ms": 500},
+        json={"answers": [{"question_id": oq["id"], "retries": 0, "hint_used": False}], "duration_ms": 500},
     )
     body = resp.json()
     assert "perfect_quiz" not in body["earned_now"]
@@ -167,6 +166,6 @@ def test_overall_leaderboard(api_client, monkeypatch):
     qs = api_client.get("/api/quizzes/journals/questions").json()["questions"]
     mcq = [q for q in qs if q["type"] in ("mcq", "tf", "image")][0]
     api_client.post("/api/quizzes/journals/submit", headers={"X-Init-Data": init},
-                    json={"answers": [{"question_id": mcq["id"], "index": 0, "time_ms": 500}], "duration_ms": 500})
+                    json={"answers": [{"question_id": mcq["id"], "retries": 0, "hint_used": False}], "duration_ms": 500})
     board = api_client.get("/api/leaderboard?scope=overall").json()
     assert board and "total_score" in board[0] and "top_badge" in board[0]

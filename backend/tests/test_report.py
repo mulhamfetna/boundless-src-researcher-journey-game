@@ -24,6 +24,8 @@ def test_build_report_shape(seeded):
     first = report["items"][0]
     assert first["is_correct"] is True
     assert first["type"] == "mcq"
+    assert first["first_try"] is True
+    assert "retries" in first
 
 
 def test_build_report_includes_asset_for_image(seeded):
