@@ -100,11 +100,18 @@ The DB lives in the `quizdata` volume and starts empty. Load the journals quiz:
 docker compose run --rm web python -c "import sys; sys.path.insert(0,'.'); from app.db import connect, init_schema; from app.seed import seed_from_file; c=connect('/data/quiz.db'); init_schema(c); print('seeded quiz', seed_from_file(c,'/srv/content/questions/journals.json'))"
 ```
 
-Expected: `seeded quiz 1`. Verify through the tunnel:
+Expected: `seeded quiz 1`. **To load all quizzes at once** (recommended once you
+have multiple), use `seed_all` instead of `seed_from_file`:
+
+```bash
+docker compose run --rm web python -c "import sys; sys.path.insert(0,'.'); from app.db import connect; from app.seed import seed_all; c=connect('/data/quiz.db'); print('seeded', seed_all(c, '/srv/content/questions'))"
+```
+
+Verify through the tunnel:
 
 ```bash
 curl -s https://quiz.your-domain.com/api/quizzes
-# -> [{"slug":"journals","title_ar":"تصنيف المجلات العلمية"}]
+# -> all quiz slugs, e.g. journals, foundations, paper-types, paper-parts
 ```
 
 ## Step 6 — Point the bot's Mini App at the URL (BotFather)
