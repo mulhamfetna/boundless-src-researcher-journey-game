@@ -76,3 +76,26 @@ def leaderboard(conn, quiz_id, limit=20):
         """,
         (quiz_id, limit),
     ).fetchall()
+
+
+def set_attempt_max_streak(conn, attempt_id, max_streak):
+    conn.execute("UPDATE attempts SET max_streak=? WHERE id=?", (max_streak, attempt_id))
+    conn.commit()
+
+
+def leaderboard_overall(conn, limit=20):
+    return conn.execute(
+        """
+        SELECT c.first_name AS first_name, SUM(best.best_score) AS total_score
+        FROM (
+            SELECT contestant_id, quiz_id, MAX(total_score) AS best_score
+            FROM attempts WHERE finished_at IS NOT NULL
+            GROUP BY contestant_id, quiz_id
+        ) best
+        JOIN contestants c ON c.telegram_user_id = best.contestant_id
+        GROUP BY best.contestant_id
+        ORDER BY total_score DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
