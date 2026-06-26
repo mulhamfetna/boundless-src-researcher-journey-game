@@ -35,6 +35,150 @@ async function startQuiz(slug) {
   show("runner");
 }
 
+// --- generic pointer drag: returns the element under the pointer matching selector ---
+function elementUnder(x, y, selector) {
+  const el = document.elementFromPoint(x, y);
+  return el ? el.closest(selector) : null;
+}
+
+function renderMatch(q) {
+  const opts = document.getElementById("q-options");
+  opts.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "match-wrap";
+  const leftCol = document.createElement("div");
+  leftCol.className = "match-col";
+  const rightCol = document.createElement("div");
+  rightCol.className = "match-col";
+  wrap.append(leftCol, rightCol);
+  opts.appendChild(wrap);
+
+  // left fixed rows, each with a drop slot
+  q.left_ar.forEach((text, li) => {
+    const row = document.createElement("div");
+    row.innerHTML = `<div style="margin-bottom:4px">${text}</div>`;
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.dataset.left = li;
+    row.appendChild(slot);
+    leftCol.appendChild(row);
+  });
+
+  // right draggable chips, shuffled, carrying original index
+  const order = q.right_ar.map((_, i) => i).sort(() => Math.random() - 0.5);
+  order.forEach((ri) => {
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.textContent = q.right_ar[ri];
+    chip.dataset.right = ri;
+    rightCol.appendChild(chip);
+    makeChipDraggable(chip, rightCol);
+  });
+
+  ensureSubmitButton(() => {
+    const pairs = [];
+    document.querySelectorAll(".slot").forEach((slot) => {
+      const chip = slot.querySelector(".chip");
+      if (chip) pairs.push([Number(slot.dataset.left), Number(chip.dataset.right)]);
+    });
+    answerComplex({ pairs });
+  });
+}
+
+function makeChipDraggable(chip, home) {
+  chip.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    chip.setPointerCapture(e.pointerId);
+    chip.classList.add("dragging");
+    const move = (ev) => {
+      chip.style.position = "fixed";
+      chip.style.left = ev.clientX - 30 + "px";
+      chip.style.top = ev.clientY - 20 + "px";
+      chip.style.zIndex = 1000;
+    };
+    const up = (ev) => {
+      chip.releasePointerCapture(e.pointerId);
+      chip.classList.remove("dragging");
+      chip.style.position = "";
+      chip.style.left = chip.style.top = chip.style.zIndex = "";
+      const slot = elementUnder(ev.clientX, ev.clientY, ".slot");
+      if (slot) {
+        const existing = slot.querySelector(".chip");
+        if (existing) home.appendChild(existing);
+        slot.appendChild(chip);
+      } else {
+        home.appendChild(chip);
+      }
+      chip.removeEventListener("pointermove", move);
+      chip.removeEventListener("pointerup", up);
+    };
+    chip.addEventListener("pointermove", move);
+    chip.addEventListener("pointerup", up);
+  });
+}
+
+function renderOrder(q) {
+  const opts = document.getElementById("q-options");
+  opts.innerHTML = "";
+  const list = document.createElement("div");
+  list.className = "order-list";
+  opts.appendChild(list);
+  const order = q.items_ar.map((_, i) => i).sort(() => Math.random() - 0.5);
+  order.forEach((oi) => {
+    const row = document.createElement("div");
+    row.className = "order-row";
+    row.dataset.orig = oi;
+    row.innerHTML = `<span class="handle">≡</span><span>${q.items_ar[oi]}</span>`;
+    list.appendChild(row);
+    makeRowReorderable(row, list);
+  });
+  ensureSubmitButton(() => {
+    const sequence = [...list.querySelectorAll(".order-row")].map((r) => Number(r.dataset.orig));
+    answerComplex({ sequence });
+  });
+}
+
+function makeRowReorderable(row, list) {
+  row.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    row.setPointerCapture(e.pointerId);
+    row.classList.add("dragging");
+    const move = (ev) => {
+      const over = elementUnder(ev.clientX, ev.clientY, ".order-row");
+      if (over && over !== row) {
+        const rect = over.getBoundingClientRect();
+        const before = ev.clientY < rect.top + rect.height / 2;
+        list.insertBefore(row, before ? over : over.nextSibling);
+      }
+    };
+    const up = () => {
+      row.releasePointerCapture(e.pointerId);
+      row.classList.remove("dragging");
+      row.removeEventListener("pointermove", move);
+      row.removeEventListener("pointerup", up);
+    };
+    row.addEventListener("pointermove", move);
+    row.addEventListener("pointerup", up);
+  });
+}
+
+function ensureSubmitButton(onSubmit) {
+  const opts = document.getElementById("q-options");
+  const btn = document.createElement("button");
+  btn.className = "runner-submit";
+  btn.textContent = "تأكيد";
+  btn.onclick = () => { clearInterval(state.timer); onSubmit(); };
+  opts.appendChild(btn);
+}
+
+function answerComplex(givenExtra) {
+  const q = state.questions[state.idx];
+  state.answers.push({ question_id: q.id, time_ms: Date.now() - state.qStart, ...givenExtra });
+  state.idx += 1;
+  if (state.idx < state.questions.length) renderQuestion();
+  else submit();
+}
+
 function renderQuestion() {
   const q = state.questions[state.idx];
   document.getElementById("progress").textContent = `${state.idx + 1}/${state.questions.length}`;
@@ -43,15 +187,20 @@ function renderQuestion() {
   if (q.asset_file) { img.src = "/content/" + q.asset_file; img.classList.remove("hidden"); }
   else { img.classList.add("hidden"); img.removeAttribute("src"); }
 
-  const opts = document.getElementById("q-options");
-  opts.innerHTML = "";
-  q.options_ar.forEach((text, i) => {
-    const btn = document.createElement("button");
-    btn.className = "opt";
-    btn.textContent = text;
-    btn.onclick = () => answer(i);
-    opts.appendChild(btn);
-  });
+  const q2type = q.type;
+  if (q2type === "match") { renderMatch(q); }
+  else if (q2type === "order") { renderOrder(q); }
+  else {
+    const opts = document.getElementById("q-options");
+    opts.innerHTML = "";
+    q.options_ar.forEach((text, i) => {
+      const btn = document.createElement("button");
+      btn.className = "opt";
+      btn.textContent = text;
+      btn.onclick = () => answer(i);
+      opts.appendChild(btn);
+    });
+  }
 
   state.qStart = Date.now();
   const timerEl = document.getElementById("timer");
