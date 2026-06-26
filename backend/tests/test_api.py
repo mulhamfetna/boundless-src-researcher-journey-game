@@ -40,6 +40,8 @@ def api_client(tmp_path, monkeypatch):
     monkeypatch.setattr(main_module, "_conn", conn, raising=False)
     main_module.app.state.conn = conn
     monkeypatch.setattr(main_module.settings, "bot_token", BOT_TOKEN, raising=False)
+    import app.notify as notify
+    monkeypatch.setattr(notify, "send_report_dm", lambda *a, **k: True)
     return TestClient(main_module.app)
 
 

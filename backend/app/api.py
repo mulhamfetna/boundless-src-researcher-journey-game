@@ -5,7 +5,7 @@ from fastapi import APIRouter, Header, HTTPException, Request
 from app import models, badges, notify
 from app.auth import validate_init_data, AuthError
 from app.config import settings
-from app.scoring import grade, score_fraction
+from app.scoring import grade, score_fraction, speed_bonus
 
 router = APIRouter(prefix="/api")
 
@@ -82,17 +82,18 @@ def submit(slug: str, payload: dict, request: Request, x_init_data: str = Header
     streak = 0
     max_streak = 0
     bonus_sum = 0
+    processed = 0
     answers = payload.get("answers", [])
     for a in answers:
         qid = a.get("question_id")
         q = qrows.get(qid)
         if not q:
             continue
+        processed += 1
         data = json.loads(q["data_json"])
         fraction, is_full = grade(q["type"], data, a)
         time_ms = int(a.get("time_ms", 60000))
         pts = score_fraction(q["base_points"], fraction, time_ms, streak)
-        from app.scoring import speed_bonus
         bonus_sum += speed_bonus(time_ms)
         streak = streak + 1 if is_full else 0
         max_streak = max(max_streak, streak)
@@ -101,15 +102,14 @@ def submit(slug: str, payload: dict, request: Request, x_init_data: str = Header
         total += pts
         models.record_answer(conn, attempt_id, qid, a, is_full, int(a.get("time_ms", 0)), pts)
 
-    n = len(answers)
-    accuracy = correct_count / n if n else 0.0
+    accuracy = correct_count / processed if processed else 0.0
     models.finish_attempt(conn, attempt_id, total, accuracy, int(payload.get("duration_ms", 0)), _now(conn))
     models.set_attempt_max_streak(conn, attempt_id, max_streak)
 
     summary = {
         "accuracy": accuracy,
         "max_streak": max_streak,
-        "avg_speed_bonus": (bonus_sum / n) if n else 0.0,
+        "avg_speed_bonus": (bonus_sum / processed) if processed else 0.0,
         "is_first_finish": is_first_finish,
     }
     earned_now = badges.award(conn, contestant_id, badges.evaluate(summary), _now(conn))
@@ -130,7 +130,7 @@ def get_leaderboard(request: Request, scope: str = "quiz", slug: str = ""):
         rows = models.leaderboard_overall(conn)
         return [
             {"first_name": r["first_name"], "total_score": r["total_score"],
-             "top_badge": _top_badge_for_name(conn, r["first_name"])}
+             "top_badge": badges.top_badge(conn, r["telegram_user_id"])}
             for r in rows
         ]
     quiz = models.get_quiz_by_slug(conn, slug)
@@ -139,16 +139,9 @@ def get_leaderboard(request: Request, scope: str = "quiz", slug: str = ""):
     rows = models.leaderboard(conn, quiz["id"])
     return [
         {"first_name": r["first_name"], "best_score": r["best_score"],
-         "top_badge": _top_badge_for_name(conn, r["first_name"])}
+         "top_badge": badges.top_badge(conn, r["telegram_user_id"])}
         for r in rows
     ]
-
-
-def _top_badge_for_name(conn, first_name):
-    row = conn.execute(
-        "SELECT telegram_user_id FROM contestants WHERE first_name=? LIMIT 1", (first_name,)
-    ).fetchone()
-    return badges.top_badge(conn, row["telegram_user_id"]) if row else None
 
 
 @router.get("/me/badges")

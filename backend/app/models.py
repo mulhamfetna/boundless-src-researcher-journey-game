@@ -66,7 +66,7 @@ def record_answer(conn, attempt_id, question_id, given, is_correct, time_ms, poi
 def leaderboard(conn, quiz_id, limit=20):
     return conn.execute(
         """
-        SELECT c.first_name AS first_name, MAX(a.total_score) AS best_score
+        SELECT c.telegram_user_id AS telegram_user_id, c.first_name AS first_name, MAX(a.total_score) AS best_score
         FROM attempts a
         JOIN contestants c ON c.telegram_user_id = a.contestant_id
         WHERE a.quiz_id = ? AND a.finished_at IS NOT NULL
@@ -86,7 +86,7 @@ def set_attempt_max_streak(conn, attempt_id, max_streak):
 def leaderboard_overall(conn, limit=20):
     return conn.execute(
         """
-        SELECT c.first_name AS first_name, SUM(best.best_score) AS total_score
+        SELECT best.contestant_id AS telegram_user_id, c.first_name AS first_name, SUM(best.best_score) AS total_score
         FROM (
             SELECT contestant_id, quiz_id, MAX(total_score) AS best_score
             FROM attempts WHERE finished_at IS NOT NULL
