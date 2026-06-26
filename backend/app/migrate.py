@@ -21,6 +21,16 @@ def _questions_has_check(conn):
     return bool(row) and "CHECK" in (row["sql"] or "")
 
 
+def _badges_has_unique(conn):
+    for idx in conn.execute("PRAGMA index_list(badges)").fetchall():
+        if not idx["unique"]:
+            continue
+        cols = {r["name"] for r in conn.execute(f"PRAGMA index_info({idx['name']})")}
+        if {"contestant_id", "code"} <= cols:
+            return True
+    return False
+
+
 def migrate(conn: sqlite3.Connection) -> list[str]:
     changes: list[str] = []
 
@@ -54,11 +64,7 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         changes.append("questions.drop_check")
 
     # Ensure UNIQUE(contestant_id, code) on badges.
-    idx = conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='badges'"
-    ).fetchall()
-    has_unique = any("contestant" in (r["name"] or "") for r in idx)
-    if not has_unique:
+    if not _badges_has_unique(conn):
         # de-dup any existing rows first, then add the unique index
         conn.executescript(
             """

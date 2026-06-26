@@ -1,5 +1,5 @@
 import sqlite3
-from app.db import connect
+from app.db import connect, init_schema
 from app.migrate import migrate
 
 # Build an OLD-schema DB (Phase 1 shape) to migrate from.
@@ -65,3 +65,9 @@ def test_migrate_badges_unique(tmp_path):
     conn.execute("INSERT OR IGNORE INTO badges (contestant_id, code, earned_at) VALUES (1,'x',datetime('now'))")
     conn.commit()
     assert conn.execute("SELECT COUNT(*) FROM badges").fetchone()[0] == 1
+
+
+def test_migrate_idempotent_on_fresh_install(tmp_path):
+    conn = connect(str(tmp_path / "fresh.db"))
+    init_schema(conn)            # current schema, nothing to migrate
+    assert migrate(conn) == []
