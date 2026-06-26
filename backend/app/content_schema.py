@@ -15,6 +15,11 @@ def validate_quiz(doc: dict) -> None:
         _require(key in doc and doc[key], f"missing field: {key}")
     _require(isinstance(doc["questions"], list) and doc["questions"], "questions must be a non-empty list")
 
+    if "fun_facts_ar" in doc:
+        _require(isinstance(doc["fun_facts_ar"], list)
+                 and all(isinstance(x, str) for x in doc["fun_facts_ar"]),
+                 "fun_facts_ar must be a list of strings")
+
     for i, q in enumerate(doc["questions"]):
         where = f"question[{i}]"
         _require(q.get("type") in VALID_TYPES, f"{where}: bad type {q.get('type')!r}")
@@ -54,6 +59,15 @@ def validate_quiz(doc: dict) -> None:
             seq = q.get("correct_sequence")
             _require(isinstance(seq, list) and all(isinstance(x, int) for x in seq) and sorted(seq) == list(range(len(items))),
                      f"{where}: correct_sequence must be a permutation of range(len(items_ar))")
+
+        if "option_explanations_ar" in q:
+            _require(q["type"] in ("mcq", "tf", "image"),
+                     f"{where}: option_explanations_ar only valid for option types")
+            _require(isinstance(q["option_explanations_ar"], list)
+                     and len(q["option_explanations_ar"]) == len(q.get("options_ar", [])),
+                     f"{where}: option_explanations_ar length must equal options_ar")
+        if "hint_ar" in q:
+            _require(isinstance(q["hint_ar"], str), f"{where}: hint_ar must be a string")
 
         if "asset" in q:
             a = q["asset"]

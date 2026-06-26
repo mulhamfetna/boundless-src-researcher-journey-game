@@ -96,3 +96,26 @@ def test_order_sequence_not_permutation_fails():
     })
     with pytest.raises(SchemaError):
         validate_quiz(doc)
+
+
+def test_option_explanations_length_must_match():
+    doc = _good_doc()
+    doc["questions"][0]["option_explanations_ar"] = ["a", "b"]  # 2 != 4 options
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)
+
+
+def test_valid_explanations_hint_funfacts_pass():
+    doc = _good_doc()
+    doc["fun_facts_ar"] = ["معلومة"]
+    q = doc["questions"][0]
+    q["option_explanations_ar"] = ["خطأ", "خطأ", "صحيح", "خطأ"]
+    q["hint_ar"] = "تلميح"
+    validate_quiz(doc)
+
+
+def test_funfacts_must_be_list_of_str():
+    doc = _good_doc()
+    doc["fun_facts_ar"] = "ليست قائمة"
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)
