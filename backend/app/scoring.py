@@ -18,3 +18,35 @@ def score_answer(base_points: int, is_correct: bool, time_ms: int, streak_before
         return 0
     raw = (base_points + speed_bonus(time_ms)) * streak_multiplier(streak_before)
     return round(raw)
+
+
+def score_fraction(base_points: int, fraction: float, time_ms: int, streak_before: int) -> int:
+    if fraction <= 0:
+        return 0
+    raw = (base_points + speed_bonus(time_ms)) * fraction * streak_multiplier(streak_before)
+    return round(raw)
+
+
+def grade(qtype: str, data: dict, given: dict) -> tuple[float, bool]:
+    if qtype in ("mcq", "tf", "image"):
+        ok = given.get("index") is not None and int(given["index"]) == data["correct_index"]
+        return (1.0, True) if ok else (0.0, False)
+
+    if qtype == "match":
+        correct = {tuple(p) for p in data["correct_pairs"]}
+        given_pairs = {tuple(p) for p in given.get("pairs", [])}
+        if not correct:
+            return (0.0, False)
+        frac = len(given_pairs & correct) / len(correct)
+        return (frac, frac == 1.0)
+
+    if qtype == "order":
+        seq = data["correct_sequence"]
+        given_seq = given.get("sequence", [])
+        if len(given_seq) != len(seq) or not seq:
+            return (0.0, False)
+        placed = sum(1 for i, v in enumerate(seq) if i < len(given_seq) and given_seq[i] == v)
+        frac = placed / len(seq)
+        return (frac, frac == 1.0)
+
+    return (0.0, False)
