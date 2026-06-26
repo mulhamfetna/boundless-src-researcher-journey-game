@@ -3,7 +3,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 
 from app.config import settings
 from app.db import connect, init_schema
-from app.models import get_quiz_by_slug, leaderboard
+from app.models import get_quiz_by_slug, leaderboard, leaderboard_overall
 
 
 def leaderboard_text(conn, slug: str) -> str:
@@ -19,6 +19,16 @@ def leaderboard_text(conn, slug: str) -> str:
     return "\n".join(lines)
 
 
+def overall_leaderboard_text(conn) -> str:
+    rows = leaderboard_overall(conn)
+    if not rows:
+        return "لا توجد نتائج بعد. كن أول المتسابقين! 🎮"
+    lines = ["🏆 لوحة الصدارة الإجمالية"]
+    for i, r in enumerate(rows, 1):
+        lines.append(f"{i}. {r['first_name']} — {r['total_score']}")
+    return "\n".join(lines)
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = settings.public_url.rstrip("/") + "/app/"
     kb = InlineKeyboardMarkup([[InlineKeyboardButton("ابدأ المسابقة 🎮", web_app=WebAppInfo(url=url))]])
@@ -29,7 +39,7 @@ async def leaderboard_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn = connect(settings.db_path)
     init_schema(conn)
     try:
-        await update.message.reply_text(leaderboard_text(conn, "journals"))
+        await update.message.reply_text(overall_leaderboard_text(conn))
     finally:
         conn.close()
 
