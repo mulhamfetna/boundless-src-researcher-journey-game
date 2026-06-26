@@ -23,7 +23,14 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
     quiz_id = cur.lastrowid
 
     for order, q in enumerate(doc["questions"]):
-        data = {"options_ar": q["options_ar"], "correct_index": q["correct_index"]}
+        if q["type"] in ("mcq", "tf", "image"):
+            data = {"options_ar": q["options_ar"], "correct_index": q["correct_index"]}
+        elif q["type"] == "match":
+            data = {"left_ar": q["left_ar"], "right_ar": q["right_ar"], "correct_pairs": q["correct_pairs"]}
+        elif q["type"] == "order":
+            data = {"items_ar": q["items_ar"], "correct_sequence": q["correct_sequence"]}
+        else:
+            data = {}
         qcur = conn.execute(
             """INSERT INTO questions
                (quiz_id, type, prompt_ar, base_points, explanation_ar, source_page, data_json, display_order)
