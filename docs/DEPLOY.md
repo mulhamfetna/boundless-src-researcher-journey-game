@@ -174,12 +174,17 @@ frontend change, the container serves the new file but Cloudflare keeps serving
 the **old** one — and a fresh `index.html` (Cloudflare returns HTML as `DYNAMIC`,
 uncached) running an old `app.js` breaks the app.
 
-**Fix already in place:** `index.html` references assets with a version query
-(`app.js?v=3a1`, `styles.css?v=3a1`) and `main.py` sends `Cache-Control: no-cache`
-for `/app/*` (so the edge revalidates via etag — `cf-cache-status: REVALIDATED`).
+**Fix in place — fully automatic, nothing to remember:** `main.py` serves
+`index.html` through a dynamic `/app/` route that stamps the `app.js`/`styles.css`
+URLs with `?v=<hash>`, where `<hash>` is an 8-char SHA of the current bundle.
+Change either file → the hash changes → the URL changes → guaranteed Cloudflare
+cache miss → users get the new bundle on next load, **no purge, no manual bump**.
+`main.py` also sends `Cache-Control: no-cache` for `/app/*` (edge revalidates via
+etag). `index.html` is `DYNAMIC` (never edge-cached), so the fresh hash always
+reaches the client.
 
-**Rule:** whenever you change `frontend/app.js` or `frontend/styles.css`, **bump
-the `?v=` token** in `frontend/index.html` (e.g. `?v=3a1` → `?v=3a2`) before
-deploying. A new token = a guaranteed cache miss = users get the new bundle
-immediately, with no Cloudflare purge needed. Verify after deploy:
-`curl -s "https://src.mulhamfetna.com/app/app.js?v=<new>" | diff - frontend/app.js`.
+Verify after any frontend deploy:
+```bash
+VER=$(curl -s "https://src.mulhamfetna.com/app/" | grep -oE "app\.js\?v=[a-z0-9]+" | head -1 | cut -d= -f2)
+diff <(curl -s "https://src.mulhamfetna.com/app/app.js?v=$VER") frontend/app.js && echo "fresh"
+```
