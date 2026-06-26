@@ -24,8 +24,9 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
         conn.execute("DELETE FROM quizzes WHERE id = ?", (qid,))
 
     cur = conn.execute(
-        "INSERT INTO quizzes (slug, title_ar, pdf_filename, display_order) VALUES (?, ?, ?, ?)",
-        (doc["slug"], doc["title_ar"], doc["pdf_filename"], doc.get("display_order", 0)),
+        "INSERT INTO quizzes (slug, title_ar, pdf_filename, display_order, fun_facts_json) VALUES (?, ?, ?, ?, ?)",
+        (doc["slug"], doc["title_ar"], doc["pdf_filename"], doc.get("display_order", 0),
+         json.dumps(doc.get("fun_facts_ar", []), ensure_ascii=False)),
     )
     quiz_id = cur.lastrowid
 
@@ -38,6 +39,10 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
             data = {"items_ar": q["items_ar"], "correct_sequence": q["correct_sequence"]}
         else:
             data = {}
+        if q["type"] in ("mcq", "tf", "image") and "option_explanations_ar" in q:
+            data["option_explanations_ar"] = q["option_explanations_ar"]
+        if "hint_ar" in q:
+            data["hint_ar"] = q["hint_ar"]
         qcur = conn.execute(
             """INSERT INTO questions
                (quiz_id, type, prompt_ar, base_points, explanation_ar, source_page, data_json, display_order)

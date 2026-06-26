@@ -1,8 +1,10 @@
 import json as _json
+import json as _json2
 from app.models import (
     get_quiz_by_slug, get_questions, get_asset_for_question,
     upsert_contestant, create_attempt, record_answer,
 )
+from app.models import get_quiz_by_slug as _gqs
 from app.seed import seed_quiz
 from tests.conftest import SAMPLE_DOC
 
@@ -66,3 +68,21 @@ def test_seed_stores_match_and_order_payloads(conn):
     assert m["correct_pairs"] == [[0, 1], [1, 0]] and m["left_ar"] == ["L0", "L1"]
     o = _json.loads(qs[1]["data_json"])
     assert o["correct_sequence"] == [1, 0] and o["items_ar"] == ["A", "B"]
+
+
+def test_seed_stores_explainers_hint_funfacts(conn):
+    doc = {
+        "slug": "kx", "title_ar": "t", "pdf_filename": "f.pdf",
+        "fun_facts_ar": ["حقيقة 1", "حقيقة 2"],
+        "questions": [{
+            "type": "mcq", "prompt_ar": "س", "options_ar": ["أ", "ب", "ج", "د"],
+            "correct_index": 2, "option_explanations_ar": ["لا", "لا", "نعم", "لا"], "hint_ar": "فكّر",
+        }],
+    }
+    seed_quiz(conn, doc)
+    quiz = _gqs(conn, "kx")
+    assert _json2.loads(quiz["fun_facts_json"]) == ["حقيقة 1", "حقيقة 2"]
+    q = get_questions(conn, quiz["id"])[0]
+    data = _json2.loads(q["data_json"])
+    assert data["option_explanations_ar"][2] == "نعم"
+    assert data["hint_ar"] == "فكّر"
