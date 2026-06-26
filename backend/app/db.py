@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS quizzes (
 CREATE TABLE IF NOT EXISTS questions (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     quiz_id       INTEGER NOT NULL REFERENCES quizzes(id),
-    type          TEXT NOT NULL CHECK (type IN ('mcq','tf','image')),
+    type          TEXT NOT NULL,
     prompt_ar     TEXT NOT NULL,
     base_points   INTEGER NOT NULL DEFAULT 100,
     explanation_ar TEXT NOT NULL DEFAULT '',
@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS attempts (
     total_score      INTEGER NOT NULL DEFAULT 0,
     accuracy         REAL NOT NULL DEFAULT 0,
     duration_ms      INTEGER NOT NULL DEFAULT 0,
+    max_streak       INTEGER NOT NULL DEFAULT 0,
     started_at       TEXT,
     finished_at      TEXT
 );
@@ -59,6 +60,14 @@ CREATE TABLE IF NOT EXISTS answers (
     is_correct    INTEGER NOT NULL,
     time_ms       INTEGER NOT NULL,
     points_awarded INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS badges (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    contestant_id INTEGER NOT NULL REFERENCES contestants(telegram_user_id),
+    code          TEXT NOT NULL,
+    earned_at     TEXT NOT NULL,
+    UNIQUE(contestant_id, code)
 );
 """
 
