@@ -28,6 +28,17 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Gamified Quiz", lifespan=lifespan)
 
 
+@app.middleware("http")
+async def _no_cache_mini_app(request, call_next):
+    # The Mini App static assets (/app/*) must never be edge/browser cached
+    # stale: Cloudflare otherwise caches app.js/styles.css for hours, serving an
+    # old bundle against fresh index.html. no-cache forces revalidation via etag.
+    response = await call_next(request)
+    if request.url.path.startswith("/app"):
+        response.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return response
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
