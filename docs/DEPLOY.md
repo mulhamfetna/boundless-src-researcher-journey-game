@@ -166,3 +166,20 @@ docker compose up -d web bot cloudflared
 `app.migrate` is safe to run repeatedly — it adds the `max_streak` column,
 drops the legacy question-type CHECK, and ensures the `badges` table +
 `UNIQUE(contestant_id, code)` exist, skipping whatever is already current.
+
+## ⚠️ Frontend cache — bump the asset version on every frontend deploy
+
+Cloudflare edge-caches static assets (`app.js`, `styles.css`) for hours. After a
+frontend change, the container serves the new file but Cloudflare keeps serving
+the **old** one — and a fresh `index.html` (Cloudflare returns HTML as `DYNAMIC`,
+uncached) running an old `app.js` breaks the app.
+
+**Fix already in place:** `index.html` references assets with a version query
+(`app.js?v=3a1`, `styles.css?v=3a1`) and `main.py` sends `Cache-Control: no-cache`
+for `/app/*` (so the edge revalidates via etag — `cf-cache-status: REVALIDATED`).
+
+**Rule:** whenever you change `frontend/app.js` or `frontend/styles.css`, **bump
+the `?v=` token** in `frontend/index.html` (e.g. `?v=3a1` → `?v=3a2`) before
+deploying. A new token = a guaranteed cache miss = users get the new bundle
+immediately, with no Cloudflare purge needed. Verify after deploy:
+`curl -s "https://src.mulhamfetna.com/app/app.js?v=<new>" | diff - frontend/app.js`.
