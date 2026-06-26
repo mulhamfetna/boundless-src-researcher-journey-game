@@ -92,6 +92,16 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         )
         changes.append("badges.unique")
 
+    if "retries" not in _columns(conn, "answers"):
+        conn.execute("ALTER TABLE answers ADD COLUMN retries INTEGER NOT NULL DEFAULT 0")
+        changes.append("answers.retries")
+    if "hint_used" not in _columns(conn, "answers"):
+        conn.execute("ALTER TABLE answers ADD COLUMN hint_used INTEGER NOT NULL DEFAULT 0")
+        changes.append("answers.hint_used")
+    if "fun_facts_json" not in _columns(conn, "quizzes"):
+        conn.execute("ALTER TABLE quizzes ADD COLUMN fun_facts_json TEXT NOT NULL DEFAULT '[]'")
+        changes.append("quizzes.fun_facts_json")
+
     conn.commit()
     return changes
 

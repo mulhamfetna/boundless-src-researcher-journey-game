@@ -91,3 +91,14 @@ def test_migrate_creates_badges_if_missing(tmp_path):
 
     # Second run is fully idempotent.
     assert migrate(conn) == []
+
+
+def test_migrate_adds_retry_and_funfacts_columns(tmp_path):
+    conn = _old_db(str(tmp_path / "old.db"))
+    migrate(conn)
+    acols = {r["name"] for r in conn.execute("PRAGMA table_info(answers)")}
+    qcols = {r["name"] for r in conn.execute("PRAGMA table_info(quizzes)")}
+    assert {"retries", "hint_used"} <= acols
+    assert "fun_facts_json" in qcols
+    # idempotent
+    assert migrate(conn) == []

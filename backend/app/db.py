@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS quizzes (
     slug          TEXT UNIQUE NOT NULL,
     title_ar      TEXT NOT NULL,
     pdf_filename  TEXT NOT NULL,
-    display_order INTEGER NOT NULL DEFAULT 0
+    display_order INTEGER NOT NULL DEFAULT 0,
+    fun_facts_json TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE TABLE IF NOT EXISTS questions (
@@ -59,7 +60,9 @@ CREATE TABLE IF NOT EXISTS answers (
     given_json    TEXT NOT NULL,
     is_correct    INTEGER NOT NULL,
     time_ms       INTEGER NOT NULL,
-    points_awarded INTEGER NOT NULL
+    points_awarded INTEGER NOT NULL,
+    retries        INTEGER NOT NULL DEFAULT 0,
+    hint_used      INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS badges (
