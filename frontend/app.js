@@ -96,6 +96,15 @@ function makeChipDraggable(chip, home) {
       chip.style.top = ev.clientY - 20 + "px";
       chip.style.zIndex = 1000;
     };
+    const cancel = () => {
+      chip.classList.remove("dragging");
+      chip.style.position = "";
+      chip.style.left = chip.style.top = chip.style.zIndex = "";
+      home.appendChild(chip);
+      chip.removeEventListener("pointermove", move);
+      chip.removeEventListener("pointerup", up);
+      chip.removeEventListener("pointercancel", cancel);
+    };
     const up = (ev) => {
       chip.releasePointerCapture(e.pointerId);
       chip.classList.remove("dragging");
@@ -111,9 +120,11 @@ function makeChipDraggable(chip, home) {
       }
       chip.removeEventListener("pointermove", move);
       chip.removeEventListener("pointerup", up);
+      chip.removeEventListener("pointercancel", cancel);
     };
     chip.addEventListener("pointermove", move);
     chip.addEventListener("pointerup", up);
+    chip.addEventListener("pointercancel", cancel);
   });
 }
 
@@ -151,14 +162,22 @@ function makeRowReorderable(row, list) {
         list.insertBefore(row, before ? over : over.nextSibling);
       }
     };
+    const cancel = () => {
+      row.classList.remove("dragging");
+      row.removeEventListener("pointermove", move);
+      row.removeEventListener("pointerup", up);
+      row.removeEventListener("pointercancel", cancel);
+    };
     const up = () => {
       row.releasePointerCapture(e.pointerId);
       row.classList.remove("dragging");
       row.removeEventListener("pointermove", move);
       row.removeEventListener("pointerup", up);
+      row.removeEventListener("pointercancel", cancel);
     };
     row.addEventListener("pointermove", move);
     row.addEventListener("pointerup", up);
+    row.addEventListener("pointercancel", cancel);
   });
 }
 
