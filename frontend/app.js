@@ -1,10 +1,18 @@
 const tg = window.Telegram ? window.Telegram.WebApp : { initData: "", ready() {}, expand() {} };
 tg.ready(); tg.expand();
 
-const screens = ["home", "runner", "report", "board"];
+const screens = ["home", "runner", "report", "board", "badges"];
 function show(name) {
   screens.forEach(s => document.getElementById("screen-" + s).classList.toggle("hidden", s !== name));
 }
+
+const BADGES = {
+  perfect_quiz: { ico: "🏅", name_ar: "الإتقان" },
+  speed_demon: { ico: "⚡", name_ar: "البرق" },
+  streak_master: { ico: "🔥", name_ar: "السلسلة" },
+  first_finish: { ico: "🌟", name_ar: "البداية" },
+};
+const BADGE_ORDER = ["perfect_quiz", "speed_demon", "streak_master", "first_finish"];
 
 async function api(path, opts = {}) {
   const res = await fetch("/api" + path, opts);
@@ -25,6 +33,7 @@ async function loadHome() {
     b.onclick = () => startQuiz(q.slug);
     list.appendChild(b);
   });
+  document.getElementById("btn-my-badges").onclick = loadBadges;
   show("home");
 }
 
@@ -249,39 +258,72 @@ async function submit() {
 }
 
 function renderReport(report) {
-  const correct = report.items.filter(i => i.is_correct).length;
+  const correct = report.items.filter((i) => i.is_correct).length;
   document.getElementById("report-summary").innerHTML =
     `<div class="summary-big">${report.total_score} نقطة</div>` +
     `<div style="text-align:center">صحيح ${correct}/${report.items.length} — الترتيب #${report.rank}</div>`;
+
+  const badgesBox = document.getElementById("report-badges");
+  badgesBox.innerHTML = "";
+  (report.earned_now || []).forEach((code) => {
+    const b = BADGES[code];
+    const span = document.createElement("span");
+    span.className = "report-badge";
+    span.textContent = `${b.ico} ${b.name_ar}`;
+    badgesBox.appendChild(span);
+  });
+
   const box = document.getElementById("report-items");
   box.innerHTML = "";
-  report.items.forEach(it => {
+  report.items.forEach((it) => {
     const div = document.createElement("div");
     div.className = "report-item " + (it.is_correct ? "good" : "bad");
-    const yours = it.options_ar[it.given_index] ?? "—";
-    const right = it.options_ar[it.correct_index];
     div.innerHTML =
       `<div>${it.prompt_ar}</div>` +
-      `<div>إجابتك: ${yours} ${it.is_correct ? "✅" : "❌"}</div>` +
-      (it.is_correct ? "" : `<div>الصحيح: ${right}</div>`) +
+      `<div>إجابتك: ${it.your_ar} ${it.is_correct ? "✅" : "❌"}</div>` +
+      (it.is_correct ? "" : `<div>الصحيح: ${it.correct_ar}</div>`) +
       (it.explanation_ar ? `<div>📖 ${it.explanation_ar}` + (it.source_page ? ` (ص ${it.source_page})` : "") + `</div>` : "") +
       (it.asset_file ? `<img src="/content/${it.asset_file}" alt="" />` : "");
     box.appendChild(div);
   });
-  document.getElementById("btn-board").onclick = () => loadBoard();
+
+  document.getElementById("btn-board").onclick = () => loadBoard("quiz");
 }
 
-async function loadBoard() {
-  const board = await api(`/leaderboard?slug=${state.slug}`);
+async function loadBoard(scope = "quiz") {
+  const path = scope === "overall" ? "/leaderboard?scope=overall" : `/leaderboard?scope=quiz&slug=${state.slug}`;
+  const board = await api(path);
   const ol = document.getElementById("board-list");
   ol.innerHTML = "";
-  board.forEach(r => {
+  board.forEach((r) => {
     const li = document.createElement("li");
-    li.textContent = `${r.first_name} — ${r.best_score}`;
+    const score = scope === "overall" ? r.total_score : r.best_score;
+    const badge = r.top_badge ? `<span class="lb-badge">${BADGES[r.top_badge].ico}</span>` : "";
+    li.innerHTML = `${r.first_name} — ${score}${badge}`;
     ol.appendChild(li);
   });
+  document.getElementById("board-quiz").onclick = () => loadBoard("quiz");
+  document.getElementById("board-overall").onclick = () => loadBoard("overall");
   document.getElementById("btn-home").onclick = loadHome;
   show("board");
+}
+
+async function loadBadges() {
+  let earned = [];
+  try { earned = (await api("/me/badges", { headers: { "X-Init-Data": tg.initData } })).badges; }
+  catch (e) { earned = []; }
+  const grid = document.getElementById("badges-grid");
+  grid.className = "badges-grid";
+  grid.innerHTML = "";
+  BADGE_ORDER.forEach((code) => {
+    const b = BADGES[code];
+    const div = document.createElement("div");
+    div.className = "badge" + (earned.includes(code) ? "" : " locked");
+    div.innerHTML = `<div class="ico">${b.ico}</div><div>${b.name_ar}</div>`;
+    grid.appendChild(div);
+  });
+  document.getElementById("btn-badges-home").onclick = loadHome;
+  show("badges");
 }
 
 loadHome().catch(e => { document.getElementById("quiz-list").textContent = "تعذّر التحميل"; });

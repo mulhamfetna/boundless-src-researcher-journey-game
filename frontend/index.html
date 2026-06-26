@@ -12,6 +12,7 @@
     <section id="screen-home" class="screen">
       <h1>مسابقة الجلسات</h1>
       <div id="quiz-list"></div>
+      <button id="btn-my-badges" class="quiz-card">🏅 أوسمتي</button>
     </section>
 
     <section id="screen-runner" class="screen hidden">
@@ -28,13 +29,24 @@
       <h2>نتيجتك</h2>
       <div id="report-summary"></div>
       <div id="report-items"></div>
+      <div id="report-badges"></div>
       <button id="btn-board">عرض لوحة الصدارة</button>
     </section>
 
     <section id="screen-board" class="screen hidden">
       <h2>لوحة الصدارة</h2>
+      <div class="board-toggle">
+        <button id="board-quiz" class="quiz-card">هذه المسابقة</button>
+        <button id="board-overall" class="quiz-card">الإجمالي</button>
+      </div>
       <ol id="board-list"></ol>
       <button id="btn-home">العودة</button>
+    </section>
+
+    <section id="screen-badges" class="screen hidden">
+      <h2>أوسمتي</h2>
+      <div id="badges-grid"></div>
+      <button id="btn-badges-home">العودة</button>
     </section>
   </main>
   <script src="app.js"></script>
