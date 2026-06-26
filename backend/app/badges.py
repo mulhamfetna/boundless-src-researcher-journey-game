@@ -1,8 +1,7 @@
 import sqlite3
 
-ALL_CODES = ["perfect_quiz", "speed_demon", "streak_master", "first_finish"]
-_PRIORITY = ["perfect_quiz", "streak_master", "speed_demon", "first_finish"]
-SPEED_DEMON_MIN_AVG_BONUS = 35.0
+ALL_CODES = ["perfect_quiz", "self_reliant", "streak_master", "first_finish"]
+_PRIORITY = ["perfect_quiz", "streak_master", "self_reliant", "first_finish"]
 STREAK_MASTER_MIN = 5
 
 
@@ -10,8 +9,8 @@ def evaluate(summary: dict) -> list[str]:
     codes = []
     if summary.get("accuracy", 0) >= 1.0:
         codes.append("perfect_quiz")
-    if summary.get("avg_speed_bonus", 0) >= SPEED_DEMON_MIN_AVG_BONUS:
-        codes.append("speed_demon")
+    if summary.get("hints_used", 1) == 0:
+        codes.append("self_reliant")
     if summary.get("max_streak", 0) >= STREAK_MASTER_MIN:
         codes.append("streak_master")
     if summary.get("is_first_finish", False):

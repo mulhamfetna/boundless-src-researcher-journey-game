@@ -2,7 +2,7 @@ import json
 
 _BADGE_AR = {
     "perfect_quiz": "🏅الإتقان",
-    "speed_demon": "⚡البرق",
+    "self_reliant": "🛡️بلا تلميحات",
     "streak_master": "🔥السلسلة",
     "first_finish": "🌟البداية",
 }
