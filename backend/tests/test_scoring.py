@@ -1,5 +1,6 @@
 from app.scoring import (
     clamp_time, speed_bonus, streak_multiplier, score_answer, grade, score_fraction,
+    retry_penalty, score_retry,
 )
 
 
@@ -72,3 +73,20 @@ def test_score_fraction_partial():
     assert score_fraction(100, 0.5, 90000, 0) == 50
     # base 100 + bonus 50 (fast), fraction 1.0, streak 0 -> 150
     assert score_fraction(100, 1.0, 0, 0) == 150
+
+
+def test_retry_penalty_values():
+    assert retry_penalty(0, False) == 1.0
+    assert round(retry_penalty(1, False), 2) == 0.75
+    assert round(retry_penalty(0, True), 2) == 0.80
+    assert round(retry_penalty(1, True), 2) == 0.55
+    assert retry_penalty(10, True) == 0.10  # floor
+
+
+def test_score_retry():
+    # first-try, no hint, no streak -> base
+    assert score_retry(100, 0, False, 0) == 100
+    # 1 retry -> 75, streak 0
+    assert score_retry(100, 1, False, 0) == 75
+    # hint -> 80 * streak 1.2 (streak 2) = 96
+    assert score_retry(100, 0, True, 2) == 96

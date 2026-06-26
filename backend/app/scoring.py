@@ -54,3 +54,11 @@ def grade(qtype: str, data: dict, given: dict) -> tuple[float, bool]:
         return (frac, frac == 1.0)
 
     return (0.0, False)
+
+
+def retry_penalty(retries: int, hint_used: bool) -> float:
+    return max(0.10, 1.0 - 0.25 * retries - 0.20 * (1 if hint_used else 0))
+
+
+def score_retry(base_points: int, retries: int, hint_used: bool, streak_before: int) -> int:
+    return round(base_points * retry_penalty(retries, hint_used) * streak_multiplier(streak_before))
