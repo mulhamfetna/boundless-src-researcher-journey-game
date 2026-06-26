@@ -95,3 +95,58 @@ def test_leaderboard_after_submit(api_client):
     board = api_client.get("/api/leaderboard?slug=journals").json()
     assert board[0]["first_name"] == "Omar"
     assert board[0]["best_score"] > 0
+
+
+def _seed_order_question(client_db_conn):
+    import json as _j
+    client_db_conn.execute(
+        "INSERT INTO questions (quiz_id,type,prompt_ar,base_points,explanation_ar,source_page,data_json,display_order) "
+        "VALUES ((SELECT id FROM quizzes WHERE slug='journals'),'order','رتّب',100,'',1,?,9)",
+        (_j.dumps({"items_ar": ["A", "B", "C"], "correct_sequence": [2, 0, 1]}),),
+    )
+    client_db_conn.commit()
+
+
+def test_questions_exposes_order_items_no_answer(api_client):
+    main_module = __import__("app.main", fromlist=["app"])
+    _seed_order_question(main_module._conn)
+    qs = api_client.get("/api/quizzes/journals/questions").json()["questions"]
+    oq = [q for q in qs if q["type"] == "order"][0]
+    assert oq["items_ar"] == ["A", "B", "C"]
+    assert "correct_sequence" not in oq
+
+
+def test_submit_order_partial_and_first_finish_badge(api_client, monkeypatch):
+    import app.notify as notify
+    monkeypatch.setattr(notify, "send_report_dm", lambda *a, **k: True)
+    main_module = __import__("app.main", fromlist=["app"])
+    _seed_order_question(main_module._conn)
+    init = _init_data({"id": 555, "first_name": "Lina"})
+    qs = api_client.get("/api/quizzes/journals/questions").json()["questions"]
+    oq = [q for q in qs if q["type"] == "order"][0]
+    # correct order -> full credit
+    resp = api_client.post(
+        "/api/quizzes/journals/submit",
+        headers={"X-Init-Data": init},
+        json={"answers": [{"question_id": oq["id"], "sequence": [2, 0, 1], "time_ms": 800}], "duration_ms": 800},
+    )
+    body = resp.json()
+    assert resp.status_code == 200
+    assert body["items"][0]["is_correct"] is True
+    assert "first_finish" in body["earned_now"]
+
+
+def test_me_badges_requires_initdata(api_client):
+    assert api_client.get("/api/me/badges", headers={"X-Init-Data": "bad&hash=x"}).status_code == 401
+
+
+def test_overall_leaderboard(api_client, monkeypatch):
+    import app.notify as notify
+    monkeypatch.setattr(notify, "send_report_dm", lambda *a, **k: True)
+    init = _init_data({"id": 7, "first_name": "Omar"})
+    qs = api_client.get("/api/quizzes/journals/questions").json()["questions"]
+    mcq = [q for q in qs if q["type"] in ("mcq", "tf", "image")][0]
+    api_client.post("/api/quizzes/journals/submit", headers={"X-Init-Data": init},
+                    json={"answers": [{"question_id": mcq["id"], "index": 0, "time_ms": 500}], "duration_ms": 500})
+    board = api_client.get("/api/leaderboard?scope=overall").json()
+    assert board and "total_score" in board[0] and "top_badge" in board[0]
