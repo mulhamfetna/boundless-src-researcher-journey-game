@@ -141,7 +141,7 @@ The bot's own `/start` button also opens this same URL (already coded in
 - **Re-seed / update questions:** edit `content/questions/journals.json`, then
   re-run the Step 5 command. **Re-seeding replaces the quiz and clears that
   quiz's attempts/answers** (a content reset) — the leaderboard for it starts
-  fresh. Only re-seed when you intend to reset play data for that quiz.
+  fresh. Badges are contestant-scoped and are NOT cleared by re-seeding. Only re-seed when you intend to reset play data for that quiz.
 - **Logs:** `docker compose logs -f web bot cloudflared`.
 
 ## Upgrades (pulling new code)

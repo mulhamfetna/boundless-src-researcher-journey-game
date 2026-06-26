@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request
 
 from app import models, badges, notify
 from app.auth import validate_init_data, AuthError
@@ -54,7 +54,7 @@ def get_questions(slug: str, request: Request):
 
 
 @router.post("/quizzes/{slug}/submit")
-def submit(slug: str, payload: dict, request: Request, x_init_data: str = Header(default="")):
+def submit(slug: str, payload: dict, request: Request, background_tasks: BackgroundTasks, x_init_data: str = Header(default="")):
     conn = _conn(request)
     try:
         parsed = validate_init_data(x_init_data, settings.bot_token)
@@ -69,6 +69,7 @@ def submit(slug: str, payload: dict, request: Request, x_init_data: str = Header
         raise HTTPException(404, "quiz not found")
 
     qrows = {q["id"]: q for q in models.get_questions(conn, quiz["id"])}
+    total_questions = len(qrows)
 
     contestant_id = models.upsert_contestant(conn, user)
     is_first_finish = conn.execute(
@@ -92,7 +93,10 @@ def submit(slug: str, payload: dict, request: Request, x_init_data: str = Header
         processed += 1
         data = json.loads(q["data_json"])
         fraction, is_full = grade(q["type"], data, a)
-        time_ms = int(a.get("time_ms", 60000))
+        try:
+            time_ms = int(a.get("time_ms", 60000))
+        except (ValueError, TypeError):
+            time_ms = 60000
         pts = score_fraction(q["base_points"], fraction, time_ms, streak)
         bonus_sum += speed_bonus(time_ms)
         streak = streak + 1 if is_full else 0
@@ -100,9 +104,9 @@ def submit(slug: str, payload: dict, request: Request, x_init_data: str = Header
         if is_full:
             correct_count += 1
         total += pts
-        models.record_answer(conn, attempt_id, qid, a, is_full, int(a.get("time_ms", 0)), pts)
+        models.record_answer(conn, attempt_id, qid, a, is_full, time_ms, pts)
 
-    accuracy = correct_count / processed if processed else 0.0
+    accuracy = correct_count / total_questions if total_questions else 0.0
     models.finish_attempt(conn, attempt_id, total, accuracy, int(payload.get("duration_ms", 0)), _now(conn))
     models.set_attempt_max_streak(conn, attempt_id, max_streak)
 
@@ -119,7 +123,7 @@ def submit(slug: str, payload: dict, request: Request, x_init_data: str = Header
     report["attempt_id"] = attempt_id
     report["earned_now"] = earned_now
 
-    notify.send_report_dm(contestant_id, format_report_text(report, quiz["title_ar"]))
+    background_tasks.add_task(notify.send_report_dm, contestant_id, format_report_text(report, quiz["title_ar"]))
     return report
 
 

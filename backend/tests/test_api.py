@@ -138,6 +138,24 @@ def test_submit_order_partial_and_first_finish_badge(api_client, monkeypatch):
     assert "first_finish" in body["earned_now"]
 
 
+def test_partial_submission_does_not_earn_perfect(api_client, monkeypatch):
+    import app.notify as notify
+    monkeypatch.setattr(notify, "send_report_dm", lambda *a, **k: True)
+    main_module = __import__("app.main", fromlist=["app"])
+    _seed_order_question(main_module._conn)
+    init = _init_data({"id": 4242, "first_name": "Test"})
+    qs = api_client.get("/api/quizzes/journals/questions").json()["questions"]
+    oq = [q for q in qs if q["type"] == "order"][0]
+    resp = api_client.post(
+        "/api/quizzes/journals/submit",
+        headers={"X-Init-Data": init},
+        json={"answers": [{"question_id": oq["id"], "sequence": [2, 0, 1], "time_ms": 500}], "duration_ms": 500},
+    )
+    body = resp.json()
+    assert "perfect_quiz" not in body["earned_now"]
+    assert body["accuracy"] < 1.0
+
+
 def test_me_badges_requires_initdata(api_client):
     assert api_client.get("/api/me/badges", headers={"X-Init-Data": "bad&hash=x"}).status_code == 401
 

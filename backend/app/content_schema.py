@@ -42,6 +42,7 @@ def validate_quiz(doc: dict) -> None:
             for p in pairs:
                 _require(isinstance(p, list) and len(p) == 2, f"{where}: each pair is [left_idx, right_idx]")
                 li, ri = p
+                _require(isinstance(li, int) and isinstance(ri, int), f"{where}: pair indices must be integers")
                 _require(0 <= li < len(left), f"{where}: left index out of range")
                 _require(0 <= ri < len(right), f"{where}: right index out of range")
                 _require(li not in seen_left, f"{where}: left item {li} matched twice")
@@ -51,7 +52,7 @@ def validate_quiz(doc: dict) -> None:
             items = q.get("items_ar")
             _require(isinstance(items, list) and len(items) >= 2, f"{where}: items_ar needs >= 2 items")
             seq = q.get("correct_sequence")
-            _require(isinstance(seq, list) and sorted(seq) == list(range(len(items))),
+            _require(isinstance(seq, list) and all(isinstance(x, int) for x in seq) and sorted(seq) == list(range(len(items))),
                      f"{where}: correct_sequence must be a permutation of range(len(items_ar))")
 
         if "asset" in q:

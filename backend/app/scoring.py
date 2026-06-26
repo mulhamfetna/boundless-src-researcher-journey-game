@@ -29,7 +29,11 @@ def score_fraction(base_points: int, fraction: float, time_ms: int, streak_befor
 
 def grade(qtype: str, data: dict, given: dict) -> tuple[float, bool]:
     if qtype in ("mcq", "tf", "image"):
-        ok = given.get("index") is not None and int(given["index"]) == data["correct_index"]
+        gi = given.get("index")
+        try:
+            ok = gi is not None and int(gi) == data["correct_index"]
+        except (ValueError, TypeError):
+            ok = False
         return (1.0, True) if ok else (0.0, False)
 
     if qtype == "match":
@@ -45,7 +49,7 @@ def grade(qtype: str, data: dict, given: dict) -> tuple[float, bool]:
         given_seq = given.get("sequence", [])
         if len(given_seq) != len(seq) or not seq:
             return (0.0, False)
-        placed = sum(1 for i, v in enumerate(seq) if i < len(given_seq) and given_seq[i] == v)
+        placed = sum(1 for i, v in enumerate(seq) if given_seq[i] == v)
         frac = placed / len(seq)
         return (frac, frac == 1.0)
 

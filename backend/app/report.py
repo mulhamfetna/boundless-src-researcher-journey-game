@@ -67,7 +67,7 @@ def _describe(qtype, data, given):
         left, right = data["left_ar"], data["right_ar"]
         correct = "، ".join(f"{left[li]}↔{right[ri]}" for li, ri in data["correct_pairs"])
         gp = given.get("pairs", [])
-        your = "، ".join(f"{left[li]}↔{right[ri]}" for li, ri in gp if li < len(left) and ri < len(right)) or "—"
+        your = "، ".join(f"{left[li]}↔{right[ri]}" for li, ri in gp if 0 <= li < len(left) and 0 <= ri < len(right)) or "—"
         return your, correct
     if qtype == "order":
         items = data["items_ar"]

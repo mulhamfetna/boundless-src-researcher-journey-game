@@ -266,7 +266,7 @@ function renderReport(report) {
   const badgesBox = document.getElementById("report-badges");
   badgesBox.innerHTML = "";
   (report.earned_now || []).forEach((code) => {
-    const b = BADGES[code];
+    const b = BADGES[code]; if (!b) return;
     const span = document.createElement("span");
     span.className = "report-badge";
     span.textContent = `${b.ico} ${b.name_ar}`;
@@ -298,7 +298,7 @@ async function loadBoard(scope = "quiz") {
   board.forEach((r) => {
     const li = document.createElement("li");
     const score = scope === "overall" ? r.total_score : r.best_score;
-    const badge = r.top_badge ? `<span class="lb-badge">${BADGES[r.top_badge].ico}</span>` : "";
+    const badge = (r.top_badge && BADGES[r.top_badge]) ? `<span class="lb-badge">${BADGES[r.top_badge].ico}</span>` : "";
     li.innerHTML = `${r.first_name} — ${score}${badge}`;
     ol.appendChild(li);
   });
@@ -310,7 +310,7 @@ async function loadBoard(scope = "quiz") {
 
 async function loadBadges() {
   let earned = [];
-  try { earned = (await api("/me/badges", { headers: { "X-Init-Data": tg.initData } })).badges; }
+  try { earned = (await api("/me/badges", { headers: { "X-Init-Data": tg.initData } })).badges || []; }
   catch (e) { earned = []; }
   const grid = document.getElementById("badges-grid");
   grid.className = "badges-grid";
