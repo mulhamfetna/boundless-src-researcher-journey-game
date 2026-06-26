@@ -139,5 +139,23 @@ The bot's own `/start` button also opens this same URL (already coded in
 - **Lock it down (optional):** once the tunnel works, delete the `ports:` block
   from the `web` service so the app is reachable *only* through Cloudflare.
 - **Re-seed / update questions:** edit `content/questions/journals.json`, then
-  re-run the Step 5 command (the seed loader is idempotent on the quiz slug).
+  re-run the Step 5 command. **Re-seeding replaces the quiz and clears that
+  quiz's attempts/answers** (a content reset) — the leaderboard for it starts
+  fresh. Only re-seed when you intend to reset play data for that quiz.
 - **Logs:** `docker compose logs -f web bot cloudflared`.
+
+## Upgrades (pulling new code)
+
+After pulling new code that changes the backend or schema:
+
+```bash
+docker compose build web bot
+docker compose run --rm web python -m app.migrate   # idempotent; prints changes or "already current"
+# re-seed only if content changed (this resets that quiz's play data):
+docker compose run --rm web python -c "import sys; sys.path.insert(0,'.'); from app.db import connect; from app.seed import seed_from_file; c=connect('/data/quiz.db'); print('seeded', seed_from_file(c,'/srv/content/questions/journals.json'))"
+docker compose up -d web bot cloudflared
+```
+
+`app.migrate` is safe to run repeatedly — it adds the `max_streak` column,
+drops the legacy question-type CHECK, and ensures the `badges` table +
+`UNIQUE(contestant_id, code)` exist, skipping whatever is already current.
