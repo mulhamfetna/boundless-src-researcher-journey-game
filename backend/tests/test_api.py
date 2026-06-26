@@ -55,6 +55,9 @@ def test_get_questions_exposes_answer_key(api_client):
     body = api_client.get("/api/quizzes/journals/questions").json()
     assert "correct_index" in body["questions"][0]
     assert "fun_facts_ar" in body
+    q0 = body["questions"][0]
+    assert "hint_ar" in q0
+    assert "option_explanations_ar" in q0  # first question is an option type
 
 
 def test_submit_scores_and_returns_report(api_client):

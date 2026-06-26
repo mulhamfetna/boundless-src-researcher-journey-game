@@ -208,7 +208,11 @@ function checkComplex(givenExtra) {
     if (!correct) {
       state.curRetries += 1;
       const rows = [...document.querySelectorAll(".order-row")];
-      rows.forEach((r, i) => r.classList.toggle("wrong", Number(r.dataset.orig) !== q.correct_sequence[i]));
+      rows.forEach((r, i) => {
+        const isCorrect = Number(r.dataset.orig) === q.correct_sequence[i];
+        r.classList.toggle("wrong", !isCorrect);
+        r.classList.toggle("correct", isCorrect);
+      });
       return;
     }
   } else { // match
@@ -221,6 +225,7 @@ function checkComplex(givenExtra) {
         const chip = slot.querySelector(".chip");
         const ok = chip && want.has([slot.dataset.left, chip.dataset.right].join(","));
         slot.classList.toggle("wrong", !ok);
+        slot.classList.toggle("correct", ok);
       });
       return;
     }
@@ -233,6 +238,7 @@ function renderQuestion() {
   const q = state.questions[state.idx];
   state.curRetries = 0;
   state.curHint = false;
+  document.getElementById("q-feedback").textContent = "";
   const hintBtn = document.getElementById("q-hint-btn");
   const hintBox = document.getElementById("q-hint");
   hintBox.classList.add("hidden");
@@ -321,7 +327,7 @@ async function submit() {
 }
 
 function renderReport(report) {
-  const correct = report.items.filter((i) => i.is_correct).length;
+  const correct = report.items.filter((i) => i.first_try).length;
   document.getElementById("report-summary").innerHTML =
     `<div class="summary-big">${report.total_score} نقطة</div>` +
     `<div style="text-align:center">صحيح ${correct}/${report.items.length} — الترتيب #${report.rank}</div>`;

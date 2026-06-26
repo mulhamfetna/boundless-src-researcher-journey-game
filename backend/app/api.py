@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request
 from app import models, badges, notify
 from app.auth import validate_init_data, AuthError
 from app.config import settings
-from app.scoring import grade, score_fraction, speed_bonus, score_retry
+from app.scoring import score_retry
 
 router = APIRouter(prefix="/api")
 
@@ -71,7 +71,6 @@ def submit(slug: str, payload: dict, request: Request, background_tasks: Backgro
         raise HTTPException(404, "quiz not found")
 
     qrows = {q["id"]: q for q in models.get_questions(conn, quiz["id"])}
-    total_questions = len(qrows)
 
     contestant_id = models.upsert_contestant(conn, user)
     is_first_finish = conn.execute(

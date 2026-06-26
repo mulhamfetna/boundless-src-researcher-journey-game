@@ -18,12 +18,11 @@ def build_report(conn, attempt_id: int) -> dict:
     for ans in answers:
         q = conn.execute("SELECT * FROM questions WHERE id = ?", (ans["question_id"],)).fetchone()
         data = json.loads(q["data_json"])
-        given = json.loads(ans["given_json"])
         asset = conn.execute(
             "SELECT file_path FROM assets WHERE question_id = ? LIMIT 1", (q["id"],)
         ).fetchone()
 
-        your_ar, correct_ar = _describe(q["type"], data, {})
+        _, correct_ar = _describe(q["type"], data, {})
         items.append({
             "type": q["type"], "prompt_ar": q["prompt_ar"], "is_correct": bool(ans["is_correct"]),
             "correct_ar": correct_ar, "retries": ans["retries"], "hint_used": bool(ans["hint_used"]),
@@ -76,7 +75,7 @@ def _describe(qtype, data, given):
 
 
 def format_report_text(report: dict, title_ar: str) -> str:
-    correct = sum(1 for it in report["items"] if it["is_correct"])
+    correct = sum(1 for it in report["items"] if it.get("first_try"))
     total = len(report["items"])
     pct = round(report["accuracy"] * 100)
     lines = [
