@@ -1,5 +1,12 @@
 import json
 
+_BADGE_AR = {
+    "perfect_quiz": "🏅الإتقان",
+    "speed_demon": "⚡البرق",
+    "streak_master": "🔥السلسلة",
+    "first_finish": "🌟البداية",
+}
+
 
 def build_report(conn, attempt_id: int) -> dict:
     attempt = conn.execute("SELECT * FROM attempts WHERE id = ?", (attempt_id,)).fetchone()
@@ -11,15 +18,18 @@ def build_report(conn, attempt_id: int) -> dict:
     for ans in answers:
         q = conn.execute("SELECT * FROM questions WHERE id = ?", (ans["question_id"],)).fetchone()
         data = json.loads(q["data_json"])
+        given = json.loads(ans["given_json"])
         asset = conn.execute(
             "SELECT file_path FROM assets WHERE question_id = ? LIMIT 1", (q["id"],)
         ).fetchone()
+
+        your_ar, correct_ar = _describe(q["type"], data, given)
         items.append({
+            "type": q["type"],
             "prompt_ar": q["prompt_ar"],
-            "options_ar": data["options_ar"],
-            "correct_index": data["correct_index"],
-            "given_index": json.loads(ans["given_json"]).get("index"),
             "is_correct": bool(ans["is_correct"]),
+            "your_ar": your_ar,
+            "correct_ar": correct_ar,
             "explanation_ar": q["explanation_ar"],
             "source_page": q["source_page"],
             "asset_file": asset["file_path"] if asset else None,
@@ -34,22 +44,50 @@ def build_report(conn, attempt_id: int) -> dict:
         (attempt["quiz_id"], attempt["total_score"]),
     ).fetchone()
 
+    from app.badges import get_badges
     return {
         "total_score": attempt["total_score"],
         "accuracy": attempt["accuracy"],
         "duration_ms": attempt["duration_ms"],
+        "max_streak": attempt["max_streak"],
         "rank": rank_row["rank"],
         "items": items,
+        "all_badges": get_badges(conn, attempt["contestant_id"]),
     }
+
+
+def _describe(qtype, data, given):
+    """Return (your_ar, correct_ar) human-readable answer strings."""
+    if qtype in ("mcq", "tf", "image"):
+        opts = data["options_ar"]
+        gi = given.get("index")
+        your = opts[gi] if isinstance(gi, int) and 0 <= gi < len(opts) else "—"
+        return your, opts[data["correct_index"]]
+    if qtype == "match":
+        left, right = data["left_ar"], data["right_ar"]
+        correct = "، ".join(f"{left[li]}↔{right[ri]}" for li, ri in data["correct_pairs"])
+        gp = given.get("pairs", [])
+        your = "، ".join(f"{left[li]}↔{right[ri]}" for li, ri in gp if li < len(left) and ri < len(right)) or "—"
+        return your, correct
+    if qtype == "order":
+        items = data["items_ar"]
+        correct = " ← ".join(items[i] for i in data["correct_sequence"])
+        gs = given.get("sequence", [])
+        your = " ← ".join(items[i] for i in gs if 0 <= i < len(items)) or "—"
+        return your, correct
+    return "—", "—"
 
 
 def format_report_text(report: dict, title_ar: str) -> str:
     correct = sum(1 for it in report["items"] if it["is_correct"])
     total = len(report["items"])
     pct = round(report["accuracy"] * 100)
-    return (
-        f"🏁 نتيجتك في: {title_ar}\n"
-        f"النقاط: {report['total_score']}\n"
-        f"الإجابات الصحيحة: {correct}/{total} ({pct}%)\n"
-        f"الترتيب: #{report['rank']}"
-    )
+    lines = [
+        f"🏁 نتيجتك في: {title_ar}",
+        f"النقاط: {report['total_score']}",
+        f"الإجابات الصحيحة: {correct}/{total} ({pct}%)",
+        f"الترتيب: #{report['rank']}",
+    ]
+    if report.get("all_badges"):
+        lines.append("الأوسمة: " + " ".join(_BADGE_AR.get(b, b) for b in report["all_badges"]))
+    return "\n".join(lines)
