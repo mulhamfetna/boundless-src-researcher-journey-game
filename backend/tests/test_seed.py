@@ -1,5 +1,8 @@
 import json as _json
-from app.models import get_quiz_by_slug, get_questions, get_asset_for_question
+from app.models import (
+    get_quiz_by_slug, get_questions, get_asset_for_question,
+    upsert_contestant, create_attempt, record_answer,
+)
 from app.seed import seed_quiz
 from tests.conftest import SAMPLE_DOC
 
@@ -25,6 +28,26 @@ def test_seed_is_idempotent(conn):
     seed_quiz(conn, SAMPLE_DOC)
     seed_quiz(conn, SAMPLE_DOC)
     assert len(get_questions(conn, get_quiz_by_slug(conn, "journals")["id"])) == 2
+
+
+def test_seed_replaces_quiz_with_live_play_data(conn):
+    """Re-seeding a quiz that has real attempts/answers must not raise FK errors."""
+    # Initial seed.
+    quiz_id = seed_quiz(conn, SAMPLE_DOC)
+    questions = get_questions(conn, quiz_id)
+
+    # Simulate live play data: one contestant, one attempt, one answer.
+    uid = upsert_contestant(conn, {"id": 42, "first_name": "Test"})
+    attempt_id = create_attempt(conn, uid, quiz_id, "async", "2026-01-01T00:00:00")
+    record_answer(conn, attempt_id, questions[0]["id"], 2, True, 1000, 100)
+
+    # Re-seed (content reset) — must NOT raise FOREIGN KEY constraint failed.
+    new_quiz_id = seed_quiz(conn, SAMPLE_DOC)
+
+    # Quiz is still intact with expected questions.
+    new_questions = get_questions(conn, new_quiz_id)
+    assert len(new_questions) == 2
+    assert new_questions[0]["prompt_ar"] == "سؤال 1"
 
 
 def test_seed_stores_match_and_order_payloads(conn):

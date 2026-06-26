@@ -12,6 +12,11 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
     ).fetchone()
     if existing:
         qid = existing["id"]
+        conn.execute(
+            "DELETE FROM answers WHERE attempt_id IN (SELECT id FROM attempts WHERE quiz_id=?)",
+            (qid,),
+        )
+        conn.execute("DELETE FROM attempts WHERE quiz_id = ?", (qid,))
         conn.execute("DELETE FROM assets WHERE quiz_id = ?", (qid,))
         conn.execute("DELETE FROM questions WHERE quiz_id = ?", (qid,))
         conn.execute("DELETE FROM quizzes WHERE id = ?", (qid,))

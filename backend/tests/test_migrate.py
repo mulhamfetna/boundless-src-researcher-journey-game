@@ -71,3 +71,23 @@ def test_migrate_idempotent_on_fresh_install(tmp_path):
     conn = connect(str(tmp_path / "fresh.db"))
     init_schema(conn)            # current schema, nothing to migrate
     assert migrate(conn) == []
+
+
+def test_migrate_creates_badges_if_missing(tmp_path):
+    """Phase 1 DB has no badges table — migrate() must create it."""
+    conn = _old_db(str(tmp_path / "no_badges.db"))
+    # Drop the badges table to simulate a real Phase 1 database.
+    conn.execute("DROP TABLE badges")
+    conn.commit()
+
+    changes = migrate(conn)
+    assert "badges.create" in changes
+
+    # Table must now exist.
+    row = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='badges'"
+    ).fetchone()
+    assert row is not None
+
+    # Second run is fully idempotent.
+    assert migrate(conn) == []

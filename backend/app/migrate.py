@@ -63,6 +63,22 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         conn.execute("PRAGMA foreign_keys=ON")
         changes.append("questions.drop_check")
 
+    # Ensure badges table exists (Phase 1 DBs never had it).
+    badges_exists = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='badges'"
+    ).fetchone()
+    if not badges_exists:
+        conn.execute(
+            """CREATE TABLE badges (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                contestant_id INTEGER NOT NULL REFERENCES contestants(telegram_user_id),
+                code TEXT NOT NULL,
+                earned_at TEXT NOT NULL,
+                UNIQUE(contestant_id, code)
+            )"""
+        )
+        changes.append("badges.create")
+
     # Ensure UNIQUE(contestant_id, code) on badges.
     if not _badges_has_unique(conn):
         # de-dup any existing rows first, then add the unique index
