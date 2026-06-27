@@ -356,6 +356,17 @@ function renderQuestion() {
   }
   document.getElementById("screen-runner").classList.toggle("boss", isBoss);
   const q = state.questions[state.idx];
+  const passEl = document.getElementById("q-passage");
+  if (passEl) {
+    if (q.passage) {
+      const src = q.source_url ? ` <a href="${q.source_url}" target="_blank" rel="noopener">المصدر</a>` : "";
+      passEl.innerHTML = `<div class="passage-text" dir="ltr">${q.passage}</div><div class="passage-src">${src}</div>`;
+      passEl.classList.remove("hidden");
+    } else {
+      passEl.classList.add("hidden");
+      passEl.innerHTML = "";
+    }
+  }
   state.curRetries = 0;
   state.curHint = false;
   document.getElementById("q-feedback").textContent = "";
@@ -476,6 +487,7 @@ function renderReport(report) {
     const tries = it.first_try ? "من أول محاولة ✅" : `محاولات: ${it.retries + 1}${it.hint_used ? " · استُخدم تلميح" : ""}`;
     div.className = "report-item " + (it.first_try ? "good" : "bad");
     div.innerHTML =
+      (it.passage ? `<div class="passage-text" dir="ltr">${it.passage}</div>` : "") +
       `<div>${it.prompt_ar}</div>` +
       `<div>${tries}</div>` +
       `<div>الصحيح: ${it.correct_ar}</div>` +

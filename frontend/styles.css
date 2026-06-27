@@ -215,3 +215,11 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .report-text { width:100%; padding:12px; border:3px solid var(--ink); border-radius:4px;
   background:var(--panel); color:var(--fg); font-family:var(--font-body); font-size:1rem; resize:vertical; }
 #report-status { min-height:1.4em; margin:8px 0; color:var(--gold); }
+
+/* ---- applied real-paper passage block ---- */
+.passage { margin:8px 0 12px; }
+.passage-text { background:var(--ink); border:3px solid var(--panel2); border-radius:4px; padding:12px;
+  font-family:ui-monospace, Menlo, Consolas, monospace; font-size:.92rem; line-height:1.6; color:#dfe8ff;
+  max-height:38vh; overflow:auto; text-align:left; }
+.passage-src { text-align:left; margin-top:4px; }
+.passage-src a { color:var(--gold); font-size:.8rem; }
