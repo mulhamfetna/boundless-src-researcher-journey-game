@@ -583,6 +583,56 @@
         "الإرسال المتزامن لعدة مجلات مخالفة أخلاقية."
       ],
       "hint_ar": "أين تجد قواعد كل نوع، وهل تُحترَم أم تُتجاهل؟"
+    },
+    {
+      "type": "image",
+      "concept": "review_types",
+      "base_points": 118,
+      "prompt_ar": "هذه لقطة من ملخّص ورقة منشورة حقيقية. ما نوع هذه الورقة؟",
+      "asset": {
+        "file": "assets/papers/survey_abstract.png",
+        "source_url": "https://arxiv.org/abs/2106.04554"
+      },
+      "options_ar": [
+        "بحث أصلي (Original Research)",
+        "ورقة مراجعة/مسح (Survey/Review)",
+        "تقرير حالة (Case Report)",
+        "افتتاحية (Editorial)"
+      ],
+      "correct_index": 1,
+      "option_explanations_ar": [
+        "البحث الأصلي يقدّم تجربة/نموذجاً جديداً لا تلخيصاً.",
+        "صحيح؛ «In this survey ... comprehensive review» = ورقة مراجعة.",
+        "تقرير الحالة يصف حالة فردية.",
+        "الافتتاحية رأي قصير."
+      ],
+      "hint_ar": "ابحث عن جملة «In this survey, we provide a comprehensive review ...» — تكشف نوع الورقة.",
+      "explanation_ar": "تصرّح الورقة بأنها «survey» تقدّم «comprehensive review» وتقترح تصنيفاً للأنواع — هذه ورقة مراجعة/مسح."
+    },
+    {
+      "type": "image",
+      "concept": "original_research",
+      "base_points": 118,
+      "prompt_ar": "هذه لقطة من ملخّص ورقة منشورة حقيقية. ما نوع هذه الورقة؟",
+      "asset": {
+        "file": "assets/paper-parts/transformer_abstract.png",
+        "source_url": "https://arxiv.org/abs/1706.03762"
+      },
+      "options_ar": [
+        "ورقة مراجعة (Review)",
+        "تحليل تلوي (Meta-analysis)",
+        "بحث أصلي يقدّم نموذجاً وتجارب جديدة (Original Research)",
+        "رسالة إلى المحرر"
+      ],
+      "correct_index": 2,
+      "option_explanations_ar": [
+        "المراجعة تلخّص ولا تقدّم نموذجاً جديداً.",
+        "التحليل التلوي يدمج دراسات سابقة.",
+        "صحيح؛ اقتراح نموذج جديد + تجارب + نتائج = بحث أصلي.",
+        "الرسالة تعقيب قصير لا بحث."
+      ],
+      "hint_ar": "هل تقترح الورقة نموذجاً جديداً وتُجري تجارب، أم تلخّص أعمال غيرها؟",
+      "explanation_ar": "الورقة تقترح بنية جديدة (Transformer) وتجري تجارب وتُبلغ عن نتائج (BLEU) — هذا بحث أصلي (Original Research)."
     }
   ]
 }
