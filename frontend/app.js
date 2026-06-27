@@ -279,6 +279,7 @@ function pickOption(btn, index) {
     const fb = document.getElementById("q-feedback");
     fb.textContent = "✅ " + (q.option_explanations_ar[index] || "إجابة صحيحة");
     recordAndAdvance(q);
+    if (typeof burst === "function") burst(btn, { count: 10 });
   } else {
     btn.classList.add("wrong");
     btn.disabled = true;
@@ -356,6 +357,7 @@ function renderReport(report) {
     box.appendChild(div);
   });
 
+  if (typeof confetti === "function" && correct >= Math.ceil(report.items.length / 2)) confetti();
   document.getElementById("btn-board").onclick = () => loadBoard("quiz");
 }
 

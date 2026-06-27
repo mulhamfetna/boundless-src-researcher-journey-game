@@ -98,3 +98,22 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .dash-history { list-style: none; padding: 0; }
 .dash-history li { background: var(--card); border-radius: 10px; padding: 10px; margin: 6px 0; }
 .dash-history small { color: #9aa4bf; }
+
+/* ---- P1 motion ---- */
+.screen { animation: screen-in .28s cubic-bezier(.2,.7,.2,1); }
+@keyframes screen-in { from{opacity:0; transform:translateY(14px) scale(.99);} to{opacity:1; transform:none;} }
+.opt.correct { animation: pop-good .35s ease; }
+@keyframes pop-good { 0%{transform:scale(1);} 40%{transform:scale(1.04);} 100%{transform:scale(1);} }
+.opt.wrong { animation: shake .3s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+#fx-layer { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9999; }
+.confetti-piece {
+  position:fixed; width:9px; height:9px; border-radius:2px; opacity:.95;
+  animation: confetti-fall var(--d,1s) cubic-bezier(.3,.6,.4,1) forwards;
+  transform:translateX(calc(var(--x,0) * 40px)) rotate(var(--r,0));
+}
+@keyframes confetti-fall {
+  to { transform:translate(calc(var(--x,0) * 120px), 70vh) rotate(calc(var(--r,0) + 360deg)); opacity:0; }
+}
+.level-bar { height:10px; border-radius:999px; background:#ffffff1a; overflow:hidden; }
+.level-bar > i { display:block; height:100%; background:linear-gradient(90deg,var(--accent2),var(--gold)); transition:width .6s cubic-bezier(.2,.8,.2,1); }
