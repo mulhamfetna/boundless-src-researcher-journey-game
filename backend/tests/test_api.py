@@ -172,3 +172,23 @@ def test_overall_leaderboard(api_client, monkeypatch):
                     json={"answers": [{"question_id": mcq["id"], "retries": 0, "hint_used": False}], "duration_ms": 500})
     board = api_client.get("/api/leaderboard?scope=overall").json()
     assert board and "total_score" in board[0] and "top_badge" in board[0]
+
+
+def test_get_questions_samples_to_sample_size(tmp_path):
+    conn = connect(str(tmp_path / "s.db"))
+    init_schema(conn)
+    questions = [
+        {"type": "tf", "prompt_ar": f"س{i}", "options_ar": ["صح", "خطأ"],
+         "correct_index": i % 2, "concept": ["a", "b", "c"][i % 3]}
+        for i in range(15)
+    ]
+    seed_quiz(conn, {"slug": "big", "title_ar": "ك", "pdf_filename": "x.pdf",
+                     "questions": questions})
+    main_module.app.state.conn = conn
+    c = TestClient(main_module.app)
+
+    body = c.get("/api/quizzes/big/questions").json()
+    assert len(body["questions"]) == 10
+    assert all("concept" in q for q in body["questions"])
+    ids = {q["id"] for q in body["questions"]}
+    assert len(ids) == 10  # no duplicates

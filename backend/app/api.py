@@ -1,10 +1,12 @@
 import json
+import random
 
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request
 
 from app import models, badges, notify
 from app.auth import validate_init_data, AuthError
 from app.config import settings
+from app.sampling import sample_questions
 from app.scoring import score_retry
 
 router = APIRouter(prefix="/api")
@@ -39,7 +41,7 @@ def get_questions(slug: str, request: Request):
         item = {
             "id": q["id"], "type": q["type"], "prompt_ar": q["prompt_ar"],
             "base_points": q["base_points"], "asset_file": asset["file_path"] if asset else None,
-            "hint_ar": data.get("hint_ar", ""),
+            "hint_ar": data.get("hint_ar", ""), "concept": data.get("concept", ""),
         }
         if q["type"] in ("mcq", "tf", "image"):
             item["options_ar"] = data["options_ar"]
@@ -51,8 +53,9 @@ def get_questions(slug: str, request: Request):
         elif q["type"] == "order":
             item["items_ar"] = data["items_ar"]; item["correct_sequence"] = data["correct_sequence"]
         out.append(item)
+    sampled = sample_questions(out, settings.sample_size, random.Random())
     return {"quiz": {"slug": quiz["slug"], "title_ar": quiz["title_ar"]},
-            "questions": out, "fun_facts_ar": funfacts}
+            "questions": sampled, "fun_facts_ar": funfacts}
 
 
 @router.post("/quizzes/{slug}/submit")
