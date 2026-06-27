@@ -99,3 +99,59 @@ def leaderboard_overall(conn, limit=20):
         """,
         (limit,),
     ).fetchall()
+
+
+def get_contestant_answers(conn, contestant_id):
+    rows = conn.execute(
+        """
+        SELECT q.data_json AS data_json, ans.retries AS retries, ans.hint_used AS hint_used,
+               qz.slug AS quiz_slug
+        FROM answers ans
+        JOIN attempts a ON a.id = ans.attempt_id
+        JOIN questions q ON q.id = ans.question_id
+        JOIN quizzes qz ON qz.id = q.quiz_id
+        WHERE a.contestant_id = ? AND a.finished_at IS NOT NULL
+        ORDER BY a.finished_at ASC, ans.id ASC
+        """,
+        (contestant_id,),
+    ).fetchall()
+    out = []
+    for order, r in enumerate(rows):
+        concept = json.loads(r["data_json"]).get("concept", "")
+        out.append({
+            "concept": concept,
+            "retries": r["retries"],
+            "hint_used": r["hint_used"],
+            "quiz_slug": r["quiz_slug"],
+            "order": order,
+        })
+    return out
+
+
+def get_contestant_attempts(conn, contestant_id):
+    rows = conn.execute(
+        """
+        SELECT qz.slug AS quiz_slug, qz.title_ar AS quiz_title_ar,
+               a.total_score AS total_score, a.accuracy AS accuracy,
+               a.max_streak AS max_streak, a.finished_at AS finished_at
+        FROM attempts a
+        JOIN quizzes qz ON qz.id = a.quiz_id
+        WHERE a.contestant_id = ? AND a.finished_at IS NOT NULL
+        ORDER BY a.finished_at DESC
+        """,
+        (contestant_id,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def quiz_of_concept(conn):
+    rows = conn.execute(
+        """SELECT q.data_json AS data_json, qz.slug AS quiz_slug, qz.title_ar AS quiz_title_ar
+           FROM questions q JOIN quizzes qz ON qz.id = q.quiz_id"""
+    ).fetchall()
+    mapping = {}
+    for r in rows:
+        concept = json.loads(r["data_json"]).get("concept", "")
+        if concept and concept not in mapping:
+            mapping[concept] = {"quiz_slug": r["quiz_slug"], "quiz_title_ar": r["quiz_title_ar"]}
+    return mapping
