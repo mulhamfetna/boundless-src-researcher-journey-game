@@ -1,0 +1,41 @@
+# Build context trimming — keep only what the runtime image needs
+# (backend/app + pyproject, frontend html/js/css, content/{questions,assets}).
+
+# VCS, docs, specs
+.git
+.gitignore
+docs
+*.md
+
+# Source PDFs (large, not used at runtime)
+*.pdf
+
+# Secrets & local state
+.env
+.env.example
+*.db
+*.sqlite3
+
+# Python caches / build artifacts
+**/__pycache__
+**/*.pyc
+backend/.pytest_cache
+backend/*.egg-info
+
+# Tests (not needed in the served image)
+backend/tests
+frontend/tests
+
+# Frontend dev/test tooling (runtime is dependency-free)
+**/node_modules
+frontend/package.json
+frontend/package-lock.json
+frontend/vitest.config.js
+
+# Extracted PDF text and image candidates not served at runtime
+content/raw
+content/assets/**/candidates
+
+# Dev scripts & tooling
+scripts
+.claude
