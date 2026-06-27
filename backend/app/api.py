@@ -112,8 +112,10 @@ def submit(slug: str, payload: dict, request: Request, background_tasks: Backgro
     models.finish_attempt(conn, attempt_id, total, accuracy, int(payload.get("duration_ms", 0)), _now(conn))
     models.set_attempt_max_streak(conn, attempt_id, max_streak)
 
+    perfect_min = min(settings.sample_size, len(qrows))
     summary = {"accuracy": accuracy, "max_streak": max_streak,
-               "hints_used": hints_used, "is_first_finish": is_first_finish}
+               "hints_used": hints_used, "is_first_finish": is_first_finish,
+               "answered": answered, "perfect_min": perfect_min}
     earned_now = badges.award(conn, contestant_id, badges.evaluate(summary), _now(conn))
 
     from app.report import build_report, format_report_text

@@ -34,3 +34,10 @@ def test_top_badge_priority(conn):
     award(conn, 1, ["perfect_quiz"], "2026-06-26T10:01:00")
     assert top_badge(conn, 1) == "perfect_quiz"
     assert top_badge(conn, 999) is None
+
+
+def test_perfect_quiz_requires_full_sample():
+    # accuracy 1.0 but fewer answered than the threshold -> no perfect
+    assert "perfect_quiz" not in evaluate({"accuracy": 1.0, "answered": 1, "perfect_min": 10})
+    # full sample answered, flawless -> perfect
+    assert "perfect_quiz" in evaluate({"accuracy": 1.0, "answered": 10, "perfect_min": 10})

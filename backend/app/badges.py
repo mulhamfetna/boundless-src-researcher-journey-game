@@ -7,7 +7,10 @@ STREAK_MASTER_MIN = 5
 
 def evaluate(summary: dict) -> list[str]:
     codes = []
-    if summary.get("accuracy", 0) >= 1.0:
+    perfect_min = summary.get("perfect_min", 0)
+    # Perfect requires a flawless run AND a full sample's worth of answers, so a
+    # partial submission (e.g. answering 1 of the sampled questions) can't game it.
+    if summary.get("accuracy", 0) >= 1.0 and summary.get("answered", perfect_min) >= perfect_min:
         codes.append("perfect_quiz")
     if summary.get("hints_used", 1) == 0:
         codes.append("self_reliant")

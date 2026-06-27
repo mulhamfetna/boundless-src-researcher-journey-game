@@ -154,8 +154,9 @@ def test_partial_submission_does_not_earn_perfect(api_client, monkeypatch):
         json={"answers": [{"question_id": oq["id"], "retries": 0, "hint_used": False}], "duration_ms": 500},
     )
     body = resp.json()
+    # Even though answering 1 question first-try makes per-answered accuracy 1.0,
+    # perfect_quiz is gated on answering a full sample, so it isn't earned here.
     assert "perfect_quiz" not in body["earned_now"]
-    assert body["accuracy"] < 1.0
 
 
 def test_me_badges_requires_initdata(api_client):
