@@ -15,6 +15,7 @@ SAMPLE_DOC = {
             "base_points": 100,
             "explanation_ar": "شرح 1",
             "source_page": 3,
+            "concept": "predatory_signs",
             "options_ar": ["أ", "ب", "ج", "د"],
             "correct_index": 2,
         },
@@ -24,6 +25,7 @@ SAMPLE_DOC = {
             "base_points": 100,
             "explanation_ar": "شرح 2",
             "source_page": 5,
+            "concept": "predatory_signs",
             "options_ar": ["اليسار", "اليمين"],
             "correct_index": 0,
             "asset": {

@@ -57,9 +57,9 @@ def test_seed_stores_match_and_order_payloads(conn):
         "slug": "mix", "title_ar": "t", "pdf_filename": "f.pdf",
         "questions": [
             {"type": "match", "prompt_ar": "طابق", "left_ar": ["L0", "L1"],
-             "right_ar": ["R0", "R1"], "correct_pairs": [[0, 1], [1, 0]]},
+             "right_ar": ["R0", "R1"], "correct_pairs": [[0, 1], [1, 0]], "concept": "indexing"},
             {"type": "order", "prompt_ar": "رتّب", "items_ar": ["A", "B"],
-             "correct_sequence": [1, 0]},
+             "correct_sequence": [1, 0], "concept": "indexing"},
         ],
     }
     seed_quiz(conn, doc)
@@ -77,6 +77,7 @@ def test_seed_stores_explainers_hint_funfacts(conn):
         "questions": [{
             "type": "mcq", "prompt_ar": "س", "options_ar": ["أ", "ب", "ج", "د"],
             "correct_index": 2, "option_explanations_ar": ["لا", "لا", "نعم", "لا"], "hint_ar": "فكّر",
+            "concept": "indexing",
         }],
     }
     seed_quiz(conn, doc)

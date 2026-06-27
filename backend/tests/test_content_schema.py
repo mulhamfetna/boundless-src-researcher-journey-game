@@ -11,12 +11,14 @@ def _good_doc():
             {
                 "type": "mcq",
                 "prompt_ar": "سؤال",
+                "concept": "indexing",
                 "options_ar": ["أ", "ب", "ج", "د"],
                 "correct_index": 1,
             },
             {
                 "type": "image",
                 "prompt_ar": "أيهما حقيقي؟",
+                "concept": "predatory_signs",
                 "options_ar": ["اليسار", "اليمين"],
                 "correct_index": 0,
                 "asset": {"file": "assets/journals/a.png", "source_url": "https://e.x/a"},
@@ -62,7 +64,7 @@ def test_tf_must_have_two_options():
 def test_valid_match_passes():
     doc = _good_doc()
     doc["questions"].append({
-        "type": "match", "prompt_ar": "طابق",
+        "type": "match", "prompt_ar": "طابق", "concept": "indexing",
         "left_ar": ["L0", "L1"], "right_ar": ["R0", "R1"],
         "correct_pairs": [[0, 1], [1, 0]],
     })
@@ -72,7 +74,7 @@ def test_valid_match_passes():
 def test_valid_order_passes():
     doc = _good_doc()
     doc["questions"].append({
-        "type": "order", "prompt_ar": "رتّب",
+        "type": "order", "prompt_ar": "رتّب", "concept": "indexing",
         "items_ar": ["A", "B", "C"], "correct_sequence": [2, 0, 1],
     })
     validate_quiz(doc)
@@ -117,5 +119,13 @@ def test_valid_explanations_hint_funfacts_pass():
 def test_funfacts_must_be_list_of_str():
     doc = _good_doc()
     doc["fun_facts_ar"] = "ليست قائمة"
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)
+
+
+def test_missing_concept_fails():
+    doc = _good_doc()
+    for q in doc["questions"]:
+        q.pop("concept", None)
     with pytest.raises(SchemaError):
         validate_quiz(doc)

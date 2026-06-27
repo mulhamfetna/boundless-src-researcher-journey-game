@@ -24,6 +24,8 @@ def validate_quiz(doc: dict) -> None:
         where = f"question[{i}]"
         _require(q.get("type") in VALID_TYPES, f"{where}: bad type {q.get('type')!r}")
         _require(bool(q.get("prompt_ar")), f"{where}: empty prompt_ar")
+        _require(isinstance(q.get("concept"), str) and q["concept"].strip(),
+                 f"{where}: missing non-empty concept")
 
         if q["type"] in ("mcq", "tf", "image"):
             options = q.get("options_ar")

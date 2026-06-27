@@ -8,7 +8,8 @@ def _write(dir, slug, n):
     doc = {
         "slug": slug, "title_ar": f"عنوان {slug}", "pdf_filename": f"{slug}.pdf",
         "questions": [
-            {"type": "mcq", "prompt_ar": f"س{i}", "options_ar": ["أ", "ب"], "correct_index": 0}
+            {"type": "mcq", "prompt_ar": f"س{i}", "options_ar": ["أ", "ب"], "correct_index": 0,
+             "concept": "indexing"}
             for i in range(n)
         ],
     }
