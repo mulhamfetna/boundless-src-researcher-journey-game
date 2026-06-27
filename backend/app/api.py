@@ -205,5 +205,40 @@ def me_dashboard(request: Request, x_init_data: str = Header(default="")):
     }
 
 
+@router.post("/report")
+def report(payload: dict, request: Request, x_init_data: str = Header(default="")):
+    conn = _conn(request)
+    try:
+        parsed = validate_init_data(x_init_data, settings.bot_token)
+    except AuthError:
+        raise HTTPException(401, "invalid initData")
+    user = parsed.get("user")
+    if not user:
+        raise HTTPException(401, "no user in initData")
+    text = (payload.get("text") or "").strip()
+    if not text:
+        raise HTTPException(400, "empty report")
+
+    models.insert_issue_report(conn, {
+        "telegram_user_id": int(user["id"]),
+        "username": user.get("username"),
+        "first_name": user.get("first_name"),
+        "last_name": user.get("last_name"),
+        "language_code": user.get("language_code"),
+        "is_premium": int(bool(user.get("is_premium"))),
+        "allows_write_to_pm": int(bool(user.get("allows_write_to_pm"))),
+        "auth_date": parsed.get("auth_date"),
+        "chat_type": parsed.get("chat_type"),
+        "chat_instance": parsed.get("chat_instance"),
+        "query_id": parsed.get("query_id"),
+        "start_param": parsed.get("start_param"),
+        "platform": payload.get("platform"),
+        "app_version": payload.get("version"),
+        "text": text,
+        "raw_json": json.dumps(parsed, ensure_ascii=False),
+    })
+    return {"ok": True}
+
+
 def _now(conn):
     return conn.execute("SELECT datetime('now')").fetchone()[0]
