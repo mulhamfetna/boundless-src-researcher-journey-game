@@ -59,7 +59,7 @@ def _compute_asset_version():
     Changes automatically whenever app.js/styles.css change, so a deploy can
     never serve a stale Cloudflare-cached bundle."""
     h = hashlib.sha256()
-    for fn in ("app.js", "ui.js", "store.js", "game.js", "styles.css"):
+    for fn in ("app.js", "ui.js", "store.js", "game.js", "sprites.js", "styles.css"):
         p = os.path.join(_frontend_dir, fn)
         if os.path.isfile(p):
             with open(p, "rb") as fh:
@@ -80,7 +80,7 @@ if os.path.isdir(_frontend_dir):
         with open(os.path.join(_frontend_dir, "index.html"), encoding="utf-8") as fh:
             html = fh.read()
         html = re.sub(
-            r"(app\.js|ui\.js|store\.js|game\.js|styles\.css)\?v=[A-Za-z0-9_]+",
+            r"(app\.js|ui\.js|store\.js|game\.js|sprites\.js|styles\.css)\?v=[A-Za-z0-9_]+",
             lambda m: f"{m.group(1)}?v={_asset_ver}",
             html,
         )
