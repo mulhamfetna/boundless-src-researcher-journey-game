@@ -236,6 +236,7 @@ function checkComplex(givenExtra) {
 }
 
 function renderQuestion() {
+  show("runner");  // ensure the runner is visible (e.g. when returning from a fun-fact)
   const q = state.questions[state.idx];
   state.curRetries = 0;
   state.curHint = false;
