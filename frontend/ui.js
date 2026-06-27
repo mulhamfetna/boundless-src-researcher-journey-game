@@ -46,7 +46,7 @@
     const overlay = document.createElement("div");
     overlay.className = "mentor-overlay";
     overlay.innerHTML =
-      '<div class="mentor-card"><div class="mentor-avatar">🦉</div>' +
+      '<div class="mentor-card"><div class="mentor-avatar">' + (typeof sprite === "function" ? sprite("owl") : "🦉") + '</div>' +
       '<div class="mentor-text"></div><button class="mentor-next">متابعة</button></div>';
     overlay.querySelector(".mentor-text").textContent = text;
     const close = () => {
@@ -74,7 +74,7 @@
     const ov = document.createElement("div");
     ov.className = "levelup-overlay";
     ov.innerHTML =
-      `<div class="levelup-card"><div class="levelup-emoji">⭐</div>` +
+      `<div class="levelup-card"><div class="levelup-emoji">${typeof sprite === "function" ? sprite("star") : "⭐"}</div>` +
       `<div class="levelup-title">المستوى ${level}!</div>` +
       `<div class="levelup-rank">${rank_ar || ""}</div>` +
       `<button class="levelup-next">رائع!</button></div>`;

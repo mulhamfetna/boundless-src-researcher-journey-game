@@ -7,10 +7,10 @@ function show(name) {
 }
 
 const BADGES = {
-  perfect_quiz: { ico: "🏅", name_ar: "الإتقان" },
-  self_reliant: { ico: "🛡️", name_ar: "بلا تلميحات" },
-  streak_master: { ico: "🔥", name_ar: "السلسلة" },
-  first_finish: { ico: "🌟", name_ar: "البداية" },
+  perfect_quiz: { ico: "perfect_quiz", name_ar: "الإتقان" },
+  self_reliant: { ico: "self_reliant", name_ar: "بلا تلميحات" },
+  streak_master: { ico: "streak_master", name_ar: "السلسلة" },
+  first_finish: { ico: "first_finish", name_ar: "البداية" },
 };
 const BADGE_ORDER = ["perfect_quiz", "self_reliant", "streak_master", "first_finish"];
 
@@ -23,8 +23,10 @@ async function api(path, opts = {}) {
 let state = { slug: null, questions: [], funFacts: [], idx: 0, answers: [], curRetries: 0, curHint: false };
 let currentXp = 0;
 
-const STAGE_EMOJI = { foundations: "📚", "paper-parts": "🧩", "paper-types": "📄", journals: "🕵️" };
-const AVATARS = ["🧑‍🎓", "👩‍🎓", "🧑‍🔬", "👩‍🔬", "🧑‍💻", "🦉", "🦊", "🐱"];
+const AVATARS = (typeof AVATAR_SPRITES !== "undefined") ? AVATAR_SPRITES : ["scholar", "owl", "fox"];
+function spr(name) { return (typeof sprite === "function") ? sprite(name) : ""; }
+function avatarSprite(id) { return spr((typeof AVATAR_SPRITES !== "undefined" && AVATAR_SPRITES.includes(id)) ? id : "scholar"); }
+function stageSprite(slug) { return spr((typeof STAGE_SPRITES !== "undefined" && STAGE_SPRITES[slug]) || "book"); }
 
 async function loadHome() {
   const profile = await loadProfile();
@@ -42,11 +44,11 @@ async function renderMap(profile) {
   const hud = document.getElementById("map-hud");
   if (typeof renderHUD === "function" && typeof levelFromXp === "function") {
     const lv = levelFromXp(currentXp);
-    renderHUD(hud, { avatar: profile.avatar, name: profile.name, rank_ar: lv.rank_ar, level: lv.level, progress: lv.progress });
+    renderHUD(hud, { avatar: avatarSprite(profile.avatar), name: profile.name, rank_ar: lv.rank_ar, level: lv.level, progress: lv.progress });
     const av = hud.querySelector(".hud-avatar");
     if (av) av.onclick = () => openAvatarPicker(profile);
   } else {
-    hud.innerHTML = `<span class="hud-avatar">${profile.avatar}</span><span class="hud-name">${profile.name || "باحث"}</span>`;
+    hud.innerHTML = `<span class="hud-avatar">${avatarSprite(profile.avatar)}</span><span class="hud-name">${profile.name || "باحث"}</span>`;
   }
 
   const path = document.getElementById("map-path");
@@ -54,9 +56,9 @@ async function renderMap(profile) {
   mapState(quizzes, dashboard).forEach((s) => {
     const node = document.createElement("div");
     node.className = "map-node " + s.status;
-    const mark = s.status === "done" ? "✓" : (s.status === "next" ? "✦" : "");
+    const mark = s.status === "done" ? spr("check") : (s.status === "next" ? spr("star") : "");
     node.innerHTML =
-      `<span class="node-emoji">${STAGE_EMOJI[s.slug] || "⭐"}</span>` +
+      `<span class="node-emoji">${stageSprite(s.slug)}</span>` +
       `<span class="node-title">${s.title_ar}</span>` +
       `<span class="node-mark">${mark}</span>`;
     node.onclick = () => enterStage(s.slug, profile);
@@ -77,7 +79,7 @@ function enterStage(slug, profile) {
 function showOnboarding() {
   const mentor = document.getElementById("ob-mentor");
   mentor.innerHTML =
-    `<div class="mentor-card"><div class="mentor-avatar">🦉</div>` +
+    `<div class="mentor-card"><div class="mentor-avatar">${spr("owl")}</div>` +
     `<div class="mentor-text">${mentorLineFor("welcome_anon", {})}</div></div>`;
 
   let chosen = AVATARS[0];
@@ -86,7 +88,7 @@ function showOnboarding() {
   AVATARS.forEach((a, i) => {
     const b = document.createElement("span");
     b.className = "ob-avatar" + (i === 0 ? " selected" : "");
-    b.textContent = a;
+    b.innerHTML = avatarSprite(a);
     b.onclick = () => {
       chosen = a;
       grid.querySelectorAll(".ob-avatar").forEach((x) => x.classList.remove("selected"));
@@ -111,7 +113,7 @@ function openAvatarPicker(profile) {
   AVATARS.forEach((a) => {
     const b = document.createElement("span");
     b.className = "ob-avatar" + (a === profile.avatar ? " selected" : "");
-    b.textContent = a;
+    b.innerHTML = avatarSprite(a);
     b.onclick = async () => {
       profile.avatar = a;
       await saveProfile({ avatar: a });
@@ -323,7 +325,10 @@ function renderQuestion() {
   show("runner");  // ensure the runner is visible (e.g. when returning from a fun-fact)
   const isBoss = state.bossId != null && state.questions[state.idx] && state.questions[state.idx].id === state.bossId;
   const bossBanner = document.getElementById("boss-banner");
-  if (bossBanner) bossBanner.classList.toggle("hidden", !isBoss);
+  if (bossBanner) {
+    bossBanner.classList.toggle("hidden", !isBoss);
+    if (isBoss) bossBanner.innerHTML = `${spr("crown")} تحدّي الزعيم`;
+  }
   document.getElementById("screen-runner").classList.toggle("boss", isBoss);
   const q = state.questions[state.idx];
   state.curRetries = 0;
@@ -435,7 +440,7 @@ function renderReport(report) {
     const b = BADGES[code]; if (!b) return;
     const span = document.createElement("span");
     span.className = "report-badge";
-    span.textContent = `${b.ico} ${b.name_ar}`;
+    span.innerHTML = `${spr(b.ico)} ${b.name_ar}`;
     badgesBox.appendChild(span);
   });
 
@@ -466,7 +471,7 @@ async function loadBoard(scope = "quiz") {
   board.forEach((r) => {
     const li = document.createElement("li");
     const score = scope === "overall" ? r.total_score : r.best_score;
-    const badge = (r.top_badge && BADGES[r.top_badge]) ? `<span class="lb-badge">${BADGES[r.top_badge].ico}</span>` : "";
+    const badge = (r.top_badge && BADGES[r.top_badge]) ? `<span class="lb-badge">${spr(BADGES[r.top_badge].ico)}</span>` : "";
     li.innerHTML = `${r.first_name} — ${score}${badge}`;
     ol.appendChild(li);
   });
@@ -487,7 +492,7 @@ async function loadBadges() {
     const b = BADGES[code];
     const div = document.createElement("div");
     div.className = "badge" + (earned.includes(code) ? "" : " locked");
-    div.innerHTML = `<div class="ico">${b.ico}</div><div>${b.name_ar}</div>`;
+    div.innerHTML = `<div class="ico">${spr(b.ico)}</div><div>${b.name_ar}</div>`;
     grid.appendChild(div);
   });
   document.getElementById("btn-badges-home").onclick = loadHome;
