@@ -107,8 +107,8 @@ def submit(slug: str, payload: dict, request: Request, background_tasks: Backgro
         models.record_answer(conn, attempt_id, qid, {"retries": retries, "hint_used": hint_used},
                              True, 0, pts, retries=retries, hint_used=int(hint_used))
 
-    total_questions = len(qrows)
-    accuracy = first_try_count / total_questions if total_questions else 0.0
+    answered = len(answers)
+    accuracy = first_try_count / answered if answered else 0.0
     models.finish_attempt(conn, attempt_id, total, accuracy, int(payload.get("duration_ms", 0)), _now(conn))
     models.set_attempt_max_streak(conn, attempt_id, max_streak)
 

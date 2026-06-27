@@ -192,3 +192,27 @@ def test_get_questions_samples_to_sample_size(tmp_path):
     assert all("concept" in q for q in body["questions"])
     ids = {q["id"] for q in body["questions"]}
     assert len(ids) == 10  # no duplicates
+
+
+def test_submit_accuracy_ignores_unanswered_bank_questions(tmp_path, monkeypatch):
+    conn = connect(str(tmp_path / "acc.db"))
+    init_schema(conn)
+    seed_quiz(conn, {"slug": "acc", "title_ar": "د", "pdf_filename": "x.pdf",
+        "questions": [
+            {"type": "tf", "prompt_ar": f"س{i}", "options_ar": ["صح", "خطأ"],
+             "correct_index": 0, "concept": "a"} for i in range(3)
+        ]})
+    main_module.app.state.conn = conn
+    monkeypatch.setattr(main_module.settings, "bot_token", BOT_TOKEN, raising=False)
+    import app.notify as notify
+    monkeypatch.setattr(notify, "send_report_dm", lambda *a, **k: True)
+    c = TestClient(main_module.app)
+
+    init = _init_data({"id": 9, "first_name": "Z"})
+    qs = c.get("/api/quizzes/acc/questions").json()["questions"]
+    answers = [{"question_id": qs[0]["id"], "retries": 0, "hint_used": False},
+               {"question_id": qs[1]["id"], "retries": 0, "hint_used": False}]
+    report = c.post("/api/quizzes/acc/submit",
+                    headers={"X-Init-Data": init},
+                    json={"answers": answers, "duration_ms": 500}).json()
+    assert report["accuracy"] == 1.0  # 2 first-try / 2 answered, NOT 2/3
