@@ -102,6 +102,24 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         conn.execute("ALTER TABLE quizzes ADD COLUMN fun_facts_json TEXT NOT NULL DEFAULT '[]'")
         changes.append("quizzes.fun_facts_json")
 
+    reports_exists = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='issue_reports'"
+    ).fetchone()
+    if not reports_exists:
+        conn.executescript(
+            """
+            CREATE TABLE issue_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_user_id INTEGER, username TEXT, first_name TEXT, last_name TEXT,
+                language_code TEXT, is_premium INTEGER, allows_write_to_pm INTEGER,
+                auth_date TEXT, chat_type TEXT, chat_instance TEXT, query_id TEXT,
+                start_param TEXT, platform TEXT, app_version TEXT,
+                text TEXT NOT NULL, raw_json TEXT, created_at TEXT NOT NULL
+            );
+            """
+        )
+        changes.append("issue_reports.create")
+
     conn.commit()
     return changes
 

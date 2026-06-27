@@ -155,3 +155,28 @@ def quiz_of_concept(conn):
         if concept and concept not in mapping:
             mapping[concept] = {"quiz_slug": r["quiz_slug"], "quiz_title_ar": r["quiz_title_ar"]}
     return mapping
+
+
+_REPORT_COLS = [
+    "telegram_user_id", "username", "first_name", "last_name", "language_code",
+    "is_premium", "allows_write_to_pm", "auth_date", "chat_type", "chat_instance",
+    "query_id", "start_param", "platform", "app_version", "text", "raw_json",
+]
+
+
+def insert_issue_report(conn, fields: dict) -> int:
+    cols = _REPORT_COLS + ["created_at"]
+    placeholders = ", ".join(["?"] * len(_REPORT_COLS)) + ", datetime('now')"
+    values = [fields.get(c) for c in _REPORT_COLS]
+    cur = conn.execute(
+        f"INSERT INTO issue_reports ({', '.join(cols)}) VALUES ({placeholders})",
+        values,
+    )
+    conn.commit()
+    return cur.lastrowid
+
+
+def list_issue_reports(conn, limit=20):
+    return conn.execute(
+        "SELECT * FROM issue_reports ORDER BY id DESC LIMIT ?", (limit,)
+    ).fetchall()
