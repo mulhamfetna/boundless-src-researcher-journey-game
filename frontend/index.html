@@ -26,6 +26,7 @@
         <button id="btn-my-badges" class="quiz-card">🏅 أوسمتي</button>
         <button id="btn-my-progress" class="quiz-card">📊 تقدّمي</button>
       </div>
+      <button id="btn-report" class="quiz-card">أبلِغ عن مشكلة</button>
     </section>
 
     <section id="screen-runner" class="screen hidden">
@@ -80,6 +81,14 @@
       <h3>آخر المحاولات</h3>
       <ol id="dash-history" class="dash-history"></ol>
       <button id="btn-progress-home">العودة</button>
+    </section>
+
+    <section id="screen-report-issue" class="screen hidden">
+      <h2>أبلِغ عن مشكلة</h2>
+      <textarea id="report-text" class="report-text" rows="5" placeholder="صف المشكلة أو اقتراحك..."></textarea>
+      <div id="report-status"></div>
+      <button id="report-send">إرسال</button>
+      <button id="report-back">العودة</button>
     </section>
   </main>
   <div id="fx-layer"></div>

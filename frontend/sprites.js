@@ -23,6 +23,7 @@
     self_reliant: svg(r(4,2,8,3,T) + r(3,4,10,5,T) + r(5,9,6,4,T) + r(7,5,2,5,W)),
     streak_master: svg(r(7,2,2,2,G) + r(6,4,4,3,P) + r(5,7,6,4,P) + r(6,11,4,2,G) + r(7,5,2,5,G)),
     first_finish: svg(r(7,2,2,12,G) + r(2,7,12,2,G) + r(4,4,8,8,G)),
+    bug: svg(r(6,2,4,3,T) + r(4,5,8,6,T) + r(5,11,6,2,T) + r(6,6,1,1,I) + r(9,6,1,1,I) + r(3,6,2,1,I) + r(11,6,2,1,I) + r(3,9,2,1,I) + r(11,9,2,1,I) + r(7,5,2,7,I)),
   };
   function sprite(name) { return SP[name] || SP.scholar; }
   window.sprite = sprite;

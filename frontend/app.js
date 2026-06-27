@@ -1,7 +1,7 @@
 const tg = window.Telegram ? window.Telegram.WebApp : { initData: "", ready() {}, expand() {} };
 tg.ready(); tg.expand();
 
-const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding"];
+const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding", "report-issue"];
 function show(name) {
   screens.forEach(s => document.getElementById("screen-" + s).classList.toggle("hidden", s !== name));
 }
@@ -67,7 +67,32 @@ async function renderMap(profile) {
 
   document.getElementById("btn-my-badges").onclick = loadBadges;
   document.getElementById("btn-my-progress").onclick = loadDashboard;
+  document.getElementById("btn-report").onclick = showReport;
   show("home");
+}
+
+function showReport() {
+  const status = document.getElementById("report-status");
+  status.textContent = "";
+  const ta = document.getElementById("report-text");
+  ta.value = "";
+  document.getElementById("report-send").onclick = async () => {
+    const text = (ta.value || "").trim();
+    if (!text) { status.textContent = "اكتب رسالتك أولاً."; return; }
+    try {
+      await api("/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Init-Data": tg.initData },
+        body: JSON.stringify({ text, platform: tg.platform, version: tg.version }),
+      });
+      status.textContent = "✅ تم الإرسال، شكراً لك!";
+      ta.value = "";
+    } catch (e) {
+      status.textContent = "تعذّر الإرسال، حاول لاحقاً.";
+    }
+  };
+  document.getElementById("report-back").onclick = loadHome;
+  show("report-issue");
 }
 
 function enterStage(slug, profile) {

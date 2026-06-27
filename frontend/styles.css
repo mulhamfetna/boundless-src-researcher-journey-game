@@ -211,3 +211,7 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .ob-avatar .sprite { width:2em; height:2em; }
 .mentor-avatar .sprite { width:2.6em; height:2.6em; }
 .levelup-emoji .sprite { width:3rem; height:3rem; }
+
+.report-text { width:100%; padding:12px; border:3px solid var(--ink); border-radius:4px;
+  background:var(--panel); color:var(--fg); font-family:var(--font-body); font-size:1rem; resize:vertical; }
+#report-status { min-height:1.4em; margin:8px 0; color:var(--gold); }
