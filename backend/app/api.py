@@ -3,7 +3,7 @@ import random
 
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request
 
-from app import models, badges, notify
+from app import models, badges, notify, progress
 from app.auth import validate_init_data, AuthError
 from app.config import settings
 from app.sampling import sample_questions
@@ -159,6 +159,50 @@ def me_badges(request: Request, x_init_data: str = Header(default="")):
     if not user:
         raise HTTPException(401, "no user in initData")
     return {"badges": badges.get_badges(conn, int(user["id"]))}
+
+
+@router.get("/me/dashboard")
+def me_dashboard(request: Request, x_init_data: str = Header(default="")):
+    conn = _conn(request)
+    try:
+        parsed = validate_init_data(x_init_data, settings.bot_token)
+    except AuthError:
+        raise HTTPException(401, "invalid initData")
+    user = parsed.get("user")
+    if not user:
+        raise HTTPException(401, "no user in initData")
+    uid = int(user["id"])
+
+    answers = models.get_contestant_answers(conn, uid)
+    attempts = models.get_contestant_attempts(conn, uid)
+    qoc = models.quiz_of_concept(conn)
+
+    raw_mastery = progress.mastery_for_concepts(answers)
+    full_mastery = {}
+    mastery_list = []
+    for concept, q in qoc.items():
+        m = raw_mastery.get(concept, {"rate": 0.0, "count": 0, "level": "not_started"})
+        full_mastery[concept] = m
+        mastery_list.append({
+            "concept": concept,
+            "label_ar": progress.CONCEPT_LABELS_AR.get(concept, concept),
+            "quiz_slug": q["quiz_slug"],
+            "quiz_title_ar": q["quiz_title_ar"],
+            "level": m["level"],
+            "rate": round(m["rate"], 2),
+            "count": m["count"],
+        })
+
+    stats = progress.summarize_stats(attempts)
+    stats["hints_used"] = sum(1 for a in answers if a["hint_used"])
+
+    return {
+        "stats": stats,
+        "mastery": mastery_list,
+        "history": attempts[:15],
+        "next": progress.next_steps(full_mastery, qoc),
+        "badges": badges.get_badges(conn, uid),
+    }
 
 
 def _now(conn):

@@ -217,3 +217,25 @@ def test_submit_accuracy_ignores_unanswered_bank_questions(tmp_path, monkeypatch
                     headers={"X-Init-Data": init},
                     json={"answers": answers, "duration_ms": 500}).json()
     assert report["accuracy"] == 1.0  # 2 first-try / 2 answered, NOT 2/3
+
+
+def test_dashboard_requires_initdata(api_client):
+    assert api_client.get("/api/me/dashboard", headers={"X-Init-Data": "bad&hash=x"}).status_code == 401
+
+
+def test_dashboard_shape_after_attempt(api_client, monkeypatch):
+    import app.notify as notify
+    monkeypatch.setattr(notify, "send_report_dm", lambda *a, **k: True)
+    init = _init_data({"id": 555, "first_name": "Maya"})
+    qs = api_client.get("/api/quizzes/journals/questions").json()["questions"]
+    answers = [{"question_id": q["id"], "retries": 0, "hint_used": False} for q in qs]
+    api_client.post("/api/quizzes/journals/submit", headers={"X-Init-Data": init},
+                    json={"answers": answers, "duration_ms": 1000})
+
+    dash = api_client.get("/api/me/dashboard", headers={"X-Init-Data": init}).json()
+    assert set(dash) == {"stats", "mastery", "history", "next", "badges"}
+    assert dash["stats"]["attempts_count"] == 1
+    assert dash["stats"]["hints_used"] == 0
+    assert all({"concept", "label_ar", "level"} <= set(m) for m in dash["mastery"])
+    assert len(dash["history"]) == 1
+    assert dash["history"][0]["quiz_slug"] == "journals"
