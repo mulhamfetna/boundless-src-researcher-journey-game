@@ -239,3 +239,17 @@ def test_dashboard_shape_after_attempt(api_client, monkeypatch):
     assert all({"concept", "label_ar", "level"} <= set(m) for m in dash["mastery"])
     assert len(dash["history"]) == 1
     assert dash["history"][0]["quiz_slug"] == "journals"
+
+
+def test_get_questions_exposes_passage(tmp_path):
+    conn = connect(str(tmp_path / "p.db"))
+    init_schema(conn)
+    seed_quiz(conn, {"slug": "ap", "title_ar": "ت", "pdf_filename": "x.pdf",
+        "questions": [{"type": "mcq", "prompt_ar": "س", "options_ar": ["أ", "ب"],
+                       "correct_index": 0, "concept": "abstract",
+                       "passage": "Real excerpt.", "source_url": "https://doaj.org/a/1"}]})
+    main_module.app.state.conn = conn
+    c = TestClient(main_module.app)
+    q = c.get("/api/quizzes/ap/questions").json()["questions"][0]
+    assert q["passage"] == "Real excerpt."
+    assert q["source_url"] == "https://doaj.org/a/1"

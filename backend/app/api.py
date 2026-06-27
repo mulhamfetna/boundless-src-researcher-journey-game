@@ -42,6 +42,7 @@ def get_questions(slug: str, request: Request):
             "id": q["id"], "type": q["type"], "prompt_ar": q["prompt_ar"],
             "base_points": q["base_points"], "asset_file": asset["file_path"] if asset else None,
             "hint_ar": data.get("hint_ar", ""), "concept": data.get("concept", ""),
+            "passage": data.get("passage", ""), "source_url": data.get("source_url", ""),
         }
         if q["type"] in ("mcq", "tf", "image"):
             item["options_ar"] = data["options_ar"]

@@ -100,3 +100,17 @@ def test_seed_persists_concept_in_data_json(conn):
     seed_quiz(conn, doc)
     q = get_questions(conn, get_quiz_by_slug(conn, "concepttest")["id"])[0]
     assert _json.loads(q["data_json"])["concept"] == "indexing"
+
+
+def test_seed_persists_passage_and_source(conn):
+    doc = {
+        "slug": "ap", "title_ar": "ت", "pdf_filename": "x.pdf",
+        "questions": [{"type": "mcq", "prompt_ar": "س", "options_ar": ["أ", "ب"],
+                       "correct_index": 0, "concept": "abstract",
+                       "passage": "We study X.", "source_url": "https://doaj.org/a/1"}],
+    }
+    seed_quiz(conn, doc)
+    q = get_questions(conn, get_quiz_by_slug(conn, "ap")["id"])[0]
+    data = _json.loads(q["data_json"])
+    assert data["passage"] == "We study X."
+    assert data["source_url"] == "https://doaj.org/a/1"

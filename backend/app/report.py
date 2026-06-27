@@ -29,6 +29,7 @@ def build_report(conn, attempt_id: int) -> dict:
             "first_try": ans["retries"] == 0 and not ans["hint_used"],
             "explanation_ar": q["explanation_ar"], "source_page": q["source_page"],
             "asset_file": asset["file_path"] if asset else None,
+            "passage": data.get("passage", ""), "source_url": data.get("source_url", ""),
         })
 
     rank_row = conn.execute(
