@@ -1,7 +1,7 @@
 const tg = window.Telegram ? window.Telegram.WebApp : { initData: "", ready() {}, expand() {} };
 tg.ready(); tg.expand();
 
-const screens = ["home", "runner", "report", "board", "badges", "funfact"];
+const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress"];
 function show(name) {
   screens.forEach(s => document.getElementById("screen-" + s).classList.toggle("hidden", s !== name));
 }
@@ -34,6 +34,7 @@ async function loadHome() {
     list.appendChild(b);
   });
   document.getElementById("btn-my-badges").onclick = loadBadges;
+  document.getElementById("btn-my-progress").onclick = loadDashboard;
   show("home");
 }
 
@@ -394,6 +395,84 @@ async function loadBadges() {
   });
   document.getElementById("btn-badges-home").onclick = loadHome;
   show("badges");
+}
+
+const LEVELS = {
+  not_started: { ar: "لم يبدأ", cls: "lv-none" },
+  familiar: { ar: "مبتدئ", cls: "lv-familiar" },
+  proficient: { ar: "جيد", cls: "lv-proficient" },
+  mastered: { ar: "متقن", cls: "lv-mastered" },
+};
+
+async function loadDashboard() {
+  let dash;
+  try {
+    dash = await api("/me/dashboard", { headers: { "X-Init-Data": tg.initData } });
+  } catch (e) {
+    document.getElementById("dash-stats").textContent = "تعذّر تحميل التقدّم";
+    document.getElementById("dash-next").innerHTML = "";
+    document.getElementById("dash-mastery").innerHTML = "";
+    document.getElementById("dash-history").innerHTML = "";
+    document.getElementById("btn-progress-home").onclick = loadHome;
+    show("progress");
+    return;
+  }
+
+  const s = dash.stats;
+  document.getElementById("dash-stats").innerHTML =
+    `<div class="stat"><b>${s.total_points}</b><span>نقطة</span></div>` +
+    `<div class="stat"><b>${s.attempts_count}</b><span>محاولة</span></div>` +
+    `<div class="stat"><b>${Math.round(s.first_try_accuracy * 100)}%</b><span>دقة أول محاولة</span></div>` +
+    `<div class="stat"><b>${s.best_streak}</b><span>أطول سلسلة</span></div>`;
+
+  const nextBox = document.getElementById("dash-next");
+  nextBox.innerHTML = "";
+  if (dash.next && dash.next.length) {
+    const head = document.createElement("div");
+    head.className = "next-head";
+    head.textContent = "ما التالي؟";
+    nextBox.appendChild(head);
+    dash.next.forEach((n) => {
+      const b = document.createElement("button");
+      b.className = "next-card";
+      b.innerHTML = `راجع <b>${n.label_ar}</b> في «${n.quiz_title_ar}»`;
+      b.onclick = () => startQuiz(n.quiz_slug);
+      nextBox.appendChild(b);
+    });
+  }
+
+  const mBox = document.getElementById("dash-mastery");
+  mBox.innerHTML = "";
+  const byQuiz = {};
+  dash.mastery.forEach((m) => { (byQuiz[m.quiz_title_ar] = byQuiz[m.quiz_title_ar] || []).push(m); });
+  Object.keys(byQuiz).forEach((title) => {
+    const group = document.createElement("div");
+    group.className = "mastery-group";
+    group.innerHTML = `<div class="mastery-title">${title}</div>`;
+    const chips = document.createElement("div");
+    chips.className = "mastery-chips";
+    byQuiz[title].forEach((m) => {
+      const lv = LEVELS[m.level] || LEVELS.not_started;
+      const chip = document.createElement("span");
+      chip.className = "mchip " + lv.cls;
+      chip.innerHTML = `${m.label_ar}<small>${lv.ar}</small>`;
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    mBox.appendChild(group);
+  });
+
+  const hist = document.getElementById("dash-history");
+  hist.innerHTML = "";
+  dash.history.forEach((h) => {
+    const li = document.createElement("li");
+    const when = (h.finished_at || "").slice(0, 10);
+    li.innerHTML = `${h.quiz_title_ar} — ${h.total_score} نقطة · ${Math.round(h.accuracy * 100)}% <small>${when}</small>`;
+    hist.appendChild(li);
+  });
+
+  document.getElementById("btn-progress-home").onclick = loadHome;
+  show("progress");
 }
 
 loadHome().catch(e => { document.getElementById("quiz-list").textContent = "تعذّر التحميل"; });

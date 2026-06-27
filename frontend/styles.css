@@ -55,3 +55,24 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 #funfact-text { background:var(--card); border-radius:12px; padding:18px; margin:12px 0; font-size:1.05rem; }
 .slot.wrong, .order-row.wrong { outline:2px solid var(--bad); }
 .slot.correct, .order-row.correct { outline:2px solid var(--good); }
+
+.dash-stats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px 0; }
+.dash-stats .stat { background: var(--card); border-radius: 12px; padding: 10px 14px; text-align: center; min-width: 70px; }
+.dash-stats .stat b { display: block; font-size: 1.4rem; }
+.dash-stats .stat span { font-size: .75rem; color: #9aa4bf; }
+.dash-next { margin: 10px 0; }
+.next-head { font-weight: 600; margin-bottom: 6px; }
+.next-card { display: block; width: 100%; text-align: right; background: var(--accent); border: none;
+  border-radius: 12px; padding: 12px; margin: 6px 0; color: #fff; cursor: pointer; }
+.mastery-group { margin: 10px 0; }
+.mastery-title { font-weight: 600; margin-bottom: 6px; }
+.mastery-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mchip { border-radius: 999px; padding: 6px 10px; font-size: .85rem; color: #10131a; display: flex; gap: 6px; align-items: center; }
+.mchip small { font-size: .65rem; opacity: .8; }
+.lv-none { background: #3a4255; color: #c8d0e0; }
+.lv-familiar { background: #e0a64f; }
+.lv-proficient { background: #4f8cff; color: #fff; }
+.lv-mastered { background: #2fbf71; color: #fff; }
+.dash-history { list-style: none; padding: 0; }
+.dash-history li { background: var(--card); border-radius: 10px; padding: 10px; margin: 6px 0; }
+.dash-history small { color: #9aa4bf; }
