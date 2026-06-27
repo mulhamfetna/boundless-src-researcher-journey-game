@@ -36,3 +36,22 @@ describe("ui juice", () => {
     expect(made).toBe(8);
   });
 });
+
+describe("mentorSay", () => {
+  beforeEach(() => { loadUi(); });
+
+  it("renders an overlay with the given text", () => {
+    window.mentorSay("مرحبا");
+    const ov = document.querySelector(".mentor-overlay");
+    expect(ov).not.toBeNull();
+    expect(ov.querySelector(".mentor-text").textContent).toBe("مرحبا");
+  });
+
+  it("clicking متابعة removes the overlay and calls onDone", () => {
+    let done = false;
+    window.mentorSay("هيا", { onDone: () => { done = true; } });
+    document.querySelector(".mentor-next").click();
+    expect(document.querySelector(".mentor-overlay")).toBeNull();
+    expect(done).toBe(true);
+  });
+});

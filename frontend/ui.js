@@ -42,6 +42,24 @@
     return spawn(count, life, r.left + r.width / 2, r.top + r.height / 2);
   }
 
+  function mentorSay(text, opts = {}) {
+    const overlay = document.createElement("div");
+    overlay.className = "mentor-overlay";
+    overlay.innerHTML =
+      '<div class="mentor-card"><div class="mentor-avatar">🦉</div>' +
+      '<div class="mentor-text"></div><button class="mentor-next">متابعة</button></div>';
+    overlay.querySelector(".mentor-text").textContent = text;
+    const close = () => {
+      overlay.remove();
+      if (typeof opts.onDone === "function") opts.onDone();
+    };
+    overlay.querySelector(".mentor-next").onclick = close;
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+    document.body.appendChild(overlay);
+    return overlay;
+  }
+
   window.confetti = confetti;
   window.burst = burst;
+  window.mentorSay = mentorSay;
 })();
