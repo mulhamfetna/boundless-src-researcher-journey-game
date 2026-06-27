@@ -129,3 +129,17 @@ def test_missing_concept_fails():
         q.pop("concept", None)
     with pytest.raises(SchemaError):
         validate_quiz(doc)
+
+
+def test_passage_and_source_url_optional_ok():
+    doc = _good_doc()
+    doc["questions"][0]["passage"] = "We propose a method..."
+    doc["questions"][0]["source_url"] = "https://doaj.org/article/abc"
+    validate_quiz(doc)
+
+
+def test_empty_passage_fails():
+    doc = _good_doc()
+    doc["questions"][0]["passage"] = "   "
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)

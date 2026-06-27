@@ -70,6 +70,12 @@ def validate_quiz(doc: dict) -> None:
                      f"{where}: option_explanations_ar length must equal options_ar")
         if "hint_ar" in q:
             _require(isinstance(q["hint_ar"], str), f"{where}: hint_ar must be a string")
+        if "passage" in q:
+            _require(isinstance(q["passage"], str) and q["passage"].strip(),
+                     f"{where}: passage must be a non-empty string")
+        if "source_url" in q:
+            _require(isinstance(q["source_url"], str) and q["source_url"].strip(),
+                     f"{where}: source_url must be a non-empty string")
 
         if "asset" in q:
             a = q["asset"]
