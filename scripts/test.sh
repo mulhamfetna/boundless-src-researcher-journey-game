@@ -17,4 +17,8 @@ fi
 ( cd "$ROOT/frontend" && npm test )
 
 echo
+echo "== frontend drag e2e (real browser; skips if no Chrome) =="
+( cd "$ROOT/frontend" && node tests/drag.e2e.mjs )
+
+echo
 echo "All suites passed."

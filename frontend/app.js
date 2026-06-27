@@ -162,7 +162,10 @@ function renderOrder(q) {
 function makeRowReorderable(row, list) {
   row.addEventListener("pointerdown", (e) => {
     e.preventDefault();
-    row.setPointerCapture(e.pointerId);
+    // Capture on the STABLE list, not the row: reordering moves `row` in the DOM
+    // every step, and a captured element that moves fires lostpointercapture in
+    // Chrome — which silently kills the drag after one step. The list never moves.
+    list.setPointerCapture(e.pointerId);
     row.classList.add("dragging");
     const move = (ev) => {
       const over = elementUnder(ev.clientX, ev.clientY, ".order-row");
@@ -172,22 +175,16 @@ function makeRowReorderable(row, list) {
         list.insertBefore(row, before ? over : over.nextSibling);
       }
     };
-    const cancel = () => {
+    const end = () => {
       row.classList.remove("dragging");
-      row.removeEventListener("pointermove", move);
-      row.removeEventListener("pointerup", up);
-      row.removeEventListener("pointercancel", cancel);
+      list.removeEventListener("pointermove", move);
+      list.removeEventListener("pointerup", end);
+      list.removeEventListener("pointercancel", end);
+      try { list.releasePointerCapture(e.pointerId); } catch (_) {}
     };
-    const up = () => {
-      row.releasePointerCapture(e.pointerId);
-      row.classList.remove("dragging");
-      row.removeEventListener("pointermove", move);
-      row.removeEventListener("pointerup", up);
-      row.removeEventListener("pointercancel", cancel);
-    };
-    row.addEventListener("pointermove", move);
-    row.addEventListener("pointerup", up);
-    row.addEventListener("pointercancel", cancel);
+    list.addEventListener("pointermove", move);
+    list.addEventListener("pointerup", end);
+    list.addEventListener("pointercancel", end);
   });
 }
 
