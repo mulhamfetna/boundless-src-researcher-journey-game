@@ -21,6 +21,7 @@ async function api(path, opts = {}) {
 }
 
 let state = { slug: null, questions: [], funFacts: [], idx: 0, answers: [], curRetries: 0, curHint: false };
+let currentXp = 0;
 
 const STAGE_EMOJI = { foundations: "📚", "paper-parts": "🧩", "paper-types": "📄", journals: "🕵️" };
 const AVATARS = ["🧑‍🎓", "👩‍🎓", "🧑‍🔬", "👩‍🔬", "🧑‍💻", "🦉", "🦊", "🐱"];
@@ -37,10 +38,16 @@ async function renderMap(profile) {
   try { quizzes = await api("/quizzes"); } catch (_) {}
   try { dashboard = await api("/me/dashboard", { headers: { "X-Init-Data": tg.initData } }); } catch (_) {}
 
+  currentXp = (dashboard && dashboard.stats && dashboard.stats.total_points) || 0;
   const hud = document.getElementById("map-hud");
-  hud.innerHTML =
-    `<span class="hud-avatar">${profile.avatar}</span>` +
-    `<span class="hud-name">${profile.name || "باحث"}</span>`;
+  if (typeof renderHUD === "function" && typeof levelFromXp === "function") {
+    const lv = levelFromXp(currentXp);
+    renderHUD(hud, { avatar: profile.avatar, name: profile.name, rank_ar: lv.rank_ar, level: lv.level, progress: lv.progress });
+    const av = hud.querySelector(".hud-avatar");
+    if (av) av.onclick = () => openAvatarPicker(profile);
+  } else {
+    hud.innerHTML = `<span class="hud-avatar">${profile.avatar}</span><span class="hud-name">${profile.name || "باحث"}</span>`;
+  }
 
   const path = document.getElementById("map-path");
   path.innerHTML = "";
@@ -94,6 +101,27 @@ function showOnboarding() {
     loadHome();
   };
   show("onboarding");
+}
+
+function openAvatarPicker(profile) {
+  const ov = document.createElement("div");
+  ov.className = "mentor-overlay";
+  ov.innerHTML = `<div class="mentor-card"><div class="mentor-text">اختر رمزك</div><div class="ob-avatars"></div></div>`;
+  const grid = ov.querySelector(".ob-avatars");
+  AVATARS.forEach((a) => {
+    const b = document.createElement("span");
+    b.className = "ob-avatar" + (a === profile.avatar ? " selected" : "");
+    b.textContent = a;
+    b.onclick = async () => {
+      profile.avatar = a;
+      await saveProfile({ avatar: a });
+      ov.remove();
+      renderMap(profile);
+    };
+    grid.appendChild(b);
+  });
+  ov.addEventListener("click", (e) => { if (e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
 }
 
 async function startQuiz(slug) {
@@ -381,6 +409,12 @@ async function submit() {
     body: JSON.stringify({ answers: state.answers, duration_ms: Date.now() - state.startedAt }),
   });
   renderReport(report);
+  if (typeof levelFromXp === "function" && typeof levelUpOverlay === "function") {
+    const before = levelFromXp(currentXp).level;
+    const afterLv = levelFromXp(currentXp + (report.total_score || 0));
+    currentXp += report.total_score || 0;
+    if (afterLv.level > before) levelUpOverlay(afterLv.level, afterLv.rank_ar);
+  }
   show("report");
 }
 
