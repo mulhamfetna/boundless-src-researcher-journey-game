@@ -1,0 +1,5 @@
+Fonts are licensed under the SIL Open Font License 1.1:
+- Lalezar (c) Borna Izadpanah, Bonahonar
+- Cairo (c) the Cairo Project Authors
+- Press Start 2P (c) CodeMan38
+See https://openfontlicense.org
