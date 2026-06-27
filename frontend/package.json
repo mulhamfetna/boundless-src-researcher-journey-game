@@ -1,0 +1,14 @@
+{
+  "name": "gamified-quiz-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Telegram Mini App frontend for the gamified quiz (dependency-free at runtime; Vitest only for tests).",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.9"
+  }
+}
