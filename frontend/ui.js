@@ -59,7 +59,34 @@
     return overlay;
   }
 
+  function renderHUD(el, s) {
+    s = s || {};
+    el.innerHTML =
+      `<span class="hud-avatar">${s.avatar || "🧑‍🎓"}</span>` +
+      `<div class="hud-meta">` +
+      `<div class="hud-line"><span class="hud-name">${s.name || "باحث"}</span>` +
+      `<span class="hud-rank">${s.rank_ar || ""} · ★${s.level || 1}</span></div>` +
+      `<div class="level-bar"><i style="width:${Math.round((s.progress || 0) * 100)}%"></i></div>` +
+      `</div>`;
+  }
+
+  function levelUpOverlay(level, rank_ar) {
+    const ov = document.createElement("div");
+    ov.className = "levelup-overlay";
+    ov.innerHTML =
+      `<div class="levelup-card"><div class="levelup-emoji">⭐</div>` +
+      `<div class="levelup-title">المستوى ${level}!</div>` +
+      `<div class="levelup-rank">${rank_ar || ""}</div>` +
+      `<button class="levelup-next">رائع!</button></div>`;
+    ov.querySelector(".levelup-next").onclick = () => ov.remove();
+    document.body.appendChild(ov);
+    if (typeof confetti === "function") confetti({ count: 40 });
+    return ov;
+  }
+
   window.confetti = confetti;
   window.burst = burst;
   window.mentorSay = mentorSay;
+  window.renderHUD = renderHUD;
+  window.levelUpOverlay = levelUpOverlay;
 })();

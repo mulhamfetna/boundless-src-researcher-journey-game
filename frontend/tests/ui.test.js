@@ -55,3 +55,25 @@ describe("mentorSay", () => {
     expect(done).toBe(true);
   });
 });
+
+describe("renderHUD", () => {
+  beforeEach(() => { loadUi(); });
+  it("renders avatar, name, rank/level and a filled level bar", () => {
+    const el = document.createElement("div");
+    window.renderHUD(el, { avatar: "🦉", name: "لينا", rank_ar: "باحث", level: 4, progress: 0.5 });
+    expect(el.querySelector(".hud-name").textContent).toBe("لينا");
+    expect(el.textContent).toContain("باحث");
+    expect(el.querySelector(".level-bar > i").style.width).toBe("50%");
+  });
+});
+
+describe("levelUpOverlay", () => {
+  beforeEach(() => { loadUi(); });
+  it("shows the level and removes on click", () => {
+    const ov = window.levelUpOverlay(5, "باحث");
+    expect(document.querySelector(".levelup-overlay")).not.toBeNull();
+    expect(ov.textContent).toContain("5");
+    document.querySelector(".levelup-next").click();
+    expect(document.querySelector(".levelup-overlay")).toBeNull();
+  });
+});

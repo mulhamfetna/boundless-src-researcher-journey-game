@@ -149,3 +149,19 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .ob-avatars { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:12px 0; }
 .ob-avatar { font-size:1.8rem; padding:8px 12px; border-radius:12px; background:var(--card); cursor:pointer; }
 .ob-avatar.selected { outline:2px solid var(--gold); }
+
+/* ---- P3 HUD + boss + level-up ---- */
+.map-hud .hud-meta { flex:1; }
+.hud-line { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.hud-rank { color:var(--gold); font-size:.85rem; font-weight:700; }
+#boss-banner { text-align:center; font-weight:800; color:#1a1330; padding:8px; border-radius:12px;
+  margin-bottom:8px; background:linear-gradient(90deg,var(--gold),#ffb703); animation:pop-good .4s ease; }
+#screen-runner.boss .opt { box-shadow:0 0 0 1px #ffd16655, 0 2px 0 #0006; }
+.levelup-overlay { position:fixed; inset:0; z-index:10001; display:flex; align-items:center;
+  justify-content:center; background:#000b; }
+.levelup-card { text-align:center; padding:28px 24px; border-radius:20px; max-width:340px; width:86%;
+  background:linear-gradient(180deg,var(--card2),var(--card)); box-shadow:0 0 60px #7c5cff66; animation:screen-in .3s ease; }
+.levelup-emoji { font-size:3rem; }
+.levelup-title { font-size:1.6rem; font-weight:800; margin:6px 0;
+  background:linear-gradient(90deg,var(--gold),#fff3c4); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.levelup-rank { color:var(--muted); margin-bottom:14px; }
