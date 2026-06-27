@@ -86,3 +86,16 @@ def test_seed_stores_explainers_hint_funfacts(conn):
     data = _json2.loads(q["data_json"])
     assert data["option_explanations_ar"][2] == "نعم"
     assert data["hint_ar"] == "فكّر"
+
+
+def test_seed_persists_concept_in_data_json(conn):
+    doc = {
+        "slug": "concepttest", "title_ar": "ت", "pdf_filename": "x.pdf",
+        "questions": [
+            {"type": "tf", "prompt_ar": "س", "options_ar": ["صح", "خطأ"],
+             "correct_index": 0, "concept": "indexing"},
+        ],
+    }
+    seed_quiz(conn, doc)
+    q = get_questions(conn, get_quiz_by_slug(conn, "concepttest")["id"])[0]
+    assert _json.loads(q["data_json"])["concept"] == "indexing"

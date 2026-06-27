@@ -43,6 +43,8 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
             data["option_explanations_ar"] = q["option_explanations_ar"]
         if "hint_ar" in q:
             data["hint_ar"] = q["hint_ar"]
+        if "concept" in q:
+            data["concept"] = q["concept"]
         qcur = conn.execute(
             """INSERT INTO questions
                (quiz_id, type, prompt_ar, base_points, explanation_ar, source_page, data_json, display_order)
