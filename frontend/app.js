@@ -60,7 +60,9 @@ async function renderMap(profile) {
     node.innerHTML =
       `<span class="node-emoji">${stageSprite(s.slug)}</span>` +
       `<span class="node-title">${s.title_ar}</span>` +
-      `<span class="node-mark">${mark}</span>`;
+      `<span class="node-mark">${mark}</span>` +
+      `<span class="node-num">${s.index + 1}</span>` +
+      (s.status === "next" ? `<span class="node-here">${avatarSprite(profile.avatar)}</span>` : "");
     node.onclick = () => enterStage(s.slug, profile);
     path.appendChild(node);
   });
