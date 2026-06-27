@@ -1,7 +1,7 @@
 const tg = window.Telegram ? window.Telegram.WebApp : { initData: "", ready() {}, expand() {} };
 tg.ready(); tg.expand();
 
-const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress"];
+const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding"];
 function show(name) {
   screens.forEach(s => document.getElementById("screen-" + s).classList.toggle("hidden", s !== name));
 }
@@ -22,20 +22,78 @@ async function api(path, opts = {}) {
 
 let state = { slug: null, questions: [], funFacts: [], idx: 0, answers: [], curRetries: 0, curHint: false };
 
+const STAGE_EMOJI = { foundations: "📚", "paper-parts": "🧩", "paper-types": "📄", journals: "🕵️" };
+const AVATARS = ["🧑‍🎓", "👩‍🎓", "🧑‍🔬", "👩‍🔬", "🧑‍💻", "🦉", "🦊", "🐱"];
+
 async function loadHome() {
-  const quizzes = await api("/quizzes");
-  const list = document.getElementById("quiz-list");
-  list.innerHTML = "";
-  quizzes.forEach(q => {
-    const b = document.createElement("button");
-    b.className = "quiz-card";
-    b.textContent = q.title_ar;
-    b.onclick = () => startQuiz(q.slug);
-    list.appendChild(b);
+  const profile = await loadProfile();
+  if (!profile.onboarded) return showOnboarding();
+  return renderMap(profile);
+}
+
+async function renderMap(profile) {
+  let quizzes = [];
+  let dashboard = null;
+  try { quizzes = await api("/quizzes"); } catch (_) {}
+  try { dashboard = await api("/me/dashboard", { headers: { "X-Init-Data": tg.initData } }); } catch (_) {}
+
+  const hud = document.getElementById("map-hud");
+  hud.innerHTML =
+    `<span class="hud-avatar">${profile.avatar}</span>` +
+    `<span class="hud-name">${profile.name || "باحث"}</span>`;
+
+  const path = document.getElementById("map-path");
+  path.innerHTML = "";
+  mapState(quizzes, dashboard).forEach((s) => {
+    const node = document.createElement("div");
+    node.className = "map-node " + s.status;
+    const mark = s.status === "done" ? "✓" : (s.status === "next" ? "✦" : "");
+    node.innerHTML =
+      `<span class="node-emoji">${STAGE_EMOJI[s.slug] || "⭐"}</span>` +
+      `<span class="node-title">${s.title_ar}</span>` +
+      `<span class="node-mark">${mark}</span>`;
+    node.onclick = () => enterStage(s.slug, profile);
+    path.appendChild(node);
   });
+
   document.getElementById("btn-my-badges").onclick = loadBadges;
   document.getElementById("btn-my-progress").onclick = loadDashboard;
   show("home");
+}
+
+function enterStage(slug, profile) {
+  const line = mentorLineFor("stage:" + slug, { name: profile.name });
+  if (typeof mentorSay === "function") mentorSay(line, { onDone: () => startQuiz(slug) });
+  else startQuiz(slug);
+}
+
+function showOnboarding() {
+  const mentor = document.getElementById("ob-mentor");
+  mentor.innerHTML =
+    `<div class="mentor-card"><div class="mentor-avatar">🦉</div>` +
+    `<div class="mentor-text">${mentorLineFor("welcome_anon", {})}</div></div>`;
+
+  let chosen = AVATARS[0];
+  const grid = document.getElementById("ob-avatars");
+  grid.innerHTML = "";
+  AVATARS.forEach((a, i) => {
+    const b = document.createElement("span");
+    b.className = "ob-avatar" + (i === 0 ? " selected" : "");
+    b.textContent = a;
+    b.onclick = () => {
+      chosen = a;
+      grid.querySelectorAll(".ob-avatar").forEach((x) => x.classList.remove("selected"));
+      b.classList.add("selected");
+    };
+    grid.appendChild(b);
+  });
+
+  document.getElementById("ob-start").onclick = async () => {
+    const name = (document.getElementById("ob-name").value || "").trim() || "باحث";
+    await saveProfile({ name, avatar: chosen, onboarded: true });
+    loadHome();
+  };
+  show("onboarding");
 }
 
 async function startQuiz(slug) {
@@ -475,4 +533,4 @@ async function loadDashboard() {
   show("progress");
 }
 
-loadHome().catch(e => { document.getElementById("quiz-list").textContent = "تعذّر التحميل"; });
+loadHome().catch(() => { const m = document.getElementById("map-path"); if (m) m.textContent = "تعذّر التحميل"; });

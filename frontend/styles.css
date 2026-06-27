@@ -126,3 +126,26 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .mentor-avatar { font-size:2.4rem; text-align:center; }
 .mentor-text { margin:10px 0 14px; font-size:1.05rem; line-height:1.8; text-align:center; }
 .mentor-next { background:linear-gradient(180deg,var(--accent2),var(--accent)); font-weight:700; }
+
+/* ---- P2 map + onboarding ---- */
+.map-hud { display:flex; align-items:center; gap:10px; padding:12px; border-radius:14px;
+  background:linear-gradient(180deg,var(--card2),var(--card)); margin-bottom:10px; box-shadow:inset 0 1px 0 #ffffff10; }
+.map-hud .hud-avatar { font-size:1.8rem; }
+.map-hud .hud-name { font-weight:700; }
+.map-path { display:flex; flex-direction:column; gap:14px; margin:14px 0; }
+.map-node { display:flex; align-items:center; gap:12px; padding:16px; border-radius:16px; cursor:pointer;
+  background:linear-gradient(180deg,var(--card2),var(--card)); box-shadow:inset 0 1px 0 #ffffff10; transition:transform .08s ease; }
+.map-node:active { transform:scale(.99); }
+.map-node .node-emoji { font-size:1.6rem; }
+.map-node .node-title { font-weight:700; flex:1; }
+.map-node .node-mark { font-size:1.2rem; color:var(--gold); }
+.map-node.done { outline:2px solid var(--good); }
+.map-node.done .node-mark { color:var(--good); }
+.map-node.next { outline:2px solid var(--gold); animation:node-pulse 1.6s ease-in-out infinite; }
+@keyframes node-pulse { 0%,100%{box-shadow:0 0 0 0 #ffd16655;} 50%{box-shadow:0 0 0 8px #ffd16600;} }
+.map-actions { display:flex; gap:8px; }
+.map-actions .quiz-card { flex:1; }
+.ob-name { width:100%; padding:12px; border-radius:12px; border:none; background:var(--card); color:var(--fg); font-size:1rem; text-align:center; }
+.ob-avatars { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:12px 0; }
+.ob-avatar { font-size:1.8rem; padding:8px 12px; border-radius:12px; background:var(--card); cursor:pointer; }
+.ob-avatar.selected { outline:2px solid var(--gold); }

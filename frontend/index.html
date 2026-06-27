@@ -9,11 +9,22 @@
 </head>
 <body>
   <main id="app">
+    <section id="screen-onboarding" class="screen hidden">
+      <h1>رحلة الباحث</h1>
+      <div id="ob-mentor"></div>
+      <input id="ob-name" class="ob-name" placeholder="اكتب اسمك" />
+      <div id="ob-avatars" class="ob-avatars"></div>
+      <button id="ob-start" class="quiz-card">ابدأ الرحلة 🚀</button>
+    </section>
+
     <section id="screen-home" class="screen">
-      <h1>مسابقة الجلسات</h1>
-      <div id="quiz-list"></div>
-      <button id="btn-my-badges" class="quiz-card">🏅 أوسمتي</button>
-      <button id="btn-my-progress" class="quiz-card">📊 تقدّمي</button>
+      <h1>رحلة الباحث</h1>
+      <div id="map-hud" class="map-hud"></div>
+      <div id="map-path" class="map-path"></div>
+      <div class="map-actions">
+        <button id="btn-my-badges" class="quiz-card">🏅 أوسمتي</button>
+        <button id="btn-my-progress" class="quiz-card">📊 تقدّمي</button>
+      </div>
     </section>
 
     <section id="screen-runner" class="screen hidden">
@@ -70,7 +81,9 @@
     </section>
   </main>
   <div id="fx-layer"></div>
-  <script src="ui.js?v=p1"></script>
+  <script src="store.js?v=p2"></script>
+  <script src="game.js?v=p2"></script>
+  <script src="ui.js?v=p2"></script>
   <script src="app.js?v=3a1"></script>
 </body>
 </html>
