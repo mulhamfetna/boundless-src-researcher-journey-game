@@ -126,7 +126,8 @@ function openAvatarPicker(profile) {
 
 async function startQuiz(slug) {
   const data = await api(`/quizzes/${slug}/questions`);
-  state = { slug, questions: data.questions, funFacts: data.fun_facts_ar || [], idx: 0, answers: [], startedAt: Date.now() };
+  const picked = (typeof pickBoss === "function") ? pickBoss(data.questions) : { bossId: null, ordered: data.questions };
+  state = { slug, questions: picked.ordered, bossId: picked.bossId, funFacts: data.fun_facts_ar || [], idx: 0, answers: [], startedAt: Date.now() };
   renderQuestion();
   show("runner");
 }
@@ -320,6 +321,10 @@ function checkComplex(givenExtra) {
 
 function renderQuestion() {
   show("runner");  // ensure the runner is visible (e.g. when returning from a fun-fact)
+  const isBoss = state.bossId != null && state.questions[state.idx] && state.questions[state.idx].id === state.bossId;
+  const bossBanner = document.getElementById("boss-banner");
+  if (bossBanner) bossBanner.classList.toggle("hidden", !isBoss);
+  document.getElementById("screen-runner").classList.toggle("boss", isBoss);
   const q = state.questions[state.idx];
   state.curRetries = 0;
   state.curHint = false;
