@@ -43,3 +43,41 @@ describe("mentorLineFor", () => {
     expect(typeof window.mentorLineFor("nope", {})).toBe("string");
   });
 });
+
+describe("levelFromXp", () => {
+  it("xp 0 is level 1, rank طالب, progress in [0,1)", () => {
+    const r = window.levelFromXp(0);
+    expect(r.level).toBe(1);
+    expect(r.rank_ar).toBe("طالب");
+    expect(r.progress).toBeGreaterThanOrEqual(0);
+    expect(r.progress).toBeLessThan(1);
+  });
+  it("crossing a threshold raises the level", () => {
+    expect(window.levelFromXp(299).level).toBe(1);
+    expect(window.levelFromXp(300).level).toBe(2);
+  });
+  it("high xp reaches بروفيسور", () => {
+    expect(window.levelFromXp(100000).rank_ar).toBe("بروفيسور");
+  });
+  it("handles missing/negative xp", () => {
+    expect(window.levelFromXp(undefined).level).toBe(1);
+    expect(window.levelFromXp(-50).level).toBe(1);
+  });
+});
+
+describe("pickBoss", () => {
+  it("picks the highest base_points and moves it last", () => {
+    const qs = [{ id: 1, base_points: 100 }, { id: 2, base_points: 120 }, { id: 3, base_points: 90 }];
+    const { bossId, ordered } = window.pickBoss(qs);
+    expect(bossId).toBe(2);
+    expect(ordered[ordered.length - 1].id).toBe(2);
+    expect(ordered.length).toBe(3);
+  });
+  it("ties resolve to the last max", () => {
+    const qs = [{ id: 1, base_points: 120 }, { id: 2, base_points: 120 }];
+    expect(window.pickBoss(qs).bossId).toBe(2);
+  });
+  it("empty input is safe", () => {
+    expect(window.pickBoss([])).toEqual({ bossId: null, ordered: [] });
+  });
+});
