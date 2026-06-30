@@ -307,3 +307,6 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .report-badge { background:linear-gradient(180deg,#123,#0a1428); border:1px solid var(--gold-dim); color:var(--gold-bright); }
 .passage-text { border-color:var(--gold-dim); background:#04111c; color:#dfe8ff; }
 .passage-src a { color:var(--gold); }
+
+/* ---- P5b readability: question prompt + funfact in clean body font (keep titles calligraphic) ---- */
+#q-prompt, #funfact-text { font-family:var(--font-body); font-weight:700; color:var(--gold-bright); letter-spacing:0; line-height:1.7; }
