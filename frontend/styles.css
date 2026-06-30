@@ -260,3 +260,50 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .node-here .sprite { width:2em; height:2em; filter:drop-shadow(2px 2px 0 var(--ink)); }
 @keyframes here-bob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
 .map-node.done .node-emoji .sprite { filter:drop-shadow(0 0 0 var(--teal)); }
+
+/* ---- P5b ambient embers ---- */
+.ember {
+  position:fixed; bottom:-12px; width:var(--sz,3px); height:var(--sz,3px); border-radius:50%;
+  background:radial-gradient(circle, #ffe6b0 0%, #c8aa6e 55%, transparent 70%);
+  box-shadow:0 0 6px #c8aa6eaa; opacity:0; pointer-events:none;
+  animation:ember-rise var(--dur,8s) linear var(--delay,0s) infinite;
+}
+@keyframes ember-rise {
+  0% { transform:translateY(0) translateX(0); opacity:0; }
+  10% { opacity:.9; }
+  90% { opacity:.6; }
+  100% { transform:translateY(-100vh) translateX(calc(var(--drift,0) * 40px)); opacity:0; }
+}
+
+/* ---- P5b hextech sprite tokens ---- */
+.node-emoji, .hud-avatar, .badge .ico, .ob-avatar, .mentor-avatar, .levelup-emoji {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 50% 40%, #0a323c 0%, #06101d 70%);
+  border:1px solid var(--gold-dim); border-radius:50%;
+  box-shadow:0 0 10px #0ac8b933, inset 0 0 8px #00000080; padding:6px;
+}
+.node-emoji { box-shadow:0 0 12px #c8aa6e44, inset 0 0 8px #000; }
+.ob-avatar.selected { border-color:var(--gold); box-shadow:0 0 14px #c8aa6e88; }
+.badge.locked .ico { filter:grayscale(1) brightness(.6); }
+
+/* ---- P5b ascension path ---- */
+.map-path::before { border-left:2px solid #c8aa6e44; box-shadow:0 0 8px #c8aa6e33; }
+.map-node { transition:box-shadow .2s ease, border-color .2s ease; }
+.map-node:hover { border-color:var(--gold); box-shadow:0 0 16px #c8aa6e55; }
+.map-node.next { border-color:var(--gold); animation:crystal-pulse 1.8s ease-in-out infinite; }
+.map-node.done { border-color:var(--cyan); box-shadow:0 0 12px #0ac8b944; }
+.map-node .node-num { font-family:var(--font-caps); color:var(--gold); opacity:.9; }
+.node-mark .sprite { filter:drop-shadow(0 0 4px #c8aa6e88); }
+@keyframes crystal-pulse { 0%,100%{ box-shadow:0 0 12px #c8aa6e44; } 50%{ box-shadow:0 0 22px #c8aa6e99; } }
+.node-here .sprite { filter:drop-shadow(0 0 6px #0ac8b9aa); }
+
+/* ---- P5b HUD + overlay polish ---- */
+.map-hud .hud-name { color:var(--gold-bright); font-weight:700; }
+.mentor-overlay, .levelup-overlay { background:#010a13cc; backdrop-filter:blur(2px); }
+.mentor-card, .levelup-card { box-shadow:0 0 30px #0ac8b933, inset 0 0 0 1px #0a1f33; }
+.mentor-next, .levelup-next { background:linear-gradient(180deg,#123,#0a1428); border-color:var(--gold); color:var(--gold-bright); }
+#boss-banner { background:linear-gradient(180deg,#3a0d12,#1a0608); color:var(--gold-bright);
+  border:1px solid var(--bad); box-shadow:0 0 14px #ff465555; clip-path:none; }
+.report-badge { background:linear-gradient(180deg,#123,#0a1428); border:1px solid var(--gold-dim); color:var(--gold-bright); }
+.passage-text { border-color:var(--gold-dim); background:#04111c; color:#dfe8ff; }
+.passage-src a { color:var(--gold); }

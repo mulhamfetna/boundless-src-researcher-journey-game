@@ -77,3 +77,16 @@ describe("levelUpOverlay", () => {
     expect(document.querySelector(".levelup-overlay")).toBeNull();
   });
 });
+
+describe("embers", () => {
+  beforeEach(() => { loadUi(); });
+  it("mounts the requested number of embers and is idempotent", () => {
+    expect(window.embers({ count: 10 })).toBe(10);
+    expect(document.querySelectorAll(".ember").length).toBe(10);
+    window.embers({ count: 6 });
+    expect(document.querySelectorAll(".ember").length).toBe(6);
+  });
+  it("defaults to 14 embers", () => {
+    expect(window.embers()).toBe(14);
+  });
+});

@@ -70,6 +70,7 @@ async function renderMap(profile) {
   document.getElementById("btn-my-badges").onclick = loadBadges;
   document.getElementById("btn-my-progress").onclick = loadDashboard;
   document.getElementById("btn-report").onclick = showReport;
+  if (typeof embers === "function") embers();
   show("home");
 }
 

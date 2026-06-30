@@ -84,9 +84,27 @@
     return ov;
   }
 
+  function embers(opts = {}) {
+    const host = document.getElementById("fx-layer") || document.body;
+    host.querySelectorAll(".ember").forEach((e) => e.remove());
+    const count = opts.count == null ? 14 : opts.count;
+    for (let i = 0; i < count; i++) {
+      const e = document.createElement("span");
+      e.className = "ember";
+      e.style.left = Math.floor(Math.random() * 100) + "%";
+      e.style.setProperty("--dur", (6 + Math.random() * 6).toFixed(1) + "s");
+      e.style.setProperty("--delay", (-Math.random() * 8).toFixed(1) + "s");
+      e.style.setProperty("--drift", (Math.random() * 2 - 1).toFixed(2));
+      e.style.setProperty("--sz", (2 + Math.random() * 3).toFixed(1) + "px");
+      host.appendChild(e);
+    }
+    return count;
+  }
+
   window.confetti = confetti;
   window.burst = burst;
   window.mentorSay = mentorSay;
   window.renderHUD = renderHUD;
   window.levelUpOverlay = levelUpOverlay;
+  window.embers = embers;
 })();
