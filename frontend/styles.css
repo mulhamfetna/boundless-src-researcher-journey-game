@@ -193,12 +193,28 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 #atmos {
   position:fixed; inset:0; z-index:0; pointer-events:none;
   background:
-    radial-gradient(120% 80% at 50% -10%, #0a323c55 0%, transparent 55%),
-    radial-gradient(90% 60% at 50% 110%, #785a2833 0%, transparent 55%),
-    radial-gradient(60% 40% at 80% 20%, #0ac8b915 0%, transparent 60%),
-    radial-gradient(140% 120% at 50% 50%, transparent 55%, #000a 100%),
-    var(--bg);
+    radial-gradient(120% 70% at 50% -8%, color-mix(in srgb, var(--gold) 30%, transparent) 0%, transparent 55%),
+    radial-gradient(70% 45% at 72% 14%, color-mix(in srgb, var(--cyan) 28%, transparent) 0%, transparent 60%),
+    radial-gradient(120% 80% at 50% 112%, color-mix(in srgb, var(--z-shimmer) 42%, transparent) 0%, transparent 55%),
+    radial-gradient(80% 55% at 30% 96%, color-mix(in srgb, var(--z-acid) 26%, transparent) 0%, transparent 60%),
+    radial-gradient(140% 120% at 50% 50%, transparent 50%, #000c 100%),
+    linear-gradient(180deg, var(--p-navy) 0%, var(--z-smog-2) 58%, var(--z-smog) 100%);
 }
+/* god-rays + painterly grain layered above the sky, below content */
+#atmos::before {
+  content:""; position:absolute; inset:0;
+  background:
+    repeating-linear-gradient(102deg, transparent 0 38px,
+      color-mix(in srgb, var(--gold) 8%, transparent) 38px 42px);
+  mix-blend-mode:screen; opacity:.5;
+  -webkit-mask-image:linear-gradient(180deg, #000 0%, transparent 46%);
+          mask-image:linear-gradient(180deg, #000 0%, transparent 46%);
+}
+#atmos::after {
+  content:""; position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+}
+@media (prefers-reduced-motion: reduce) { .ember { animation:none; opacity:.4; } }
 .hx-frame { position:relative; }
 .hx-frame::before, .hx-frame::after {
   content:""; position:absolute; width:14px; height:14px; pointer-events:none;
@@ -265,6 +281,8 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
   box-shadow:0 0 6px #c8aa6eaa; opacity:0; pointer-events:none;
   animation:ember-rise var(--dur,8s) linear var(--delay,0s) infinite;
 }
+.ember-pilt { background:radial-gradient(circle, #ffe6b0 0%, var(--gold) 55%, transparent 70%); box-shadow:0 0 6px #c8aa6eaa; }
+.ember-zaun { background:radial-gradient(circle, #ffd0ec 0%, var(--z-shimmer) 55%, transparent 70%); box-shadow:0 0 7px #ff2e97aa; }
 @keyframes ember-rise {
   0% { transform:translateY(0) translateX(0); opacity:0; }
   10% { opacity:.9; }

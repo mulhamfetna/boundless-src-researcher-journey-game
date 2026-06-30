@@ -74,7 +74,11 @@ async function renderMap(profile) {
   document.getElementById("btn-my-badges").onclick = loadBadges;
   document.getElementById("btn-my-progress").onclick = loadDashboard;
   document.getElementById("btn-report").onclick = showReport;
-  if (typeof embers === "function") embers();
+  if (typeof embers === "function") {
+    const w = (typeof levelFromXp === "function" && typeof worldFromLevel === "function")
+      ? worldFromLevel(levelFromXp(currentXp).level) : 0.4;
+    embers({ world: w });
+  }
   show("home");
 }
 

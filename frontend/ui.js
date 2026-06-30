@@ -88,9 +88,11 @@
     const host = document.getElementById("fx-layer") || document.body;
     host.querySelectorAll(".ember").forEach((e) => e.remove());
     const count = opts.count == null ? 14 : opts.count;
+    const world = opts.world == null ? 0.5 : Math.max(0, Math.min(1, opts.world));
+    const gold = Math.round(count * world); // how many Piltover motes
     for (let i = 0; i < count; i++) {
       const e = document.createElement("span");
-      e.className = "ember";
+      e.className = "ember " + (i < gold ? "ember-pilt" : "ember-zaun");
       e.style.left = Math.floor(Math.random() * 100) + "%";
       e.style.setProperty("--dur", (6 + Math.random() * 6).toFixed(1) + "s");
       e.style.setProperty("--delay", (-Math.random() * 8).toFixed(1) + "s");

@@ -80,13 +80,21 @@ describe("levelUpOverlay", () => {
 
 describe("embers", () => {
   beforeEach(() => { loadUi(); });
-  it("mounts the requested number of embers and is idempotent", () => {
-    expect(window.embers({ count: 10 })).toBe(10);
+  it("mounts count and is idempotent", () => {
+    expect(window.embers({ count: 10, world: 0.5 })).toBe(10);
     expect(document.querySelectorAll(".ember").length).toBe(10);
-    window.embers({ count: 6 });
+    window.embers({ count: 6, world: 0.5 });
     expect(document.querySelectorAll(".ember").length).toBe(6);
   });
-  it("defaults to 14 embers", () => {
-    expect(window.embers()).toBe(14);
+  it("world=1 → all Piltover gold motes", () => {
+    window.embers({ count: 8, world: 1 });
+    expect(document.querySelectorAll(".ember-pilt").length).toBe(8);
+    expect(document.querySelectorAll(".ember-zaun").length).toBe(0);
   });
+  it("world=0 → all Zaun shimmer sparks", () => {
+    window.embers({ count: 8, world: 0 });
+    expect(document.querySelectorAll(".ember-zaun").length).toBe(8);
+    expect(document.querySelectorAll(".ember-pilt").length).toBe(0);
+  });
+  it("defaults to 14 embers", () => { expect(window.embers()).toBe(14); });
 });
