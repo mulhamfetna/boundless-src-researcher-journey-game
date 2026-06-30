@@ -477,6 +477,8 @@ async function submit() {
 
 function renderReport(report) {
   const correct = report.items.filter((i) => i.first_try).length;
+  const accuracy = report.items.length ? correct / report.items.length : 0;
+  document.documentElement.style.setProperty("--world", String(Math.max(0, Math.min(1, accuracy))));
   document.getElementById("report-summary").innerHTML =
     `<div class="summary-big">${report.total_score} نقطة</div>` +
     `<div style="text-align:center">صحيح ${correct}/${report.items.length} — الترتيب #${report.rank}</div>`;
