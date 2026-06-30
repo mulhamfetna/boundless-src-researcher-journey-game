@@ -363,7 +363,7 @@ function renderQuestion() {
   const bossBanner = document.getElementById("boss-banner");
   if (bossBanner) {
     bossBanner.classList.toggle("hidden", !isBoss);
-    if (isBoss) bossBanner.innerHTML = `${spr("crown")} تحدّي الزعيم`;
+    if (isBoss) bossBanner.innerHTML = `${spr("boss")} موجة الشيمر — أقوى سؤال`;
   }
   document.getElementById("screen-runner").classList.toggle("boss", isBoss);
   const q = state.questions[state.idx];

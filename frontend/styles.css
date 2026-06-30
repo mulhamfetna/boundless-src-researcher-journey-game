@@ -325,3 +325,32 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 
 /* ---- P5b readability: question prompt + funfact in clean body font (keep titles calligraphic) ---- */
 #q-prompt, #funfact-text { font-family:var(--font-body); font-weight:700; color:var(--gold-bright); letter-spacing:0; line-height:1.7; }
+
+/* ---- Arcane signature: map ---- */
+.map-path::before { border-left:2px dashed color-mix(in srgb, var(--gold) 40%, transparent);
+  box-shadow:0 0 8px #c8aa6e33; }
+.map-node { background:linear-gradient(180deg, color-mix(in srgb,var(--z-smog-2) 70%, var(--p-navy)) , #06101dee);
+  border:1px solid var(--gold-dim); }
+.map-node.done { border-color:var(--shimmer); box-shadow:0 0 12px #ff2e9744; }
+.map-node.done .node-mark { color:var(--shimmer); }
+.map-node.next { border-color:var(--cyan); box-shadow:0 0 18px #0ac8b966; animation:crystal-pulse 1.8s ease-in-out infinite; }
+.map-node .node-num { font-family:var(--font-caps); color:var(--gold-bright); }
+.node-here .sprite { filter:drop-shadow(0 0 6px var(--cyan)); }
+@keyframes crystal-pulse { 0%,100%{ box-shadow:0 0 12px #0ac8b944; } 50%{ box-shadow:0 0 22px #0ac8b999; } }
+.map-hud { background:linear-gradient(180deg,#0e1b33f2,#0a1428f2); border:1px solid var(--gold-dim);
+  box-shadow:0 3px 10px #0008; }
+.map-hud .hud-name { color:var(--gold-bright); }
+.map-hud .hud-rank { color:var(--cyan); font-family:var(--font-caps); }
+
+/* ---- Arcane signature: runner + boss surge ---- */
+#screen-runner h2#q-prompt { color:var(--gold-bright); }
+#boss-banner { text-align:center; font-family:var(--font-caps); letter-spacing:2px; font-weight:800;
+  color:#ffd7da; padding:10px; margin-bottom:10px; clip-path:none;
+  background:linear-gradient(180deg,#3a0d22,#14081e); border:1px solid var(--shimmer);
+  box-shadow:0 0 16px #ff2e9766; animation:pop-good .4s ease; }
+#screen-runner.boss .opt { border-color:color-mix(in srgb,var(--shimmer) 60%, var(--gold-dim)); }
+#screen-runner.boss .opt:hover { box-shadow:0 0 14px #ff2e9755, inset 0 0 18px #8a3bff22; }
+.opt.good, .opt.correct { border-color:var(--cyan); color:var(--cyan-bright); box-shadow:0 0 16px #0ac8b966; }
+.opt.bad, .opt.wrong { border-color:var(--shimmer); color:#ffd7da; box-shadow:0 0 16px #ff2e9766; background:linear-gradient(180deg,#1a0610ee,#06101dee); }
+.opt.good, .opt.correct { background:linear-gradient(180deg,#06231fee,#06101dee); }
+.opt.wrong { opacity:1; }
