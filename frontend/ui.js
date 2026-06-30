@@ -46,7 +46,7 @@
     const overlay = document.createElement("div");
     overlay.className = "mentor-overlay";
     overlay.innerHTML =
-      '<div class="mentor-card"><div class="mentor-avatar">' + (typeof sprite === "function" ? sprite("owl") : "🦉") + '</div>' +
+      '<div class="mentor-card"><div class="mentor-avatar">' + (typeof sprite === "function" ? sprite("mentor") : "🦉") + '</div>' +
       '<div class="mentor-text"></div><button class="mentor-next">متابعة</button></div>';
     overlay.querySelector(".mentor-text").textContent = text;
     const close = () => {

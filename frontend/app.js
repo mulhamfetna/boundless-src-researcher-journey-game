@@ -23,9 +23,9 @@ async function api(path, opts = {}) {
 let state = { slug: null, questions: [], funFacts: [], idx: 0, answers: [], curRetries: 0, curHint: false };
 let currentXp = 0;
 
-const AVATARS = (typeof AVATAR_SPRITES !== "undefined") ? AVATAR_SPRITES : ["scholar", "owl", "fox"];
+const AVATARS = (typeof AVATAR_SPRITES !== "undefined") ? AVATAR_SPRITES : ["tinkerer", "brawler", "sniper"];
 function spr(name) { return (typeof sprite === "function") ? sprite(name) : ""; }
-function avatarSprite(id) { return spr((typeof AVATAR_SPRITES !== "undefined" && AVATAR_SPRITES.includes(id)) ? id : "scholar"); }
+function avatarSprite(id) { return spr((typeof AVATAR_SPRITES !== "undefined" && AVATAR_SPRITES.includes(id)) ? id : "tinkerer"); }
 function stageSprite(slug) { return spr((typeof STAGE_SPRITES !== "undefined" && STAGE_SPRITES[slug]) || "book"); }
 
 async function loadHome() {
