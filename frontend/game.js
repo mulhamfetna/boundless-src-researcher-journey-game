@@ -60,6 +60,10 @@
     const t = (Number(level) - 1) / 9; // level 1 -> 0, level 10 -> 1
     return Math.max(0, Math.min(1, t));
   }
+  function emberCountForWorld(world) {
+    const w = Math.max(0, Math.min(1, Number(world) || 0)); // junk -> 0 (deep Zaun)
+    return 14 + Math.round(16 * (1 - w)); // 30 in deep Zaun -> 14 in Piltover
+  }
   function pickBoss(questions) {
     if (!questions || !questions.length) return { bossId: null, ordered: [] };
     let boss = questions[0];
@@ -73,6 +77,7 @@
   window.mentorLineFor = mentorLineFor;
   window.levelFromXp = levelFromXp;
   window.worldFromLevel = worldFromLevel;
+  window.emberCountForWorld = emberCountForWorld;
   window.RANKS = RANKS;
   window.rankFor = rankFor;
   window.pickBoss = pickBoss;

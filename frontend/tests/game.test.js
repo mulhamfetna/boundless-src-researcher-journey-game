@@ -80,6 +80,20 @@ describe("worldFromLevel", () => {
   it("clamps below 1", () => { expect(window.worldFromLevel(0)).toBe(0); });
 });
 
+describe("emberCountForWorld", () => {
+  it("is densest in deep Zaun, sparse in Piltover", () => {
+    expect(window.emberCountForWorld(0)).toBe(30);
+    expect(window.emberCountForWorld(1)).toBe(14);
+  });
+  it("thins out as the world climbs", () => {
+    expect(window.emberCountForWorld(0.25)).toBeGreaterThan(window.emberCountForWorld(0.75));
+  });
+  it("clamps and tolerates junk input", () => {
+    expect(window.emberCountForWorld(5)).toBe(14);
+    expect(window.emberCountForWorld(undefined)).toBe(30);
+  });
+});
+
 describe("pickBoss", () => {
   it("picks the highest base_points and moves it last", () => {
     const qs = [{ id: 1, base_points: 100 }, { id: 2, base_points: 120 }, { id: 3, base_points: 90 }];

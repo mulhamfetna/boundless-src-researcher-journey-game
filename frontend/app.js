@@ -77,7 +77,8 @@ async function renderMap(profile) {
   if (typeof embers === "function") {
     const w = (typeof levelFromXp === "function" && typeof worldFromLevel === "function")
       ? worldFromLevel(levelFromXp(currentXp).level) : 0.4;
-    embers({ world: w });
+    const n = (typeof emberCountForWorld === "function") ? emberCountForWorld(w) : 14;
+    embers({ world: w, count: n });
   }
   show("home");
 }
