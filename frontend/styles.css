@@ -3,16 +3,28 @@
 @font-face { font-family:"Cinzel"; src:url("fonts/Cinzel-SemiBold.woff2") format("woff2"); font-weight:600; font-display:swap; }
 
 :root {
-  --bg:#010a13; --panel:#0a1428; --panel2:#0a323c; --ink:#010406;
-  --gold:#c8aa6e; --gold-bright:#f0e6d2; --gold-dim:#785a28; --gold-line:#463714;
-  --cyan:#0ac8b9; --cyan-2:#0397ab; --cyan-bright:#cdfafa;
-  --fg:#f0e6d2; --muted:#a09b8c; --bad:#ff4655; --good:#0ac8b9;
+  /* ---- Piltover (mastery / topside) ---- */
+  --p-navy:#0a1428; --p-navy-2:#0e1b33; --gold:#c8aa6e; --gold-bright:#e2c687;
+  --gold-dim:#785a28; --gold-line:#463714; --cyan:#0ac8b9; --cyan-2:#0397ab;
+  --cyan-bright:#cdfafa; --ivory:#f0e6d2;
+  /* ---- Zaun (early / undercity) ---- */
+  --z-smog:#14081e; --z-smog-2:#1f0f2e; --z-shimmer:#ff2e97; --z-acid:#2fe6a0;
+  --z-violet:#8a3bff; --z-ink:#e8d8ff;
+  /* ---- semantic ---- */
+  --shimmer:#ff2e97; --acid:#2fe6a0; --bad:#ff4655; --good:#0ac8b9;
+  --bg:#070310; --panel:#0a1428; --panel2:#0a323c; --ink:#04020a;
+  --fg:#f0e6d2; --muted:#a09b8c;
+  /* ---- world-lerp: 0 = deep Zaun, 1 = high Piltover (set by app.js) ---- */
+  --world:0.15;
+  --accent-now: color-mix(in srgb, var(--z-shimmer) calc((1 - var(--world)) * 100%), var(--gold));
+  --glow-now:   color-mix(in srgb, var(--z-violet)  calc((1 - var(--world)) * 100%), var(--cyan));
   /* legacy aliases so older rules keep resolving */
-  --card:#0a1428; --card2:#0a323c; --accent:#c8aa6e; --accent2:#c8aa6e; --pink:#c8aa6e; --teal:#0ac8b9; --bg2:#010a13;
-  --font-head:"ArefRuqaa", "Cairo", serif;
-  --font-caps:"Cinzel", serif;
-  --font-body:"Cairo", system-ui, "Segoe UI", Tahoma, sans-serif;
-  --font-pixel:"Cinzel", serif;
+  --card:#0a1428; --card2:#0a323c; --accent:#c8aa6e; --accent2:#c8aa6e;
+  --pink:#c8aa6e; --teal:#0ac8b9; --bg2:#070310;
+  --font-head:"ArefRuqaa","Cairo",serif;
+  --font-caps:"Cinzel",serif;
+  --font-body:"Cairo",system-ui,"Segoe UI",Tahoma,sans-serif;
+  --font-pixel:"Cinzel",serif;
 }
 * { box-sizing: border-box; }
 body { margin:0; color:var(--fg); font-family:var(--font-body); background:var(--bg); min-height:100vh; }
@@ -205,26 +217,11 @@ ol#board-list li { background:var(--card); margin:6px 0; padding:10px; border-ra
 .map-node.next { outline:none; border-color:var(--gold); animation:node-pulse 1.6s ease-in-out infinite; }
 .map-node.done { outline:none; border-color:var(--teal); }
 
-/* ---- P4a pixelize remaining components (override later rounded/gradient rules) ---- */
-.mentor-card, .levelup-card { background:var(--panel); border:3px solid var(--ink); box-shadow:4px 4px 0 var(--ink); border-radius:4px; }
+/* (P4a pixel-art override block removed in Arcane reskin — it re-imposed chunky
+   3px-ink boxes that fought the hextech gold frames. Components inherit the
+   notched gold-frame chrome + the Arcane screen rules appended below.) */
 .mentor-overlay { align-items:center; }
-.level-bar { border-radius:0; background:var(--ink); border:2px solid var(--ink); height:14px; }
-.level-bar > i { background:var(--gold); }
-.chip { background:var(--pink); color:#fff; border:3px solid var(--ink); border-radius:4px; box-shadow:3px 3px 0 var(--ink); }
-.slot { background:var(--ink); border:3px dashed var(--panel2); border-radius:4px; }
-.order-row { background:var(--panel); border:3px solid var(--ink); border-radius:4px; box-shadow:3px 3px 0 var(--ink); }
-.runner-submit { background:var(--teal); color:var(--ink); }
-.badge { border-radius:4px; }
-.hint-btn { background:var(--panel2); }
-.hint-box { background:var(--ink); border:3px solid var(--panel2); border-radius:4px; }
-#funfact-text { border-radius:4px; }
-.q-image { border-radius:4px; }
-.mchip { border-radius:4px; color:#06101f; }
-.report-badge { background:var(--gold); color:var(--ink); border-radius:4px; }
-.next-card { border:3px solid var(--ink); border-radius:4px; box-shadow:4px 4px 0 var(--ink); }
-.dash-stats .stat, .dash-history li, ol#board-list li { border-radius:4px; }
-.ob-name, .ob-avatar { border-radius:4px; border:3px solid var(--ink); }
-.ob-avatar.selected { outline:none; border-color:var(--gold); }
+.runner-submit { background:var(--cyan); color:var(--ink); }
 .topbar { color:var(--muted); }
 
 /* ---- P4b sprites ---- */

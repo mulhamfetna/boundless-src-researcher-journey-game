@@ -65,6 +65,21 @@ describe("levelFromXp", () => {
   });
 });
 
+describe("worldFromLevel", () => {
+  it("is 0 at level 1 (deep Zaun) and 1 at level 10+ (Piltover)", () => {
+    expect(window.worldFromLevel(1)).toBe(0);
+    expect(window.worldFromLevel(10)).toBe(1);
+    expect(window.worldFromLevel(100)).toBe(1);
+  });
+  it("climbs monotonically in between", () => {
+    const a = window.worldFromLevel(3), b = window.worldFromLevel(6);
+    expect(a).toBeGreaterThan(0);
+    expect(b).toBeGreaterThan(a);
+    expect(b).toBeLessThan(1);
+  });
+  it("clamps below 1", () => { expect(window.worldFromLevel(0)).toBe(0); });
+});
+
 describe("pickBoss", () => {
   it("picks the highest base_points and moves it last", () => {
     const qs = [{ id: 1, base_points: 100 }, { id: 2, base_points: 120 }, { id: 3, base_points: 90 }];

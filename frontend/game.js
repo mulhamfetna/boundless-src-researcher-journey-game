@@ -56,6 +56,10 @@
     const intoLevel = xp - start;
     return { level, rank_ar: rankFor(level), intoLevel, span, progress: span > 0 ? intoLevel / span : 0 };
   }
+  function worldFromLevel(level) {
+    const t = (Number(level) - 1) / 9; // level 1 -> 0, level 10 -> 1
+    return Math.max(0, Math.min(1, t));
+  }
   function pickBoss(questions) {
     if (!questions || !questions.length) return { bossId: null, ordered: [] };
     let boss = questions[0];
@@ -68,6 +72,7 @@
   window.MENTOR = MENTOR;
   window.mentorLineFor = mentorLineFor;
   window.levelFromXp = levelFromXp;
+  window.worldFromLevel = worldFromLevel;
   window.RANKS = RANKS;
   window.rankFor = rankFor;
   window.pickBoss = pickBoss;

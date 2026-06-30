@@ -41,6 +41,10 @@ async function renderMap(profile) {
   try { dashboard = await api("/me/dashboard", { headers: { "X-Init-Data": tg.initData } }); } catch (_) {}
 
   currentXp = (dashboard && dashboard.stats && dashboard.stats.total_points) || 0;
+  if (typeof levelFromXp === "function" && typeof worldFromLevel === "function") {
+    const w = worldFromLevel(levelFromXp(currentXp).level);
+    document.documentElement.style.setProperty("--world", String(w));
+  }
   const hud = document.getElementById("map-hud");
   if (typeof renderHUD === "function" && typeof levelFromXp === "function") {
     const lv = levelFromXp(currentXp);
