@@ -378,17 +378,44 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 .mchip.lv-familiar { background:var(--z-violet); color:#fff; }
 
 /* ---- Arcane: Zaun undercity grit (intensifies as --world -> 0, fades toward Piltover) ---- */
+/* chem-pipe silhouettes framing both edges of the undercity */
+#zaun-pipes {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  opacity:calc(0.55 * (1 - var(--world)));
+  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 55%, transparent 92%);
+          mask-image:linear-gradient(0deg, #000 0%, #000 55%, transparent 92%);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='220'><rect x='14' y='0' width='30' height='220' fill='%231a0e22'/><rect x='14' y='0' width='5' height='220' fill='%232fe6a0' opacity='0.16'/><rect x='39' y='0' width='5' height='220' fill='%23000000' opacity='0.55'/><rect x='8' y='30' width='42' height='12' fill='%230a0410'/><rect x='8' y='150' width='42' height='12' fill='%230a0410'/><circle cx='29' cy='36' r='2.4' fill='%232fe6a0' opacity='0.55'/><circle cx='29' cy='156' r='2.4' fill='%23ff2e97' opacity='0.45'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='220'><rect x='20' y='0' width='30' height='220' fill='%231a0e22'/><rect x='45' y='0' width='5' height='220' fill='%232fe6a0' opacity='0.16'/><rect x='20' y='0' width='5' height='220' fill='%23000000' opacity='0.55'/><rect x='14' y='30' width='42' height='12' fill='%230a0410'/><rect x='14' y='150' width='42' height='12' fill='%230a0410'/><circle cx='35' cy='36' r='2.4' fill='%232fe6a0' opacity='0.55'/><circle cx='35' cy='156' r='2.4' fill='%23ff2e97' opacity='0.45'/></svg>");
+  background-repeat:repeat-y, repeat-y;
+  background-size:60px 220px, 60px 220px;
+  background-position:left top, right top;
+}
+/* neon graffiti tags + drips + grime + undercity haze, scattered up the wall */
 #zaun-grit {
   position:fixed; inset:0; pointer-events:none; z-index:0;
-  opacity:calc(0.65 * (1 - var(--world)));
-  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 26%, transparent 62%);
-          mask-image:linear-gradient(0deg, #000 0%, #000 26%, transparent 62%);
+  opacity:calc(0.7 * (1 - var(--world)));
+  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 70%, transparent 100%);
+          mask-image:linear-gradient(0deg, #000 0%, #000 70%, transparent 100%);
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='460' height='340'><g fill='none' stroke-linecap='round'><path d='M30 300 L80 250 L55 305 L120 255' stroke='%23ff2e97' stroke-width='7' opacity='0.5'/><path d='M120 290 q30 -50 70 -20 q20 18 -6 40' stroke='%232fe6a0' stroke-width='6' opacity='0.4'/><path d='M250 305 L300 255 L280 310 L340 260' stroke='%238a3bff' stroke-width='6' opacity='0.45'/><path d='M360 300 L400 270 L385 312' stroke='%23ff2e97' stroke-width='6' opacity='0.4'/><circle cx='200' cy='280' r='22' stroke='%232fe6a0' stroke-width='4' opacity='0.3'/></g><g fill='%23ff2e97' opacity='0.28'><rect x='78' y='250' width='3' height='80'/><rect x='300' y='255' width='3' height='75'/></g><g fill='%232fe6a0' opacity='0.22'><rect x='190' y='258' width='2' height='70'/><rect x='400' y='270' width='2' height='62'/></g></svg>"),
-    repeating-linear-gradient(90deg, transparent 0 70px, #00000026 70px 74px),
-    radial-gradient(140% 90% at 50% 130%, #1a0420cc 0%, transparent 60%);
-  background-repeat:repeat-x, repeat, no-repeat;
-  background-size:460px auto, auto, auto;
-  background-position:bottom left, 0 0, bottom;
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='560'><g fill='none' stroke-linecap='round'><path d='M30 120 L80 70 L55 125 L120 75' stroke='%23ff2e97' stroke-width='7' opacity='0.5'/><path d='M360 90 q34 -46 72 -16 q22 18 -6 42' stroke='%232fe6a0' stroke-width='6' opacity='0.42'/><path d='M270 300 L330 250 L308 318 L372 262' stroke='%238a3bff' stroke-width='6' opacity='0.45'/><path d='M70 430 L120 400 L100 446 L150 410' stroke='%23ff2e97' stroke-width='6' opacity='0.42'/><path d='M250 470 q30 -40 64 -14' stroke='%232fe6a0' stroke-width='5' opacity='0.36'/><circle cx='430' cy='450' r='24' stroke='%232fe6a0' stroke-width='4' opacity='0.32'/><circle cx='150' cy='250' r='16' stroke='%23ff2e97' stroke-width='3' opacity='0.3'/></g><g fill='%23ff2e97' opacity='0.26'><rect x='78' y='70' width='3' height='70'/><rect x='118' y='400' width='3' height='66'/></g><g fill='%232fe6a0' opacity='0.2'><rect x='430' y='250' width='2' height='60'/><rect x='312' y='254' width='2' height='64'/></g></svg>"),
+    repeating-linear-gradient(90deg, transparent 0 72px, #00000022 72px 76px),
+    radial-gradient(140% 80% at 50% 128%, #1a0420cc 0%, transparent 60%);
+  background-repeat:repeat, repeat, no-repeat;
+  background-size:520px 560px, auto, auto;
+  background-position:top left, 0 0, bottom;
 }
-@media (prefers-reduced-motion: reduce) { #zaun-grit { } }
+/* drifting toxic acid-fog rolling along the undercity floor */
+#zaun-fog {
+  position:fixed; inset:0 -40px; pointer-events:none; z-index:0;
+  opacity:calc(0.6 * (1 - var(--world)));
+  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 32%, transparent 64%);
+          mask-image:linear-gradient(0deg, #000 0%, #000 32%, transparent 64%);
+  background:
+    radial-gradient(46% 30% at 22% 94%, #2fe6a055 0%, transparent 70%),
+    radial-gradient(42% 26% at 74% 98%, #2fe6a044 0%, transparent 70%),
+    radial-gradient(40% 24% at 50% 104%, #8a3bff4d 0%, transparent 70%);
+  animation:acid-drift 16s ease-in-out infinite alternate;
+}
+@keyframes acid-drift { 0% { transform:translateX(-14px); } 100% { transform:translateX(14px); } }
+@media (prefers-reduced-motion: reduce) { #zaun-fog { animation:none; } }
