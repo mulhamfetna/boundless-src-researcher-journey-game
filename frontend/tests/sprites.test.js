@@ -26,7 +26,7 @@ describe("sprites", () => {
   });
   it("exposes the id maps with expected keys", () => {
     expect(window.AVATAR_SPRITES.length).toBe(6);
-    expect(Object.keys(window.STAGE_SPRITES).sort()).toEqual(["foundations", "journals", "paper-parts", "paper-types"]);
+    expect(Object.keys(window.STAGE_SPRITES).sort()).toEqual(["foundations", "journals", "paper-parts", "paper-types", "publishing", "submission"]);
     expect(Object.keys(window.BADGE_SPRITES).sort()).toEqual(["first_finish", "perfect_quiz", "self_reliant", "streak_master"]);
   });
 });

@@ -1,0 +1,481 @@
+{
+  "slug": "submission",
+  "title_ar": "الإرسال والتتبع",
+  "pdf_filename": "نظام الإرسال والتتبع بالمجلات الرصينة.pdf",
+  "display_order": 6,
+  "fun_facts_ar": [
+    "نحو ثلثي المخطوطات (66%) تُرفض في مرحلة الفرز التحريري (Desk Review) قبل أن تصل إلى المحكّمين أصلًا.",
+    "قد يدعو المحرّر أكثر من 8 محكّمين لتأمين موافقة اثنين فقط، لأن كثيرًا منهم لا يستجيب.",
+    "الـDOI بطاقة هوية رقمية دائمة تمنحها Crossref، تقود إلى بحثك حتى لو تغيّر رابط المجلة.",
+    "توصيات المحكّمين استشارية لا مُلزِمة؛ القرار النهائي بيد المحرّر.",
+    "OJS نظام مفتوح المصدر مجاني (من PKP) شائع لدى المجلات المستقلّة والعربية."
+  ],
+  "questions": [
+    {
+      "type": "mcq",
+      "concept": "submission_systems",
+      "base_points": 105,
+      "prompt_ar": "ما وظيفة أنظمة إدارة المخطوطات (Manuscript Submission Systems)؟",
+      "options_ar": [
+        "إدارة دورة حياة البحث كاملة من الإرسال مرورًا بالتحكيم حتى النشر",
+        "تصميم أغلفة المجلات",
+        "ترجمة الأبحاث تلقائيًا",
+        "حساب أجور النشر فقط"
+      ],
+      "correct_index": 0,
+      "hint_ar": "منصّة إلكترونية ترافق البحث من لحظة رفعه حتى نشره."
+    },
+    {
+      "type": "match",
+      "concept": "submission_systems",
+      "base_points": 130,
+      "prompt_ar": "طابِق كل نظام إرسال مع صفته/مطوّره.",
+      "left_ar": [
+        "ScholarOne",
+        "Editorial Manager",
+        "OJS",
+        "eJournalPress"
+      ],
+      "right_ar": [
+        "تجاري (Silverchair) — الأكثر انتشارًا عالميًا",
+        "تجاري (Aries) — شائع لدى الناشر Elsevier",
+        "مفتوح المصدر مجاني (PKP) — شائع للمجلات المستقلّة والعربية",
+        "تجاري (Wiley) — تستخدمه بعض دور النشر الكبرى"
+      ],
+      "correct_pairs": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "hint_ar": "ميّز التجاري من المفتوح، واربط كلًّا بمطوّره."
+    },
+    {
+      "type": "mcq",
+      "concept": "submission_systems",
+      "base_points": 105,
+      "prompt_ar": "مجلة عربية مستقلّة صغيرة تريد نظام إرسال مجانيًا مفتوح المصدر — أيّها تختار؟",
+      "options_ar": [
+        "OJS",
+        "ScholarOne",
+        "Editorial Manager",
+        "eJournalPress"
+      ],
+      "correct_index": 0,
+      "hint_ar": "ابحث عن 'مفتوح المصدر' و'مجاني'."
+    },
+    {
+      "type": "mcq",
+      "concept": "doi_crossref",
+      "base_points": 105,
+      "prompt_ar": "ما هو الـDOI؟",
+      "options_ar": [
+        "مُعرّف رقمي دائم يمنح البحث 'بطاقة هوية' ويجعله قابلًا للاكتشاف والربط",
+        "رسوم النشر",
+        "اسم المحرّر المسؤول",
+        "نوع خطّ المجلة"
+      ],
+      "correct_index": 0,
+      "hint_ar": "يبقى ثابتًا مدى الحياة ويميّز كل بحث."
+    },
+    {
+      "type": "mcq",
+      "concept": "doi_crossref",
+      "base_points": 105,
+      "prompt_ar": "أيّ منظمة عالمية تسجّل البيانات الوصفية وتمنح الـDOI؟",
+      "options_ar": [
+        "Crossref",
+        "Turnitin",
+        "Mendeley",
+        "ORCID"
+      ],
+      "correct_index": 0,
+      "hint_ar": "منظمة الربط العالمية للأبحاث."
+    },
+    {
+      "type": "tf",
+      "concept": "doi_crossref",
+      "base_points": 90,
+      "prompt_ar": "الـDOI يبقى ثابتًا ويقود إلى البحث حتى لو تغيّر رابط المجلة على الإنترنت.",
+      "options_ar": [
+        "صحيح",
+        "خطأ"
+      ],
+      "correct_index": 0
+    },
+    {
+      "type": "order",
+      "concept": "stage_submission",
+      "base_points": 125,
+      "prompt_ar": "رتّب مراحل رحلة المخطوطة من الإرسال حتى النشر.",
+      "items_ar": [
+        "الإرسال والفحص الإداري الأوّلي",
+        "الفرز التحريري (Desk Review)",
+        "دعوة المحكّمين",
+        "التحكيم الخارجي",
+        "اتخاذ القرار التحريري",
+        "التعديلات وإعادة الإرسال",
+        "الإنتاج والنشر"
+      ],
+      "correct_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hint_ar": "تبدأ برفع الملفات وتنتهي بمنح الـDOI والنشر.",
+      "explanation_ar": "رحلة المخطوطة: إرسال ← فرز تحريري ← دعوة محكّمين ← تحكيم خارجي ← قرار ← تعديلات ← إنتاج ونشر."
+    },
+    {
+      "type": "mcq",
+      "concept": "stage_submission",
+      "base_points": 105,
+      "prompt_ar": "ماذا يتلقّى المؤلف فور رفع الملفات في النظام؟",
+      "options_ar": [
+        "رقم تتبّع (Tracking Number)",
+        "الـDOI النهائي",
+        "قرار القبول مباشرة",
+        "شهادة نشر"
+      ],
+      "correct_index": 0,
+      "hint_ar": "رقم يتيح له متابعة حالة المخطوطة لاحقًا."
+    },
+    {
+      "type": "mcq",
+      "concept": "stage_submission",
+      "base_points": 105,
+      "prompt_ar": "أيّ برنامج يُستخدم عادةً لفحص الانتحال في المرحلة الأولى؟",
+      "options_ar": [
+        "Turnitin",
+        "EndNote",
+        "MATLAB",
+        "Photoshop"
+      ],
+      "correct_index": 0,
+      "hint_ar": "برنامج كشف التشابه/الاقتباس."
+    },
+    {
+      "type": "mcq",
+      "concept": "desk_review",
+      "base_points": 105,
+      "prompt_ar": "في مرحلة الفرز التحريري (Desk Review)، ما النسبة التقريبية للمخطوطات التي تُرفض؟",
+      "options_ar": [
+        "حوالي الثلثين (66%)",
+        "حوالي 5%",
+        "حوالي 10%",
+        "لا تُرفض أيّ مخطوطة"
+      ],
+      "correct_index": 0,
+      "hint_ar": "معظم الرفض يحدث مبكرًا قبل التحكيم.",
+      "explanation_ar": "نحو ثلثي المخطوطات تُرفض في هذه المرحلة لأسباب كعدم الجدّة أو ضعف المنهجية أو عدم التوافق."
+    },
+    {
+      "type": "mcq",
+      "concept": "desk_review",
+      "base_points": 105,
+      "prompt_ar": "من أسباب الرفض في مرحلة الفرز التحريري:",
+      "options_ar": [
+        "عدم الجدّة أو ضعف المنهجية أو عدم التوافق مع نطاق المجلة",
+        "جمال غلاف المجلة",
+        "لون الجداول",
+        "طول قائمة المراجع فقط"
+      ],
+      "correct_index": 0,
+      "hint_ar": "أسباب جوهرية تتعلّق بقيمة البحث وملاءمته."
+    },
+    {
+      "type": "mcq",
+      "concept": "reviewer_invitation",
+      "base_points": 105,
+      "prompt_ar": "لماذا قد يدعو المحرّر أكثر من 8 محكّمين لتأمين موافقة اثنين فقط؟",
+      "options_ar": [
+        "لأن كثيرًا من المحكّمين لا يستجيبون للدعوة",
+        "لأن المجلة تدفع لهم",
+        "لزيادة سعر النشر",
+        "لأن القانون يفرض 8 محكّمين"
+      ],
+      "correct_index": 0,
+      "hint_ar": "معدّل الاستجابة منخفض فيحتاط المحرّر بعدد أكبر."
+    },
+    {
+      "type": "tf",
+      "concept": "reviewer_invitation",
+      "base_points": 90,
+      "prompt_ar": "قد لا يتغيّر وضع المخطوطة لفترة طويلة أثناء دعوة المحكّمين، مما يسبّب قلقًا للمؤلفين.",
+      "options_ar": [
+        "صحيح",
+        "خطأ"
+      ],
+      "correct_index": 0
+    },
+    {
+      "type": "mcq",
+      "concept": "peer_review",
+      "base_points": 105,
+      "prompt_ar": "وفق أيّ معايير تُقيَّم المخطوطة في التحكيم الخارجي؟",
+      "options_ar": [
+        "الأصالة ودقّة المنهجية ووضوح العرض وأهمية النتائج",
+        "عدد صفحاتها فقط",
+        "شهرة المؤلف",
+        "جنسية الباحث"
+      ],
+      "correct_index": 0,
+      "hint_ar": "معايير علمية تتعلّق بجودة البحث لا بشخص صاحبه."
+    },
+    {
+      "type": "mcq",
+      "concept": "editorial_decision",
+      "base_points": 105,
+      "prompt_ar": "أيّ عبارة تصف علاقة توصيات المحكّمين بقرار المحرّر؟",
+      "options_ar": [
+        "استشارية غير مُلزِمة؛ القرار النهائي للمحرّر",
+        "مُلزِمة تمامًا للمحرّر",
+        "يتّخذها المحكّمون وحدهم",
+        "يقرّرها المؤلف"
+      ],
+      "correct_index": 0,
+      "hint_ar": "المحكّم يوصي، والمحرّر يقرّر."
+    },
+    {
+      "type": "mcq",
+      "concept": "editorial_decision",
+      "base_points": 105,
+      "prompt_ar": "القبول دون أيّ تعديلات (Accept as is) في المجلات الرصينة:",
+      "options_ar": [
+        "نادر جدًا",
+        "هو الغالب",
+        "مستحيل تمامًا",
+        "إجباري في كل بحث"
+      ],
+      "correct_index": 0,
+      "hint_ar": "غالبًا يسبق القبولَ تعديلاتٌ طفيفة أو جوهرية."
+    },
+    {
+      "type": "mcq",
+      "concept": "revision_rebuttal",
+      "base_points": 105,
+      "prompt_ar": "ما هو خطاب الردّ (Rebuttal Letter)؟",
+      "options_ar": [
+        "ردّ نقطة بنقطة يوضّح كيف عولجت ملاحظات المحكّمين",
+        "خطاب اعتذار للمجلة",
+        "طلب سحب البحث",
+        "فاتورة أجور النشر"
+      ],
+      "correct_index": 0,
+      "hint_ar": "يقابل كل ملاحظة محكّم بما فعله المؤلف حيالها."
+    },
+    {
+      "type": "mcq",
+      "concept": "revision_rebuttal",
+      "base_points": 105,
+      "prompt_ar": "ما الملفّان اللذان يرفعهما المؤلف عند تقديم النسخة المعدّلة؟",
+      "options_ar": [
+        "نسخة مظلَّلة تُظهر التغييرات ونسخة نظيفة",
+        "نسختان متطابقتان",
+        "نسخة صوتية وأخرى مرئية",
+        "نسخة بالعربية وأخرى بالفرنسية"
+      ],
+      "correct_index": 0,
+      "hint_ar": "واحدة تُبرز ما تغيّر، وأخرى جاهزة للقراءة."
+    },
+    {
+      "type": "order",
+      "concept": "production_publication",
+      "base_points": 125,
+      "prompt_ar": "رتّب خطوات مرحلة الإنتاج والنشر.",
+      "items_ar": [
+        "التدقيق اللغوي (Copyediting)",
+        "التنسيق والتنضيد (Typesetting)",
+        "مراجعة المسودة النهائية (Proofreading)",
+        "توقيع اتفاقية النشر (Licence to Publish)",
+        "النشر النهائي ومنح الـDOI"
+      ],
+      "correct_sequence": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "hint_ar": "من تحرير النصّ حتى نشره ومنحه هويّته الرقمية."
+    },
+    {
+      "type": "mcq",
+      "concept": "production_publication",
+      "base_points": 105,
+      "prompt_ar": "ما المقصود بـ'النشر المسبق' (Article in Press / Early Access)؟",
+      "options_ar": [
+        "نشر نسخة أوّلية من المقال فور قبوله قبل التنسيق النهائي",
+        "نشر ورقي فقط",
+        "رفض مبكر للبحث",
+        "نسخة تجريبية للمحكّمين"
+      ],
+      "correct_index": 0,
+      "hint_ar": "يظهر البحث للقرّاء مبكرًا قبل اكتمال التنضيد."
+    },
+    {
+      "type": "match",
+      "concept": "system_statuses",
+      "base_points": 130,
+      "prompt_ar": "طابِق حالة النظام (كما تظهر للمؤلف) مع المرحلة التي تعنيها.",
+      "left_ar": [
+        "With Editor",
+        "Under Review",
+        "Awaiting Revision",
+        "In Production"
+      ],
+      "right_ar": [
+        "الفرز التحريري (مع المحرّر)",
+        "التحكيم الخارجي (قيد التقييم)",
+        "بانتظار تعديلات المؤلف",
+        "الإنتاج والنشر"
+      ],
+      "correct_pairs": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "hint_ar": "ترجم حالة الواجهة إلى المرحلة المقابلة في الرحلة."
+    },
+    {
+      "type": "mcq",
+      "concept": "system_statuses",
+      "base_points": 105,
+      "prompt_ar": "ماذا تعني حالة 'Awaiting Referee Selection'؟",
+      "options_ar": [
+        "المحرّر يبحث عن محكّمين مناسبين في قاعدة البيانات",
+        "المؤلف يكتب التعديلات",
+        "المقال في الطباعة",
+        "تمّ القبول النهائي"
+      ],
+      "correct_index": 0,
+      "hint_ar": "مرحلة اختيار المحكّمين قبل إرسال الدعوات."
+    },
+    {
+      "type": "tf",
+      "concept": "system_statuses",
+      "base_points": 90,
+      "prompt_ar": "حالة 'Decision in Progress' تعني أن المحرّر يُعِدّ القرار بعد اكتمال المراجعات المطلوبة.",
+      "options_ar": [
+        "صحيح",
+        "خطأ"
+      ],
+      "correct_index": 0
+    },
+    {
+      "type": "image",
+      "concept": "em_interface",
+      "base_points": 118,
+      "prompt_ar": "هذه لقطة حقيقية من نظام Editorial Manager. بأيّ زرّ يبدأ المؤلف تقديم بحث جديد؟",
+      "asset": {
+        "file": "assets/submission/em_login.png",
+        "source_url": "https://www.editorialmanager.com/"
+      },
+      "options_ar": [
+        "Author Login",
+        "Reviewer Login",
+        "Publisher Login",
+        "Register Now"
+      ],
+      "correct_index": 0,
+      "hint_ar": "ادخل بالصفة التي تقدّم بها البحث: مؤلف (Author).",
+      "explanation_ar": "المؤلف يسجّل الدخول عبر Author Login لبدء تقديم مخطوطته."
+    },
+    {
+      "type": "image",
+      "concept": "em_interface",
+      "base_points": 118,
+      "prompt_ar": "في هذه اللقطة من خطوة اختيار نوع المقال، ماذا يمثّل العنصر المحدَّد بالإطار الأحمر؟",
+      "asset": {
+        "file": "assets/submission/em_orcid.png",
+        "source_url": "https://www.editorialmanager.com/"
+      },
+      "options_ar": [
+        "ربط الحساب بمعرّف الباحث ORCID",
+        "رفع المخطوطة",
+        "اختيار المحكّمين",
+        "دفع رسوم النشر"
+      ],
+      "correct_index": 0,
+      "hint_ar": "Link to ORCID Record — هويّة الباحث الرقمية.",
+      "explanation_ar": "يطلب النظام ربط الحساب بمعرّف ORCID لتوثيق هويّة المؤلف."
+    },
+    {
+      "type": "image",
+      "concept": "em_interface",
+      "base_points": 118,
+      "prompt_ar": "أيّ مرحلة من نظام التقديم تظهر هنا (تحديد نوع كل ملف: خطاب الغلاف، إقرار المصالح، المخطوطة، ورفعها)؟",
+      "asset": {
+        "file": "assets/submission/em_attach.png",
+        "source_url": "https://www.editorialmanager.com/"
+      },
+      "options_ar": [
+        "إرفاق الملفات (Attach Files)",
+        "اتخاذ القرار التحريري",
+        "التحكيم الخارجي",
+        "الإنتاج والنشر"
+      ],
+      "correct_index": 0,
+      "hint_ar": "الخطوة التي تُصنّف فيها الملفات وتُرفع.",
+      "explanation_ar": "خطوة Attach Files: يُحدَّد نوع كل ملف (Cover Letter / Declaration of Interest / Manuscript) ويُرفع."
+    },
+    {
+      "type": "image",
+      "concept": "em_interface",
+      "base_points": 118,
+      "prompt_ar": "ماذا يُدخل المؤلف في هذه الخطوة من نظام Editorial Manager؟",
+      "asset": {
+        "file": "assets/submission/em_general.png",
+        "source_url": "https://www.editorialmanager.com/"
+      },
+      "options_ar": [
+        "المعلومات العامة وتصنيف البحث (المنطقة/القسم/التصنيفات)",
+        "خطاب الردّ على المحكّمين",
+        "التدقيق اللغوي النهائي",
+        "رقم الـDOI"
+      ],
+      "correct_index": 0,
+      "hint_ar": "Region of Origin و Section/Category و Classifications.",
+      "explanation_ar": "خطوة General Information: يحدّد المؤلف منطقة المنشأ والقسم وتصنيفات البحث."
+    },
+    {
+      "type": "tf",
+      "concept": "production_publication",
+      "base_points": 90,
+      "prompt_ar": "يُمنح البحث الـDOI ويُرسَل إلى قواعد البيانات في مرحلة النشر النهائي.",
+      "options_ar": [
+        "صحيح",
+        "خطأ"
+      ],
+      "correct_index": 0
+    }
+  ]
+}

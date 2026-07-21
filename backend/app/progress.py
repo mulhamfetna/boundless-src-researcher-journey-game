@@ -28,6 +28,32 @@ CONCEPT_LABELS_AR = {
     "discussion": "المناقشة",
     "references": "المراجع",
     "structure": "بنية الورقة",
+    # publishing (متطلبات النشر)
+    "manuscript_structure": "هيكل المخطوطة",
+    "formatting": "التنسيق",
+    "references_style": "أنماط المراجع",
+    "line_numbering": "ترقيم الأسطر",
+    "metadata": "البيانات التعريفية",
+    "figures_tables": "الصور والجداول",
+    "cover_letter": "رسالة الغلاف",
+    "highlights": "النقاط البارزة",
+    "conflicts_of_interest": "تضارب المصالح",
+    "suggest_reviewers": "اقتراح المحكّمين",
+    "supplementary_materials": "الملفات التكميلية",
+    "author_contributions": "مساهمات المؤلفين (CRediT)",
+    "ethical_approval": "الموافقة الأخلاقية",
+    # submission (الإرسال والتتبع)
+    "submission_systems": "أنظمة الإرسال",
+    "doi_crossref": "الـDOI وCrossref",
+    "stage_submission": "مراحل الإرسال",
+    "desk_review": "الفرز التحريري",
+    "reviewer_invitation": "دعوة المحكّمين",
+    "peer_review": "التحكيم الخارجي",
+    "editorial_decision": "القرار التحريري",
+    "revision_rebuttal": "التعديلات وخطاب الردّ",
+    "production_publication": "الإنتاج والنشر",
+    "system_statuses": "حالات النظام",
+    "em_interface": "واجهة نظام التقديم",
 }
 
 

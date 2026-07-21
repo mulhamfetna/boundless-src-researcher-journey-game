@@ -26,6 +26,8 @@
     puzzle: svg(r(3,3,6,6,CY) + r(8,7,5,6,GOLD) + r(9,5,2,2,GOLD) + r(6,8,2,2,CY)),
     doc: svg(r(4,2,8,12,IV) + r(5,4,6,1,I) + r(5,6,6,1,I) + r(5,8,6,1,I) + r(5,10,4,1,I) + r(10,2,2,2,GOLD)),
     magnifier: svg(r(4,3,6,6,IV) + r(5,4,4,4,CY) + r(3,3,7,1,I) + r(3,9,7,1,I) + r(3,4,1,5,I) + r(9,4,1,5,I) + r(10,10,3,3,GOLD)),
+    checklist: svg(r(3,2,10,12,IV) + r(3,2,10,1,GOLD) + r(4,5,2,2,CY) + r(7,5,5,1,I) + r(4,8,2,2,CY) + r(7,8,5,1,I) + r(4,11,2,2,CY) + r(7,11,5,1,I)),
+    send: svg(r(7,4,2,9,CY) + r(7,2,2,1,GOLDH) + r(5,5,2,2,CY) + r(9,5,2,2,CY) + r(3,7,2,2,CY) + r(11,7,2,2,CY) + r(4,13,8,1,GOLD)),
     // misc / badges
     crown: svg(r(3,8,10,4,GOLD) + r(3,4,2,4,GOLD) + r(7,4,2,4,GOLD) + r(11,4,2,4,GOLD) + r(3,4,2,2,CY) + r(11,4,2,2,CY) + r(7,4,2,2,CY)),
     star: svg(r(7,2,2,12,GOLD) + r(2,7,12,2,GOLD) + r(4,4,8,8,GOLD) + r(6,6,4,4,IV)),
@@ -42,6 +44,6 @@
   function sprite(name) { return SP[name] || SP.tinkerer; }
   window.sprite = sprite;
   window.AVATAR_SPRITES = ["tinkerer", "brawler", "sniper", "alchemist", "enforcer", "gremlin"];
-  window.STAGE_SPRITES = { foundations: "book", "paper-parts": "puzzle", "paper-types": "doc", journals: "magnifier" };
+  window.STAGE_SPRITES = { foundations: "book", "paper-parts": "puzzle", "paper-types": "doc", journals: "magnifier", publishing: "checklist", submission: "send" };
   window.BADGE_SPRITES = { perfect_quiz: "perfect_quiz", self_reliant: "self_reliant", streak_master: "streak_master", first_finish: "first_finish" };
 })();
