@@ -378,44 +378,45 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 .mchip.lv-familiar { background:var(--z-violet); color:#fff; }
 
 /* ---- Arcane: Zaun undercity grit (intensifies as --world -> 0, fades toward Piltover) ---- */
-/* chem-pipe silhouettes framing both edges of the undercity */
+/* chem-pipe silhouettes framing both edges of the undercity — dark bodies, lit wet acid edge, glowing rivets */
 #zaun-pipes {
   position:fixed; inset:0; pointer-events:none; z-index:0;
-  opacity:calc(0.55 * (1 - var(--world)));
-  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 55%, transparent 92%);
-          mask-image:linear-gradient(0deg, #000 0%, #000 55%, transparent 92%);
+  opacity:calc(0.85 * (1 - var(--world)));
+  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 62%, transparent 96%);
+          mask-image:linear-gradient(0deg, #000 0%, #000 62%, transparent 96%);
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='220'><rect x='14' y='0' width='30' height='220' fill='%231a0e22'/><rect x='14' y='0' width='5' height='220' fill='%232fe6a0' opacity='0.16'/><rect x='39' y='0' width='5' height='220' fill='%23000000' opacity='0.55'/><rect x='8' y='30' width='42' height='12' fill='%230a0410'/><rect x='8' y='150' width='42' height='12' fill='%230a0410'/><circle cx='29' cy='36' r='2.4' fill='%232fe6a0' opacity='0.55'/><circle cx='29' cy='156' r='2.4' fill='%23ff2e97' opacity='0.45'/></svg>"),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='220'><rect x='20' y='0' width='30' height='220' fill='%231a0e22'/><rect x='45' y='0' width='5' height='220' fill='%232fe6a0' opacity='0.16'/><rect x='20' y='0' width='5' height='220' fill='%23000000' opacity='0.55'/><rect x='14' y='30' width='42' height='12' fill='%230a0410'/><rect x='14' y='150' width='42' height='12' fill='%230a0410'/><circle cx='35' cy='36' r='2.4' fill='%232fe6a0' opacity='0.55'/><circle cx='35' cy='156' r='2.4' fill='%23ff2e97' opacity='0.45'/></svg>");
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='220'><rect x='46' y='0' width='2' height='220' fill='%232fe6a0' opacity='0.4'/><rect x='12' y='0' width='34' height='220' fill='%2305020c'/><rect x='40' y='0' width='6' height='220' fill='%232fe6a0' opacity='0.6'/><rect x='37' y='0' width='3' height='220' fill='%23ff2e97' opacity='0.35'/><rect x='12' y='0' width='4' height='220' fill='%23000000' opacity='0.7'/><rect x='6' y='28' width='46' height='13' fill='%230a0410'/><rect x='6' y='150' width='46' height='13' fill='%230a0410'/><rect x='6' y='28' width='46' height='2' fill='%232fe6a0' opacity='0.4'/><circle cx='29' cy='34' r='3' fill='%237dffd0'/><circle cx='29' cy='156' r='3' fill='%23ff7bbf'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='220'><rect x='12' y='0' width='2' height='220' fill='%232fe6a0' opacity='0.4'/><rect x='14' y='0' width='34' height='220' fill='%2305020c'/><rect x='14' y='0' width='6' height='220' fill='%232fe6a0' opacity='0.6'/><rect x='20' y='0' width='3' height='220' fill='%23ff2e97' opacity='0.35'/><rect x='44' y='0' width='4' height='220' fill='%23000000' opacity='0.7'/><rect x='8' y='28' width='46' height='13' fill='%230a0410'/><rect x='8' y='150' width='46' height='13' fill='%230a0410'/><rect x='8' y='28' width='46' height='2' fill='%232fe6a0' opacity='0.4'/><circle cx='31' cy='34' r='3' fill='%237dffd0'/><circle cx='31' cy='156' r='3' fill='%23ff7bbf'/></svg>");
   background-repeat:repeat-y, repeat-y;
-  background-size:60px 220px, 60px 220px;
+  background-size:58px 220px, 58px 220px;
   background-position:left top, right top;
 }
 /* neon graffiti tags + drips + grime + undercity haze, scattered up the wall */
 #zaun-grit {
   position:fixed; inset:0; pointer-events:none; z-index:0;
-  opacity:calc(0.7 * (1 - var(--world)));
-  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 70%, transparent 100%);
-          mask-image:linear-gradient(0deg, #000 0%, #000 70%, transparent 100%);
+  opacity:calc(0.95 * (1 - var(--world)));
+  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 72%, transparent 100%);
+          mask-image:linear-gradient(0deg, #000 0%, #000 72%, transparent 100%);
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='560'><g fill='none' stroke-linecap='round'><path d='M30 120 L80 70 L55 125 L120 75' stroke='%23ff2e97' stroke-width='7' opacity='0.5'/><path d='M360 90 q34 -46 72 -16 q22 18 -6 42' stroke='%232fe6a0' stroke-width='6' opacity='0.42'/><path d='M270 300 L330 250 L308 318 L372 262' stroke='%238a3bff' stroke-width='6' opacity='0.45'/><path d='M70 430 L120 400 L100 446 L150 410' stroke='%23ff2e97' stroke-width='6' opacity='0.42'/><path d='M250 470 q30 -40 64 -14' stroke='%232fe6a0' stroke-width='5' opacity='0.36'/><circle cx='430' cy='450' r='24' stroke='%232fe6a0' stroke-width='4' opacity='0.32'/><circle cx='150' cy='250' r='16' stroke='%23ff2e97' stroke-width='3' opacity='0.3'/></g><g fill='%23ff2e97' opacity='0.26'><rect x='78' y='70' width='3' height='70'/><rect x='118' y='400' width='3' height='66'/></g><g fill='%232fe6a0' opacity='0.2'><rect x='430' y='250' width='2' height='60'/><rect x='312' y='254' width='2' height='64'/></g></svg>"),
-    repeating-linear-gradient(90deg, transparent 0 72px, #00000022 72px 76px),
-    radial-gradient(140% 80% at 50% 128%, #1a0420cc 0%, transparent 60%);
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='560'><g fill='none' stroke-linecap='round'><path d='M30 120 L80 70 L55 125 L120 75' stroke='%23ff2e97' stroke-width='8' opacity='0.72'/><path d='M360 90 q34 -46 72 -16 q22 18 -6 42' stroke='%232fe6a0' stroke-width='7' opacity='0.62'/><path d='M270 300 L330 250 L308 318 L372 262' stroke='%238a3bff' stroke-width='7' opacity='0.66'/><path d='M70 430 L120 400 L100 446 L150 410' stroke='%23ff2e97' stroke-width='7' opacity='0.62'/><path d='M250 470 q30 -40 64 -14' stroke='%232fe6a0' stroke-width='6' opacity='0.52'/><circle cx='430' cy='450' r='24' stroke='%232fe6a0' stroke-width='5' opacity='0.5'/><circle cx='150' cy='250' r='16' stroke='%23ff2e97' stroke-width='4' opacity='0.46'/></g><g fill='%23ff2e97' opacity='0.4'><rect x='79' y='70' width='3' height='72'/><rect x='118' y='400' width='3' height='66'/></g><g fill='%232fe6a0' opacity='0.32'><rect x='430' y='250' width='2' height='62'/><rect x='312' y='254' width='2' height='64'/></g></svg>"),
+    repeating-linear-gradient(90deg, transparent 0 72px, #00000030 72px 76px),
+    radial-gradient(140% 82% at 50% 128%, #1a0420dd 0%, transparent 60%);
   background-repeat:repeat, repeat, no-repeat;
   background-size:520px 560px, auto, auto;
   background-position:top left, 0 0, bottom;
 }
-/* drifting toxic acid-fog rolling along the undercity floor */
+/* drifting toxic acid-fog rolling along the undercity floor — pushed to the sides so it reads past the magenta */
 #zaun-fog {
   position:fixed; inset:0 -40px; pointer-events:none; z-index:0;
-  opacity:calc(0.6 * (1 - var(--world)));
-  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 32%, transparent 64%);
-          mask-image:linear-gradient(0deg, #000 0%, #000 32%, transparent 64%);
+  opacity:calc(0.75 * (1 - var(--world)));
+  -webkit-mask-image:linear-gradient(0deg, #000 0%, #000 40%, transparent 72%);
+          mask-image:linear-gradient(0deg, #000 0%, #000 40%, transparent 72%);
   background:
-    radial-gradient(46% 30% at 22% 94%, #2fe6a055 0%, transparent 70%),
-    radial-gradient(42% 26% at 74% 98%, #2fe6a044 0%, transparent 70%),
-    radial-gradient(40% 24% at 50% 104%, #8a3bff4d 0%, transparent 70%);
+    radial-gradient(40% 26% at 15% 90%, #2fe6a08c 0%, transparent 66%),
+    radial-gradient(36% 24% at 84% 95%, #2fe6a078 0%, transparent 66%),
+    radial-gradient(26% 20% at 92% 66%, #2fe6a052 0%, transparent 72%),
+    radial-gradient(30% 22% at 50% 106%, #8a3bff5e 0%, transparent 70%);
   animation:acid-drift 16s ease-in-out infinite alternate;
 }
-@keyframes acid-drift { 0% { transform:translateX(-14px); } 100% { transform:translateX(14px); } }
+@keyframes acid-drift { 0% { transform:translateX(-16px); } 100% { transform:translateX(16px); } }
 @media (prefers-reduced-motion: reduce) { #zaun-fog { animation:none; } }
