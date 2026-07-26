@@ -22,16 +22,11 @@ def test_every_content_question_has_concept(tmp_path):
             assert data.get("concept", "").strip(), f"{slug} q{r['id']} missing concept"
 
 
-# Stations with a deliberately small, fixed bank are exempt from the >=25
-# recall-bank rule: the application-first journals pilot, and the ordered
-# capstone journey (plays all its authored stages, never sampled). See the
-# 2026-07-26 specs. Recall stations keep a large bank so sampling stays varied.
-SMALL_BANK = {"journals": 5, "capstone": 8}
-
-
+# Every station is now APPLICATION-FIRST: a small bank of rich hands-on tasks
+# (see the 2026-07-26 specs). Bank <= sample size, so all tasks are played each
+# attempt. We only require a playable minimum, not the old >=25 recall bank.
 def test_each_quiz_has_enough_questions(tmp_path):
     for p in glob.glob(os.path.join(CONTENT, "*.json")):
         doc = json.load(open(p, encoding="utf-8"))
         n = len(doc["questions"])
-        floor = SMALL_BANK.get(doc["slug"], 25)
-        assert n >= floor, f"{doc['slug']} has {n} (< {floor})"
+        assert n >= 5, f"{doc['slug']} has only {n} tasks (< 5)"
