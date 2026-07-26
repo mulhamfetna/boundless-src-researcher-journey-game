@@ -296,3 +296,15 @@ def test_season_leaderboard_filters_to_current_month(api_client):
     # endpoint returns tier labels
     board = api_client.get("/api/leaderboard?scope=season").json()
     assert board and "tier_ar" in board[0]
+
+
+def test_me_review_returns_weak_concept_deck(api_client):
+    init = _init_data({"id": 401, "first_name": "Rev"})
+    body = api_client.get("/api/me/review", headers={"X-Init-Data": init}).json()
+    qs = body["questions"]
+    assert 1 <= len(qs) <= 5
+    assert all("concept" in q and "type" in q for q in qs)
+
+
+def test_me_review_requires_auth(api_client):
+    assert api_client.get("/api/me/review", headers={"X-Init-Data": "auth_date=1&hash=bad"}).status_code == 401

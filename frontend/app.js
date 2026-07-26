@@ -85,6 +85,8 @@ async function renderMap(profile) {
   document.getElementById("btn-my-badges").onclick = loadBadges;
   document.getElementById("btn-my-progress").onclick = loadDashboard;
   document.getElementById("btn-report").onclick = showReport;
+  const rv = document.getElementById("btn-review");
+  if (rv) rv.onclick = startReview;
   if (typeof embers === "function") {
     const w = (typeof levelFromXp === "function" && typeof worldFromLevel === "function")
       ? worldFromLevel(levelFromXp(currentXp).level) : 0.4;
@@ -172,6 +174,26 @@ function openAvatarPicker(profile) {
   });
   ov.addEventListener("click", (e) => { if (e.target === ov) ov.remove(); });
   document.body.appendChild(ov);
+}
+
+async function startReview() {
+  let deck;
+  try { deck = await api("/me/review", { headers: { "X-Init-Data": tg.initData } }); }
+  catch (e) { deck = { questions: [] }; }
+  if (!deck.questions || !deck.questions.length) {
+    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.showAlert) Telegram.WebApp.showAlert("لا توجد مفاهيم للمراجعة الآن.");
+    return;
+  }
+  state = { slug: "__review__", questions: deck.questions, bossId: null, funFacts: [],
+            idx: 0, answers: [], curRetries: 0, curHint: false, practice: true, startedAt: Date.now() };
+  renderQuestion();
+}
+
+function practiceDone() {
+  document.getElementById("funfact-text").textContent =
+    `أحسنت! راجعتَ ${state.questions.length} مفاهيم من نقاط ضعفك 🧠 عُد لاحقًا لمراجعة جديدة.`;
+  document.getElementById("funfact-continue").onclick = loadHome;
+  show("funfact");
 }
 
 async function startQuiz(slug) {
@@ -510,6 +532,8 @@ function nextStep() {
     showFunFact();
   } else if (state.idx < state.questions.length) {
     renderQuestion();
+  } else if (state.practice) {
+    practiceDone();
   } else {
     submit();
   }

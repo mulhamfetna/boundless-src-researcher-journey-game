@@ -15,6 +15,32 @@ router = APIRouter(prefix="/api")
 JOURNEY_SLUGS = {"capstone"}
 
 
+def _serialize_question(conn, q) -> dict:
+    """Public (answer-key-inclusive) shape of a question row for the runner."""
+    data = json.loads(q["data_json"])
+    asset = models.get_asset_for_question(conn, q["id"])
+    item = {
+        "id": q["id"], "type": q["type"], "prompt_ar": q["prompt_ar"],
+        "base_points": q["base_points"], "asset_file": asset["file_path"] if asset else None,
+        "hint_ar": data.get("hint_ar", ""), "concept": data.get("concept", ""),
+        "passage": data.get("passage", ""), "source_url": data.get("source_url", ""),
+    }
+    if q["type"] in ("mcq", "tf", "image"):
+        item["options_ar"] = data["options_ar"]
+        item["correct_index"] = data["correct_index"]
+        item["option_explanations_ar"] = data.get("option_explanations_ar", [])
+    elif q["type"] == "match":
+        item["left_ar"] = data["left_ar"]; item["right_ar"] = data["right_ar"]
+        item["correct_pairs"] = data["correct_pairs"]
+    elif q["type"] == "order":
+        item["items_ar"] = data["items_ar"]; item["correct_sequence"] = data["correct_sequence"]
+    elif q["type"] == "spot":
+        item["options_ar"] = data["options_ar"]
+        item["correct_indices"] = data["correct_indices"]
+        item["chip_explanations_ar"] = data.get("chip_explanations_ar", [])
+    return item
+
+
 def _conn(request: Request):
     conn = getattr(request.app.state, "conn", None)
     if conn is None:
@@ -39,33 +65,38 @@ def get_questions(slug: str, request: Request):
     out = []
     funfacts = json.loads(quiz["fun_facts_json"]) if quiz["fun_facts_json"] else []
     for q in models.get_questions(conn, quiz["id"]):
-        data = json.loads(q["data_json"])
-        asset = models.get_asset_for_question(conn, q["id"])
-        item = {
-            "id": q["id"], "type": q["type"], "prompt_ar": q["prompt_ar"],
-            "base_points": q["base_points"], "asset_file": asset["file_path"] if asset else None,
-            "hint_ar": data.get("hint_ar", ""), "concept": data.get("concept", ""),
-            "passage": data.get("passage", ""), "source_url": data.get("source_url", ""),
-        }
-        if q["type"] in ("mcq", "tf", "image"):
-            item["options_ar"] = data["options_ar"]
-            item["correct_index"] = data["correct_index"]
-            item["option_explanations_ar"] = data.get("option_explanations_ar", [])
-        elif q["type"] == "match":
-            item["left_ar"] = data["left_ar"]; item["right_ar"] = data["right_ar"]
-            item["correct_pairs"] = data["correct_pairs"]
-        elif q["type"] == "order":
-            item["items_ar"] = data["items_ar"]; item["correct_sequence"] = data["correct_sequence"]
-        elif q["type"] == "spot":
-            item["options_ar"] = data["options_ar"]
-            item["correct_indices"] = data["correct_indices"]
-            item["chip_explanations_ar"] = data.get("chip_explanations_ar", [])
-        out.append(item)
+        out.append(_serialize_question(conn, q))
     # Journey quizzes (the capstone) play their authored stages IN ORDER; everyone
     # else gets a concept-balanced random sample.
     sampled = out if slug in JOURNEY_SLUGS else sample_questions(out, settings.sample_size, random.Random())
     return {"quiz": {"slug": quiz["slug"], "title_ar": quiz["title_ar"]},
             "questions": sampled, "fun_facts_ar": funfacts}
+
+
+@router.get("/me/review")
+def me_review(request: Request, x_init_data: str = Header(default="")):
+    """Hex-Recall: ~5 questions drawn from the player's weakest concepts (practice, no scoring)."""
+    conn = _conn(request)
+    try:
+        parsed = validate_init_data(x_init_data, settings.bot_token)
+    except AuthError:
+        raise HTTPException(401, "invalid initData")
+    user = parsed.get("user")
+    if not user:
+        raise HTTPException(401, "no user in initData")
+    uid = int(user["id"])
+    mastery = progress.mastery_for_concepts(models.get_contestant_answers(conn, uid))
+    weak = {c for c, m in mastery.items() if m.get("level") != "mastered"}
+    pool = [
+        _serialize_question(conn, q)
+        for quiz in conn.execute("SELECT id FROM quizzes").fetchall()
+        for q in models.get_questions(conn, quiz["id"])
+    ]
+    focus = [q for q in pool if q["concept"] in weak] if weak else pool
+    if not focus:
+        focus = pool
+    random.Random().shuffle(focus)
+    return {"questions": focus[: min(5, len(focus))]}
 
 
 @router.post("/quizzes/{slug}/submit")
