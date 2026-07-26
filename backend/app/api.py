@@ -152,6 +152,15 @@ def get_leaderboard(request: Request, scope: str = "quiz", slug: str = ""):
              "top_badge": badges.top_badge(conn, r["telegram_user_id"])}
             for r in rows
         ]
+    if scope == "season":
+        rows = models.leaderboard_season(conn)
+        def _tier(i):
+            return "🏛️ عميد المجلس" if i < 3 else ("🎓 زميل بيلتوفر" if i < 10 else "🔬 باحث صاعد")
+        return [
+            {"first_name": r["first_name"], "total_score": r["total_score"], "tier_ar": _tier(i),
+             "top_badge": badges.top_badge(conn, r["telegram_user_id"])}
+            for i, r in enumerate(rows)
+        ]
     quiz = models.get_quiz_by_slug(conn, slug)
     if not quiz:
         raise HTTPException(404, "quiz not found")

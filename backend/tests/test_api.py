@@ -280,3 +280,19 @@ def test_capstone_completion_awards_senior_researcher(api_client, monkeypatch):
     report = api_client.post("/api/quizzes/capstone/submit", headers={"X-Init-Data": init},
                              json={"answers": answers, "duration_ms": 1000}).json()
     assert "senior_researcher" in report["earned_now"]
+
+
+def test_season_leaderboard_filters_to_current_month(api_client):
+    from app import models
+    conn = main_module._conn
+    conn.execute("INSERT INTO contestants (telegram_user_id, first_name, created_at) VALUES (301,'Old',datetime('now'))")
+    conn.execute("INSERT INTO contestants (telegram_user_id, first_name, created_at) VALUES (302,'New',datetime('now'))")
+    q = models.get_quiz_by_slug(conn, "journals")
+    conn.execute("INSERT INTO attempts (contestant_id,quiz_id,mode,total_score,finished_at) VALUES (301,?,'async',999,datetime('now','-40 days'))", (q["id"],))
+    conn.execute("INSERT INTO attempts (contestant_id,quiz_id,mode,total_score,finished_at) VALUES (302,?,'async',100,datetime('now'))", (q["id"],))
+    conn.commit()
+    names = [r["first_name"] for r in models.leaderboard_season(conn)]
+    assert "New" in names and "Old" not in names
+    # endpoint returns tier labels
+    board = api_client.get("/api/leaderboard?scope=season").json()
+    assert board and "tier_ar" in board[0]

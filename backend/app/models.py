@@ -101,6 +101,27 @@ def leaderboard_overall(conn, limit=20):
     ).fetchall()
 
 
+def leaderboard_season(conn, limit=20):
+    """Overall board restricted to attempts finished in the current calendar month."""
+    return conn.execute(
+        """
+        SELECT best.contestant_id AS telegram_user_id, c.first_name AS first_name, SUM(best.best_score) AS total_score
+        FROM (
+            SELECT contestant_id, quiz_id, MAX(total_score) AS best_score
+            FROM attempts
+            WHERE finished_at IS NOT NULL
+              AND strftime('%Y-%m', finished_at) = strftime('%Y-%m', 'now')
+            GROUP BY contestant_id, quiz_id
+        ) best
+        JOIN contestants c ON c.telegram_user_id = best.contestant_id
+        GROUP BY best.contestant_id
+        ORDER BY total_score DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+
+
 def get_contestant_answers(conn, contestant_id):
     rows = conn.execute(
         """

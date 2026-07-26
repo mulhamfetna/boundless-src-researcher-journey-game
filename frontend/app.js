@@ -590,19 +590,24 @@ function renderReport(report) {
 }
 
 async function loadBoard(scope = "quiz") {
-  const path = scope === "overall" ? "/leaderboard?scope=overall" : `/leaderboard?scope=quiz&slug=${state.slug}`;
+  const path = scope === "overall" ? "/leaderboard?scope=overall"
+    : scope === "season" ? "/leaderboard?scope=season"
+    : `/leaderboard?scope=quiz&slug=${state.slug}`;
   const board = await api(path);
   const ol = document.getElementById("board-list");
   ol.innerHTML = "";
   board.forEach((r) => {
     const li = document.createElement("li");
-    const score = scope === "overall" ? r.total_score : r.best_score;
+    const score = (scope === "overall" || scope === "season") ? r.total_score : r.best_score;
     const badge = (r.top_badge && BADGES[r.top_badge]) ? `<span class="lb-badge">${spr(BADGES[r.top_badge].ico)}</span>` : "";
-    li.innerHTML = `${r.first_name} — ${score}${badge}`;
+    const tier = (scope === "season" && r.tier_ar) ? `<span class="lb-tier">${r.tier_ar}</span>` : "";
+    li.innerHTML = `${r.first_name} — ${score}${badge}${tier}`;
     ol.appendChild(li);
   });
   document.getElementById("board-quiz").onclick = () => loadBoard("quiz");
   document.getElementById("board-overall").onclick = () => loadBoard("overall");
+  const seasonBtn = document.getElementById("board-season");
+  if (seasonBtn) seasonBtn.onclick = () => loadBoard("season");
   document.getElementById("btn-home").onclick = loadHome;
   show("board");
 }
