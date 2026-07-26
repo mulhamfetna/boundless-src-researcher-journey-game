@@ -11,6 +11,9 @@ from app.scoring import score_retry
 
 router = APIRouter(prefix="/api")
 
+# Journey quizzes play in authored order (no sampling) and award the pinnacle badge.
+JOURNEY_SLUGS = {"capstone"}
+
 
 def _conn(request: Request):
     conn = getattr(request.app.state, "conn", None)
@@ -58,7 +61,9 @@ def get_questions(slug: str, request: Request):
             item["correct_indices"] = data["correct_indices"]
             item["chip_explanations_ar"] = data.get("chip_explanations_ar", [])
         out.append(item)
-    sampled = sample_questions(out, settings.sample_size, random.Random())
+    # Journey quizzes (the capstone) play their authored stages IN ORDER; everyone
+    # else gets a concept-balanced random sample.
+    sampled = out if slug in JOURNEY_SLUGS else sample_questions(out, settings.sample_size, random.Random())
     return {"quiz": {"slug": quiz["slug"], "title_ar": quiz["title_ar"]},
             "questions": sampled, "fun_facts_ar": funfacts}
 
@@ -121,7 +126,10 @@ def submit(slug: str, payload: dict, request: Request, background_tasks: Backgro
     summary = {"accuracy": accuracy, "max_streak": max_streak,
                "hints_used": hints_used, "is_first_finish": is_first_finish,
                "answered": answered, "perfect_min": perfect_min}
-    earned_now = badges.award(conn, contestant_id, badges.evaluate(summary), _now(conn))
+    codes = badges.evaluate(summary)
+    if slug in JOURNEY_SLUGS:  # completing the capstone journey earns the pinnacle badge
+        codes = [*codes, "senior_researcher"]
+    earned_now = badges.award(conn, contestant_id, codes, _now(conn))
 
     from app.report import build_report, format_report_text
     report = build_report(conn, attempt_id)

@@ -1,7 +1,8 @@
 import sqlite3
 
-ALL_CODES = ["perfect_quiz", "self_reliant", "streak_master", "first_finish"]
-_PRIORITY = ["perfect_quiz", "streak_master", "self_reliant", "first_finish"]
+ALL_CODES = ["senior_researcher", "perfect_quiz", "self_reliant", "streak_master", "first_finish"]
+# senior_researcher (completing the capstone Research Journey) is the pinnacle badge.
+_PRIORITY = ["senior_researcher", "perfect_quiz", "streak_master", "self_reliant", "first_finish"]
 STREAK_MASTER_MIN = 5
 
 

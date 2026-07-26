@@ -253,3 +253,30 @@ def test_get_questions_exposes_passage(tmp_path):
     q = c.get("/api/quizzes/ap/questions").json()["questions"][0]
     assert q["passage"] == "Real excerpt."
     assert q["source_url"] == "https://doaj.org/a/1"
+
+
+def _seed_capstone(conn, n=12):
+    from app.seed import seed_quiz
+    qs = [{"type": "mcq", "prompt_ar": f"cap{i}", "concept": "research_gap",
+           "options_ar": ["أ", "ب"], "correct_index": 0} for i in range(n)]
+    seed_quiz(conn, {"slug": "capstone", "title_ar": "الرحلة الكبرى",
+                     "pdf_filename": "x.pdf", "display_order": 99, "questions": qs})
+
+
+def test_capstone_plays_in_order_not_sampled(api_client):
+    _seed_capstone(main_module._conn, 12)
+    qs = api_client.get("/api/quizzes/capstone/questions").json()["questions"]
+    assert len(qs) == 12  # all 12 played, not capped to sample_size
+    assert [q["prompt_ar"] for q in qs] == [f"cap{i}" for i in range(12)]  # authored order
+
+
+def test_capstone_completion_awards_senior_researcher(api_client, monkeypatch):
+    import app.notify as notify
+    monkeypatch.setattr(notify, "send_report_dm", lambda *a, **k: True)
+    _seed_capstone(main_module._conn, 3)
+    init = _init_data({"id": 501, "first_name": "Vi"})
+    qs = api_client.get("/api/quizzes/capstone/questions").json()["questions"]
+    answers = [{"question_id": q["id"], "retries": 0, "hint_used": False} for q in qs]
+    report = api_client.post("/api/quizzes/capstone/submit", headers={"X-Init-Data": init},
+                             json={"answers": answers, "duration_ms": 1000}).json()
+    assert "senior_researcher" in report["earned_now"]
