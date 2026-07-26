@@ -120,6 +120,28 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         )
         changes.append("issue_reports.create")
 
+    duels_exists = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='duels'"
+    ).fetchone()
+    if not duels_exists:
+        conn.executescript(
+            """
+            CREATE TABLE duels (
+                token TEXT PRIMARY KEY,
+                question_id INTEGER NOT NULL,
+                creator_id INTEGER NOT NULL,
+                creator_correct INTEGER NOT NULL,
+                creator_time_ms INTEGER NOT NULL,
+                opponent_id INTEGER,
+                opponent_correct INTEGER,
+                opponent_time_ms INTEGER,
+                status TEXT NOT NULL DEFAULT 'open',
+                created_at TEXT NOT NULL
+            );
+            """
+        )
+        changes.append("duels.create")
+
     conn.commit()
     return changes
 

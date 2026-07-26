@@ -1,7 +1,7 @@
 const tg = window.Telegram ? window.Telegram.WebApp : { initData: "", ready() {}, expand() {} };
 tg.ready(); tg.expand();
 
-const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding", "report-issue"];
+const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding", "report-issue", "duel"];
 function show(name) {
   screens.forEach(s => document.getElementById("screen-" + s).classList.toggle("hidden", s !== name));
   if (document.body) document.body.dataset.screen = name;
@@ -40,6 +40,9 @@ function avatarSprite(id) {
 function stageSprite(slug) { return spr((typeof STAGE_SPRITES !== "undefined" && STAGE_SPRITES[slug]) || "book"); }
 
 async function loadHome() {
+  // Deep-link: opening the app via a duel challenge link (?startapp=duel_<token>).
+  const sp = (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.start_param) || "";
+  if (sp.indexOf("duel_") === 0 && !window.__duelStarted) { window.__duelStarted = true; return startDuelAnswer(sp.slice(5)); }
   const profile = await loadProfile();
   if (!profile.onboarded) return showOnboarding();
   return renderMap(profile);
@@ -194,6 +197,93 @@ function practiceDone() {
     `أحسنت! راجعتَ ${state.questions.length} مفاهيم من نقاط ضعفك 🧠 عُد لاحقًا لمراجعة جديدة.`;
   document.getElementById("funfact-continue").onclick = loadHome;
   show("funfact");
+}
+
+// ---- Peer-Review Duel (timed one-shot challenge) ----
+let _duelTimer = null, _duelStart = 0;
+
+function pickDuelQuestion() {
+  const single = (state.questions || []).filter((q) => ["mcq", "tf", "image"].includes(q.type));
+  return single.length ? single[Math.floor(Math.random() * single.length)] : null;
+}
+
+function startDuelChallenge() {
+  const q = pickDuelQuestion();
+  if (q) playDuel(q, { mode: "create" });
+}
+
+async function startDuelAnswer(token) {
+  let duel;
+  try { duel = await api(`/duels/${token}`); } catch (e) { return loadHome(); }
+  if (!duel || duel.status !== "open") {
+    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.showAlert) Telegram.WebApp.showAlert("انتهت هذه المبارزة.");
+    window.__duelStarted = false;
+    return loadHome();
+  }
+  playDuel(duel.question, { mode: "answer", token, creator: duel.creator });
+}
+
+function playDuel(q, ctx) {
+  show("duel");
+  document.getElementById("duel-result").innerHTML = "";
+  document.getElementById("duel-home").classList.add("hidden");
+  document.getElementById("duel-home").onclick = () => { window.__duelStarted = false; loadHome(); };
+  document.getElementById("duel-prompt").textContent = q.prompt_ar;
+  const img = document.getElementById("duel-image");
+  if (q.asset_file) { img.src = "/content/" + q.asset_file; img.classList.remove("hidden"); }
+  else { img.classList.add("hidden"); img.removeAttribute("src"); }
+  const intro = (ctx.mode === "answer" && ctx.creator) ? `⚔️ ${ctx.creator.name} تحدّاك! أجب بسرعة ودقّة.` : "⚔️ أجب بسرعة ودقّة ثم تحدَّ زميلك.";
+  const opts = document.getElementById("duel-options");
+  opts.innerHTML = `<div class="duel-intro">${intro}</div>`;
+  q.options_ar.forEach((text, i) => {
+    const b = document.createElement("button");
+    b.className = "opt"; b.textContent = text;
+    b.onclick = () => finishDuel(q, i, ctx, opts);
+    opts.appendChild(b);
+  });
+  _duelStart = Date.now();
+  const t = document.getElementById("duel-timer");
+  clearInterval(_duelTimer);
+  _duelTimer = setInterval(() => { t.textContent = ((Date.now() - _duelStart) / 1000).toFixed(1) + "s"; }, 100);
+}
+
+async function finishDuel(q, index, ctx, opts) {
+  clearInterval(_duelTimer);
+  const time_ms = Date.now() - _duelStart;
+  const correct = index === q.correct_index;
+  [...opts.querySelectorAll(".opt")].forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.correct_index) b.classList.add("correct"); else if (i === index) b.classList.add("wrong");
+  });
+  const res = document.getElementById("duel-result");
+  const secs = (time_ms / 1000).toFixed(1);
+  try {
+    if (ctx.mode === "create") {
+      const out = await api("/duels", { method: "POST", headers: { "Content-Type": "application/json", "X-Init-Data": tg.initData }, body: JSON.stringify({ question_id: q.id, correct, time_ms }) });
+      res.innerHTML = `<div>${correct ? "✅ صحيح" : "❌ خطأ"} في ${secs} ثانية</div><button id="duel-share" class="quiz-card">📤 تحدَّ زميلك</button>`;
+      document.getElementById("duel-share").onclick = () => shareDuel(out.link);
+    } else {
+      const out = await api(`/duels/${ctx.token}/answer`, { method: "POST", headers: { "Content-Type": "application/json", "X-Init-Data": tg.initData }, body: JSON.stringify({ correct, time_ms }) });
+      const w = out.winner === "tie" ? "تعادل! 🤝" : `الفائز: ${out.winner === "creator" ? out.creator.name : out.opponent.name} 🏆`;
+      res.innerHTML = `<div class="duel-winner">${w}</div>` +
+        `<div>${out.creator.name}: ${out.creator.correct ? "✅" : "❌"} ${(out.creator.time_ms / 1000).toFixed(1)}s</div>` +
+        `<div>${out.opponent.name}: ${out.opponent.correct ? "✅" : "❌"} ${(out.opponent.time_ms / 1000).toFixed(1)}s</div>`;
+      if (typeof confetti === "function" && out.winner !== "tie") confetti();
+    }
+  } catch (e) { res.textContent = "تعذّرت العملية، حاول لاحقًا."; }
+  document.getElementById("duel-home").classList.remove("hidden");
+}
+
+function shareDuel(link) {
+  const text = "هل تتفوّق عليّ في هذه المبارزة العلمية؟ ⚔️";
+  const shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(text);
+  if (window.Telegram && Telegram.WebApp && typeof Telegram.WebApp.openTelegramLink === "function") {
+    Telegram.WebApp.openTelegramLink(shareUrl);
+  } else if (navigator.share) {
+    navigator.share({ title: "رحلة الباحث", text, url: link }).catch(() => {});
+  } else {
+    document.getElementById("duel-result").innerHTML += `<div class="duel-link" dir="ltr">${link}</div>`;
+  }
 }
 
 async function startQuiz(slug) {
@@ -610,6 +700,16 @@ function renderReport(report) {
     cb.textContent = "🎓 احصل على شهادتك";
     cb.onclick = async () => { const p = (typeof loadProfile === "function") ? await loadProfile() : {}; certificateCard(p, report); };
     document.getElementById("btn-board").insertAdjacentElement("beforebegin", cb);
+  }
+
+  // Challenge a colleague to a timed duel on one of these questions.
+  const oldDuel = document.getElementById("btn-duel");
+  if (oldDuel) oldDuel.remove();
+  if (state.slug !== "__review__" && typeof startDuelChallenge === "function" && pickDuelQuestion()) {
+    const db = document.createElement("button");
+    db.id = "btn-duel"; db.className = "quiz-card"; db.textContent = "⚔️ تحدَّ زميلاً";
+    db.onclick = startDuelChallenge;
+    document.getElementById("btn-board").insertAdjacentElement("beforebegin", db);
   }
 }
 

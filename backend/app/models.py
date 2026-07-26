@@ -122,6 +122,37 @@ def leaderboard_season(conn, limit=20):
     ).fetchall()
 
 
+def get_question(conn, qid):
+    return conn.execute("SELECT * FROM questions WHERE id = ?", (qid,)).fetchone()
+
+
+def contestant_name(conn, uid):
+    row = conn.execute("SELECT first_name FROM contestants WHERE telegram_user_id = ?", (uid,)).fetchone()
+    return (row["first_name"] if row else "") or "باحث"
+
+
+def create_duel(conn, token, question_id, creator_id, correct, time_ms, now):
+    conn.execute(
+        "INSERT INTO duels (token, question_id, creator_id, creator_correct, creator_time_ms, status, created_at) "
+        "VALUES (?, ?, ?, ?, ?, 'open', ?)",
+        (token, question_id, creator_id, int(correct), int(time_ms), now),
+    )
+    conn.commit()
+
+
+def get_duel(conn, token):
+    return conn.execute("SELECT * FROM duels WHERE token = ?", (token,)).fetchone()
+
+
+def finish_duel(conn, token, opponent_id, correct, time_ms):
+    conn.execute(
+        "UPDATE duels SET opponent_id=?, opponent_correct=?, opponent_time_ms=?, status='done' "
+        "WHERE token=? AND status='open'",
+        (opponent_id, int(correct), int(time_ms), token),
+    )
+    conn.commit()
+
+
 def get_contestant_answers(conn, contestant_id):
     rows = conn.execute(
         """

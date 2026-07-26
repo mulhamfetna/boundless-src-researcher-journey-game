@@ -1,5 +1,6 @@
 import json
 import random
+import secrets
 
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request
 
@@ -39,6 +40,18 @@ def _serialize_question(conn, q) -> dict:
         item["correct_indices"] = data["correct_indices"]
         item["chip_explanations_ar"] = data.get("chip_explanations_ar", [])
     return item
+
+
+def duel_winner(c_correct, c_time, o_correct, o_time):
+    """A correct answer beats a wrong one; among equals, the faster time wins."""
+    c_correct, o_correct = bool(c_correct), bool(o_correct)
+    if c_correct != o_correct:
+        return "creator" if c_correct else "opponent"
+    if (c_time or 0) < (o_time or 0):
+        return "creator"
+    if (o_time or 0) < (c_time or 0):
+        return "opponent"
+    return "tie"
 
 
 def _conn(request: Request):
@@ -97,6 +110,77 @@ def me_review(request: Request, x_init_data: str = Header(default="")):
         focus = pool
     random.Random().shuffle(focus)
     return {"questions": focus[: min(5, len(focus))]}
+
+
+@router.post("/duels")
+def duel_create(payload: dict, request: Request, x_init_data: str = Header(default="")):
+    conn = _conn(request)
+    try:
+        parsed = validate_init_data(x_init_data, settings.bot_token)
+    except AuthError:
+        raise HTTPException(401, "invalid initData")
+    user = parsed.get("user")
+    if not user:
+        raise HTTPException(401, "no user in initData")
+    qid = payload.get("question_id")
+    if not models.get_question(conn, qid):
+        raise HTTPException(404, "question not found")
+    cid = models.upsert_contestant(conn, user)
+    token = secrets.token_urlsafe(6)
+    models.create_duel(conn, token, qid, cid, bool(payload.get("correct")), int(payload.get("time_ms", 0)), _now(conn))
+    return {"token": token, "link": f"https://t.me/{settings.bot_username}?startapp=duel_{token}"}
+
+
+@router.get("/duels/{token}")
+def duel_get(token: str, request: Request):
+    conn = _conn(request)
+    d = models.get_duel(conn, token)
+    if not d:
+        raise HTTPException(404, "duel not found")
+    q = models.get_question(conn, d["question_id"])
+    if not q:
+        raise HTTPException(404, "question gone")
+    return {
+        "token": token, "status": d["status"],
+        "question": _serialize_question(conn, q),
+        "creator": {"name": models.contestant_name(conn, d["creator_id"]),
+                    "correct": bool(d["creator_correct"]), "time_ms": d["creator_time_ms"]},
+    }
+
+
+@router.post("/duels/{token}/answer")
+def duel_answer(token: str, payload: dict, request: Request, background_tasks: BackgroundTasks, x_init_data: str = Header(default="")):
+    conn = _conn(request)
+    try:
+        parsed = validate_init_data(x_init_data, settings.bot_token)
+    except AuthError:
+        raise HTTPException(401, "invalid initData")
+    user = parsed.get("user")
+    if not user:
+        raise HTTPException(401, "no user in initData")
+    d = models.get_duel(conn, token)
+    if not d:
+        raise HTTPException(404, "duel not found")
+    oid = models.upsert_contestant(conn, user)
+    just_finished = d["status"] == "open" and d["opponent_id"] is None
+    if just_finished:
+        models.finish_duel(conn, token, oid, bool(payload.get("correct")), int(payload.get("time_ms", 0)))
+        d = models.get_duel(conn, token)
+    winner = duel_winner(d["creator_correct"], d["creator_time_ms"], d["opponent_correct"], d["opponent_time_ms"])
+    cname = models.contestant_name(conn, d["creator_id"])
+    oname = models.contestant_name(conn, d["opponent_id"])
+    if just_finished:
+        wtxt = "تعادل!" if winner == "tie" else ("الفائز: " + (cname if winner == "creator" else oname))
+        txt = (f"⚔️ نتيجة المبارزة — {wtxt}\n"
+               f"{cname}: {'✅' if d['creator_correct'] else '❌'} ({d['creator_time_ms']}ms)\n"
+               f"{oname}: {'✅' if d['opponent_correct'] else '❌'} ({d['opponent_time_ms']}ms)")
+        background_tasks.add_task(notify.send_report_dm, d["creator_id"], txt)
+        background_tasks.add_task(notify.send_report_dm, d["opponent_id"], txt)
+    return {
+        "token": token, "winner": winner,
+        "creator": {"name": cname, "correct": bool(d["creator_correct"]), "time_ms": d["creator_time_ms"]},
+        "opponent": {"name": oname, "correct": bool(d["opponent_correct"]), "time_ms": d["opponent_time_ms"]},
+    }
 
 
 @router.post("/quizzes/{slug}/submit")

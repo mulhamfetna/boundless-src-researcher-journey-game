@@ -422,6 +422,10 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 @media (prefers-reduced-motion: reduce) { #zaun-fog { animation:none; } }
 
 .lb-tier { font-size:.72rem; color:var(--cyan); margin-inline-start:8px; opacity:.9; }
+.duel-intro { color:var(--gold-bright, #e2c687); text-align:center; margin:6px 0 12px; }
+#duel-result { text-align:center; margin:12px 0; line-height:1.9; }
+.duel-winner { font-size:1.3rem; color:var(--gold-bright, #e2c687); font-weight:700; margin-bottom:6px; }
+.duel-link { font-size:.8rem; color:var(--cyan); word-break:break-all; margin-top:8px; }
 
 /* ---- shareable cards (certificate / lab-notebook) ---- */
 .card-overlay { position:fixed; inset:0; z-index:10002; display:flex; align-items:center; justify-content:center;

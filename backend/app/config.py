@@ -9,6 +9,7 @@ class Settings:
     public_url: str
     sample_size: int
     admin_id: int
+    bot_username: str
 
 
 def load_settings() -> Settings:
@@ -18,6 +19,7 @@ def load_settings() -> Settings:
         public_url=os.environ.get("PUBLIC_URL", "http://localhost:8000"),
         sample_size=int(os.environ.get("SAMPLE_SIZE", "10")),
         admin_id=int(os.environ.get("ADMIN_ID", "0")),
+        bot_username=os.environ.get("BOT_USERNAME", "src_quize_bot"),
     )
 
 

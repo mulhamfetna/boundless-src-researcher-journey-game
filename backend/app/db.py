@@ -93,6 +93,19 @@ CREATE TABLE IF NOT EXISTS issue_reports (
     raw_json           TEXT,
     created_at         TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS duels (
+    token            TEXT PRIMARY KEY,
+    question_id      INTEGER NOT NULL,
+    creator_id       INTEGER NOT NULL,
+    creator_correct  INTEGER NOT NULL,
+    creator_time_ms  INTEGER NOT NULL,
+    opponent_id      INTEGER,
+    opponent_correct INTEGER,
+    opponent_time_ms INTEGER,
+    status           TEXT NOT NULL DEFAULT 'open',
+    created_at       TEXT NOT NULL
+);
 """
 
 

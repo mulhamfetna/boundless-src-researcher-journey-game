@@ -308,3 +308,28 @@ def test_me_review_returns_weak_concept_deck(api_client):
 
 def test_me_review_requires_auth(api_client):
     assert api_client.get("/api/me/review", headers={"X-Init-Data": "auth_date=1&hash=bad"}).status_code == 401
+
+
+def test_duel_winner_logic():
+    from app.api import duel_winner
+    assert duel_winner(True, 5000, False, 3000) == "creator"   # correct beats wrong
+    assert duel_winner(False, 3000, True, 9000) == "opponent"
+    assert duel_winner(True, 3000, True, 5000) == "creator"    # both correct -> faster
+    assert duel_winner(True, 5000, True, 3000) == "opponent"
+    assert duel_winner(True, 4000, True, 4000) == "tie"
+
+
+def test_duel_create_and_answer(api_client):
+    init_c = _init_data({"id": 601, "first_name": "Vi"})
+    init_o = _init_data({"id": 602, "first_name": "Cait"})
+    q = api_client.get("/api/quizzes/journals/questions").json()["questions"][0]
+    r = api_client.post("/api/duels", headers={"X-Init-Data": init_c},
+                        json={"question_id": q["id"], "correct": True, "time_ms": 4000}).json()
+    token = r["token"]
+    assert token and "startapp=duel_" in r["link"]
+    g = api_client.get(f"/api/duels/{token}").json()
+    assert g["question"]["id"] == q["id"] and g["status"] == "open" and g["creator"]["name"] == "Vi"
+    res = api_client.post(f"/api/duels/{token}/answer", headers={"X-Init-Data": init_o},
+                          json={"correct": True, "time_ms": 6000}).json()
+    assert res["winner"] == "creator" and res["opponent"]["name"] == "Cait"
+    assert api_client.get(f"/api/duels/{token}").json()["status"] == "done"
