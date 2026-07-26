@@ -2,7 +2,7 @@ class SchemaError(Exception):
     pass
 
 
-VALID_TYPES = {"mcq", "tf", "image", "match", "order"}
+VALID_TYPES = {"mcq", "tf", "image", "match", "order", "spot"}
 
 
 def _require(cond: bool, msg: str) -> None:
@@ -61,6 +61,19 @@ def validate_quiz(doc: dict) -> None:
             seq = q.get("correct_sequence")
             _require(isinstance(seq, list) and all(isinstance(x, int) for x in seq) and sorted(seq) == list(range(len(items))),
                      f"{where}: correct_sequence must be a permutation of range(len(items_ar))")
+
+        elif q["type"] == "spot":
+            opts = q.get("options_ar")
+            _require(isinstance(opts, list) and len(opts) >= 3, f"{where}: spot needs >= 3 chips")
+            ci = q.get("correct_indices")
+            _require(isinstance(ci, list) and ci, f"{where}: spot needs non-empty correct_indices")
+            _require(all(isinstance(i, int) and 0 <= i < len(opts) for i in ci),
+                     f"{where}: spot correct_indices out of range")
+            _require(len(set(ci)) < len(opts), f"{where}: spot needs at least one non-correct chip")
+            if "chip_explanations_ar" in q:
+                _require(isinstance(q["chip_explanations_ar"], list)
+                         and len(q["chip_explanations_ar"]) == len(opts),
+                         f"{where}: chip_explanations_ar length must equal options_ar")
 
         if "option_explanations_ar" in q:
             _require(q["type"] in ("mcq", "tf", "image"),

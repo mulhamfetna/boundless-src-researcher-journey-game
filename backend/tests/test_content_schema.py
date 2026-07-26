@@ -143,3 +143,37 @@ def test_empty_passage_fails():
     doc["questions"][0]["passage"] = "   "
     with pytest.raises(SchemaError):
         validate_quiz(doc)
+
+
+def _spot_q():
+    return {"type": "spot", "prompt_ar": "حدد العلامات الحمراء", "concept": "predatory_signs",
+            "options_ar": ["أ", "ب", "ج", "د"], "correct_indices": [0, 2]}
+
+
+def test_valid_spot_passes():
+    doc = _good_doc(); doc["questions"].append(_spot_q()); validate_quiz(doc)
+
+
+def test_spot_empty_correct_indices_fails():
+    doc = _good_doc(); q = _spot_q(); q["correct_indices"] = []; doc["questions"].append(q)
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)
+
+
+def test_spot_index_out_of_range_fails():
+    doc = _good_doc(); q = _spot_q(); q["correct_indices"] = [0, 9]; doc["questions"].append(q)
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)
+
+
+def test_spot_needs_a_distractor():
+    doc = _good_doc(); q = _spot_q(); q["correct_indices"] = [0, 1, 2, 3]; doc["questions"].append(q)
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)
+
+
+def test_spot_min_three_chips():
+    doc = _good_doc(); q = _spot_q(); q["options_ar"] = ["أ", "ب"]; q["correct_indices"] = [0]
+    doc["questions"].append(q)
+    with pytest.raises(SchemaError):
+        validate_quiz(doc)
