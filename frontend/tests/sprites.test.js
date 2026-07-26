@@ -29,4 +29,13 @@ describe("sprites", () => {
     expect(Object.keys(window.STAGE_SPRITES).sort()).toEqual(["foundations", "journals", "paper-parts", "paper-types", "publishing", "submission"]);
     expect(Object.keys(window.BADGE_SPRITES).sort()).toEqual(["first_finish", "perfect_quiz", "self_reliant", "streak_master"]);
   });
+  it("maps champion raster art to png filenames", () => {
+    expect(Object.keys(window.AVATAR_ART).sort()).toEqual(["alchemist", "brawler", "gremlin", "sniper", "tinkerer"]);
+  });
+  it("champArt returns an <img> for arted champions, null otherwise", () => {
+    expect(window.champArt("tinkerer")).toMatch(/<img[^>]+champ_tinkerer\.png/);
+    expect(window.champArt("gremlin")).toMatch(/champ_gremlin\.png/);
+    expect(window.champArt("enforcer")).toBeNull(); // no art -> keeps the SVG sprite
+    expect(window.champArt("zzz")).toBeNull();
+  });
 });

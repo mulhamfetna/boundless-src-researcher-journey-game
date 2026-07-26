@@ -420,3 +420,25 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 }
 @keyframes acid-drift { 0% { transform:translateX(-16px); } 100% { transform:translateX(16px); } }
 @media (prefers-reduced-motion: reduce) { #zaun-fog { animation:none; } }
+
+/* ---- Relay art: painted two-world map background + champion portrait tokens ---- */
+#art-bg {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:url("/content/assets/art/map_bg.png") center top / cover no-repeat;
+  opacity:0.14; transition:opacity .45s ease;
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 45%, transparent 96%);
+          mask-image:linear-gradient(to bottom, #000 0%, #000 45%, transparent 96%);
+}
+body[data-screen="home"] #art-bg       { opacity:0.55; }
+body[data-screen="onboarding"] #art-bg { opacity:0.45; }
+@media (prefers-reduced-motion: reduce) { #art-bg { transition:none; } }
+
+.champ-art {
+  width:100%; height:100%; object-fit:cover; border-radius:50%;
+  display:block; box-shadow:inset 0 0 8px #00000066;
+}
+.hud-avatar .champ-art    { width:2.2em; height:2.2em; }
+.node-here .champ-art     { width:2.1em; height:2.1em; box-shadow:0 0 8px var(--cyan); }
+.ob-avatar .champ-art     { width:2.4em; height:2.4em; }
+.mentor-avatar .champ-art { width:2.8em; height:2.8em; }
+.map-node .champ-art, .node-emoji .champ-art { width:2em; height:2em; }

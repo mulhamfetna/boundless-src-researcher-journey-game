@@ -44,6 +44,14 @@
   function sprite(name) { return SP[name] || SP.tinkerer; }
   window.sprite = sprite;
   window.AVATAR_SPRITES = ["tinkerer", "brawler", "sniper", "alchemist", "enforcer", "gremlin"];
+  // Painterly champion portraits (relay-generated) — used when art exists, else the SVG above.
+  window.AVATAR_ART = {
+    tinkerer: "champ_tinkerer.png", brawler: "champ_brawler.png", sniper: "champ_sniper.png",
+    gremlin: "champ_gremlin.png", alchemist: "champ_alchemist.png",
+  };
+  window.champArt = function (id) {
+    return AVATAR_ART[id] ? '<img class="champ-art" src="/content/assets/art/' + AVATAR_ART[id] + '" alt="" />' : null;
+  };
   window.STAGE_SPRITES = { foundations: "book", "paper-parts": "puzzle", "paper-types": "doc", journals: "magnifier", publishing: "checklist", submission: "send" };
   window.BADGE_SPRITES = { perfect_quiz: "perfect_quiz", self_reliant: "self_reliant", streak_master: "streak_master", first_finish: "first_finish" };
 })();

@@ -4,6 +4,7 @@ tg.ready(); tg.expand();
 const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding", "report-issue"];
 function show(name) {
   screens.forEach(s => document.getElementById("screen-" + s).classList.toggle("hidden", s !== name));
+  if (document.body) document.body.dataset.screen = name;
 }
 
 const BADGES = {
@@ -25,7 +26,11 @@ let currentXp = 0;
 
 const AVATARS = (typeof AVATAR_SPRITES !== "undefined") ? AVATAR_SPRITES : ["tinkerer", "brawler", "sniper"];
 function spr(name) { return (typeof sprite === "function") ? sprite(name) : ""; }
-function avatarSprite(id) { return spr((typeof AVATAR_SPRITES !== "undefined" && AVATAR_SPRITES.includes(id)) ? id : "tinkerer"); }
+function avatarSprite(id) {
+  const eff = (typeof AVATAR_SPRITES !== "undefined" && AVATAR_SPRITES.includes(id)) ? id : "tinkerer";
+  const art = (typeof champArt === "function") ? champArt(eff) : null;
+  return art || spr(eff);
+}
 function stageSprite(slug) { return spr((typeof STAGE_SPRITES !== "undefined" && STAGE_SPRITES[slug]) || "book"); }
 
 async function loadHome() {
@@ -116,7 +121,7 @@ function enterStage(slug, profile) {
 function showOnboarding() {
   const mentor = document.getElementById("ob-mentor");
   mentor.innerHTML =
-    `<div class="mentor-card"><div class="mentor-avatar">${spr("owl")}</div>` +
+    `<div class="mentor-card"><div class="mentor-avatar">${avatarSprite("tinkerer")}</div>` +
     `<div class="mentor-text">${mentorLineFor("welcome_anon", {})}</div></div>`;
 
   let chosen = AVATARS[0];
