@@ -22,7 +22,16 @@ def test_every_content_question_has_concept(tmp_path):
             assert data.get("concept", "").strip(), f"{slug} q{r['id']} missing concept"
 
 
-def test_each_quiz_has_at_least_25_questions(tmp_path):
+# Application-first stations use fewer, richer hands-on tasks (see the journals
+# pilot spec docs/superpowers/specs/2026-07-26-journals-application-pilot-design.md);
+# their bank may be < the sample size, in which case every task is always played.
+# Recall stations keep a large bank so per-attempt sampling stays varied.
+APPLICATION_FIRST = {"journals"}
+
+
+def test_each_quiz_has_enough_questions(tmp_path):
     for p in glob.glob(os.path.join(CONTENT, "*.json")):
         doc = json.load(open(p, encoding="utf-8"))
-        assert len(doc["questions"]) >= 25, f"{doc['slug']} has {len(doc['questions'])}"
+        n = len(doc["questions"])
+        floor = 5 if doc["slug"] in APPLICATION_FIRST else 25
+        assert n >= floor, f"{doc['slug']} has {n} (< {floor})"
