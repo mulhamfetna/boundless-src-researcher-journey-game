@@ -8,13 +8,18 @@ function show(name) {
 }
 
 const BADGES = {
+  perfect_capstone: { ico: "perfect_capstone", name_ar: "رحلة مثالية" },
   senior_researcher: { ico: "senior_researcher", name_ar: "كبير باحثي بيلتوفر" },
+  all_stations: { ico: "all_stations", name_ar: "جوّاب المحطات" },
+  flawless: { ico: "flawless", name_ar: "أداء لا يُخطئ" },
+  streak_10: { ico: "streak_10", name_ar: "سلسلة العشرة" },
   perfect_quiz: { ico: "perfect_quiz", name_ar: "الإتقان" },
-  self_reliant: { ico: "self_reliant", name_ar: "بلا تلميحات" },
   streak_master: { ico: "streak_master", name_ar: "السلسلة" },
+  dedicated: { ico: "dedicated", name_ar: "المثابر" },
+  self_reliant: { ico: "self_reliant", name_ar: "بلا تلميحات" },
   first_finish: { ico: "first_finish", name_ar: "البداية" },
 };
-const BADGE_ORDER = ["senior_researcher", "perfect_quiz", "self_reliant", "streak_master", "first_finish"];
+const BADGE_ORDER = ["perfect_capstone", "senior_researcher", "all_stations", "flawless", "streak_10", "perfect_quiz", "streak_master", "dedicated", "self_reliant", "first_finish"];
 
 async function api(path, opts = {}) {
   const res = await fetch("/api" + path, opts);

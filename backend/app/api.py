@@ -126,9 +126,11 @@ def submit(slug: str, payload: dict, request: Request, background_tasks: Backgro
     summary = {"accuracy": accuracy, "max_streak": max_streak,
                "hints_used": hints_used, "is_first_finish": is_first_finish,
                "answered": answered, "perfect_min": perfect_min}
+    summary["slug"] = slug
     codes = badges.evaluate(summary)
     if slug in JOURNEY_SLUGS:  # completing the capstone journey earns the pinnacle badge
         codes = [*codes, "senior_researcher"]
+    codes += badges.evaluate_stateful(conn, contestant_id)
     earned_now = badges.award(conn, contestant_id, codes, _now(conn))
 
     from app.report import build_report, format_report_text

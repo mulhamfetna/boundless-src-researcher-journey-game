@@ -42,6 +42,11 @@
     // senior_researcher: laurel-crowned hextech medal, the pinnacle badge
     senior_researcher: svg(r(6,2,4,2,GOLDH) + r(4,4,8,7,GOLD) + r(6,6,4,4,CY) + r(3,5,1,4,GOLDH) + r(12,5,1,4,GOLDH) + r(5,11,2,3,SH) + r(9,11,2,3,SH) + r(6,14,4,1,GOLD)),
     bug: svg(r(6,2,4,3,SH) + r(4,5,8,6,SH) + r(5,11,6,2,SH) + r(6,6,1,1,I) + r(9,6,1,1,I) + r(3,6,2,1,I) + r(11,6,2,1,I) + r(3,9,2,1,I) + r(11,9,2,1,I) + r(7,5,2,7,I)),
+    perfect_capstone: svg(r(2,12,12,2,VI) + r(7,3,2,9,GOLD) + r(5,5,6,4,GOLDH) + c(8,3,1.3,CY) + r(6,10,4,2,SH)),
+    all_stations: svg(c(8,8,5,GOLD) + c(8,8,3,I) + r(7,1,2,2,CY) + r(7,13,2,2,CY) + r(1,7,2,2,SH) + r(13,7,2,2,SH) + r(7,7,2,2,GOLDH)),
+    flawless: svg(r(5,2,6,2,CY) + r(4,4,8,6,CY) + r(6,10,4,3,CY) + r(7,4,2,7,IV)),
+    streak_10: svg(r(7,2,2,2,GOLDH) + r(6,4,4,3,SH) + r(5,7,6,4,SH) + r(6,11,4,2,GOLD) + r(7,5,2,6,GOLDH)),
+    dedicated: svg(c(8,6,3,GOLD) + c(8,6,1.6,GOLDH) + r(6,9,2,4,SH) + r(9,9,2,4,SH) + r(6,13,4,1,GOLD)),
   };
   SP.mentor = SP.tinkerer;
   SP.boss = SP.gremlin;
@@ -57,5 +62,5 @@
     return AVATAR_ART[id] ? '<img class="champ-art" src="/content/assets/art/' + AVATAR_ART[id] + '" alt="" />' : null;
   };
   window.STAGE_SPRITES = { foundations: "book", "paper-parts": "puzzle", "paper-types": "doc", journals: "magnifier", publishing: "checklist", submission: "send", capstone: "capstone" };
-  window.BADGE_SPRITES = { senior_researcher: "senior_researcher", perfect_quiz: "perfect_quiz", self_reliant: "self_reliant", streak_master: "streak_master", first_finish: "first_finish" };
+  window.BADGE_SPRITES = { perfect_capstone: "perfect_capstone", senior_researcher: "senior_researcher", all_stations: "all_stations", flawless: "flawless", streak_10: "streak_10", perfect_quiz: "perfect_quiz", streak_master: "streak_master", dedicated: "dedicated", self_reliant: "self_reliant", first_finish: "first_finish" };
 })();

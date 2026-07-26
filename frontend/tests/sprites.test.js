@@ -27,12 +27,16 @@ describe("sprites", () => {
   it("exposes the id maps with expected keys", () => {
     expect(window.AVATAR_SPRITES.length).toBe(6);
     expect(Object.keys(window.STAGE_SPRITES).sort()).toEqual(["capstone", "foundations", "journals", "paper-parts", "paper-types", "publishing", "submission"]);
-    expect(Object.keys(window.BADGE_SPRITES).sort()).toEqual(["first_finish", "perfect_quiz", "self_reliant", "senior_researcher", "streak_master"]);
+    expect(Object.keys(window.BADGE_SPRITES).sort()).toEqual(
+      ["all_stations", "dedicated", "first_finish", "flawless", "perfect_capstone",
+       "perfect_quiz", "self_reliant", "senior_researcher", "streak_10", "streak_master"]);
   });
 
-  it("renders the capstone node + senior_researcher badge as svg", () => {
+  it("renders the capstone node + every badge sprite as svg", () => {
     expect(window.sprite("capstone")).toMatch(/^<svg/);
-    expect(window.sprite("senior_researcher")).toMatch(/^<svg/);
+    for (const code of Object.values(window.BADGE_SPRITES)) {
+      expect(window.sprite(code)).toMatch(/^<svg/);
+    }
   });
   it("maps champion raster art to png filenames", () => {
     expect(Object.keys(window.AVATAR_ART).sort()).toEqual(["alchemist", "brawler", "gremlin", "sniper", "tinkerer"]);
