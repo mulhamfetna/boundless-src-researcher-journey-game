@@ -53,6 +53,10 @@ def get_questions(slug: str, request: Request):
             item["correct_pairs"] = data["correct_pairs"]
         elif q["type"] == "order":
             item["items_ar"] = data["items_ar"]; item["correct_sequence"] = data["correct_sequence"]
+        elif q["type"] == "spot":
+            item["options_ar"] = data["options_ar"]
+            item["correct_indices"] = data["correct_indices"]
+            item["chip_explanations_ar"] = data.get("chip_explanations_ar", [])
         out.append(item)
     sampled = sample_questions(out, settings.sample_size, random.Random())
     return {"quiz": {"slug": quiz["slug"], "title_ar": quiz["title_ar"]},

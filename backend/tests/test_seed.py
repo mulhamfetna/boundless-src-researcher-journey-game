@@ -114,3 +114,18 @@ def test_seed_persists_passage_and_source(conn):
     data = _json.loads(q["data_json"])
     assert data["passage"] == "We study X."
     assert data["source_url"] == "https://doaj.org/a/1"
+
+
+def test_seed_stores_spot_indices(conn):
+    from app.seed import seed_quiz
+    import json
+    doc = {"slug": "s2", "title_ar": "t", "pdf_filename": "x.pdf", "questions": [
+        {"type": "spot", "prompt_ar": "p", "concept": "predatory_signs",
+         "options_ar": ["a", "b", "c"], "correct_indices": [0, 2],
+         "chip_explanations_ar": ["ea", "eb", "ec"]}]}
+    qid = seed_quiz(conn, doc)
+    row = conn.execute("SELECT data_json FROM questions WHERE quiz_id=?", (qid,)).fetchone()
+    data = json.loads(row["data_json"])
+    assert data["correct_indices"] == [0, 2]
+    assert data["options_ar"] == ["a", "b", "c"]
+    assert data["chip_explanations_ar"] == ["ea", "eb", "ec"]

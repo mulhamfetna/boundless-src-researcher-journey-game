@@ -37,6 +37,10 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
             data = {"left_ar": q["left_ar"], "right_ar": q["right_ar"], "correct_pairs": q["correct_pairs"]}
         elif q["type"] == "order":
             data = {"items_ar": q["items_ar"], "correct_sequence": q["correct_sequence"]}
+        elif q["type"] == "spot":
+            data = {"options_ar": q["options_ar"], "correct_indices": q["correct_indices"]}
+            if "chip_explanations_ar" in q:
+                data["chip_explanations_ar"] = q["chip_explanations_ar"]
         else:
             data = {}
         if q["type"] in ("mcq", "tf", "image") and "option_explanations_ar" in q:
