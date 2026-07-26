@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    restart: unless-stopped
     env_file: .env
     environment:
       QUIZ_DB_PATH: /data/quiz.db
@@ -14,6 +15,7 @@ services:
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
   bot:
     build: .
+    restart: unless-stopped
     env_file: .env
     environment:
       QUIZ_DB_PATH: /data/quiz.db
