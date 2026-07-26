@@ -12,6 +12,13 @@ description: >
 Claude paints the UI in CSS/SVG but can't render raster/painterly art. This skill uses the
 project's Gemini key to generate that art and layer it under the existing hextech UI.
 
+> **Prefer `scripts/agy_gen.py` (the `agy` skill) for generation** — it uses the Antigravity
+> CLI's `generate_image` (Nano Banana Pro) via OAuth with **no Cloud billing**, and shares these
+> exact Arcane presets: `python scripts/agy_gen.py image --preset arcane-champion --size 1024
+> --prompt "…" --out content/assets/art/x.png`. `gen_art.py` below (direct Gemini image API) is
+> the **fallback for large batches** once billing is enabled — agy's OAuth image quota is small
+> (~a handful/≈4h). The wiring/DNA guidance in this skill still applies to both.
+
 ## Prerequisite (one-time) — enable billing
 
 Image models (`gemini-*-image`, `imagen-*`) have **0 quota on the Gemini free tier** → every
