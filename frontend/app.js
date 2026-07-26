@@ -576,6 +576,17 @@ function renderReport(report) {
 
   if (typeof confetti === "function" && correct >= Math.ceil(report.items.length / 2)) confetti();
   document.getElementById("btn-board").onclick = () => loadBoard("quiz");
+
+  // Capstone completion → offer a shareable certificate.
+  const oldCert = document.getElementById("btn-cert");
+  if (oldCert) oldCert.remove();
+  if (state.slug === "capstone" && typeof certificateCard === "function") {
+    const cb = document.createElement("button");
+    cb.id = "btn-cert"; cb.className = "quiz-card";
+    cb.textContent = "🎓 احصل على شهادتك";
+    cb.onclick = async () => { const p = (typeof loadProfile === "function") ? await loadProfile() : {}; certificateCard(p, report); };
+    document.getElementById("btn-board").insertAdjacentElement("beforebegin", cb);
+  }
 }
 
 async function loadBoard(scope = "quiz") {
@@ -688,6 +699,10 @@ async function loadDashboard() {
     hist.appendChild(li);
   });
 
+  const nb = document.getElementById("btn-lab-notebook");
+  if (nb && typeof notebookCard === "function") {
+    nb.onclick = async () => { const p = (typeof loadProfile === "function") ? await loadProfile() : {}; notebookCard(p, dash); };
+  }
   document.getElementById("btn-progress-home").onclick = loadHome;
   show("progress");
 }

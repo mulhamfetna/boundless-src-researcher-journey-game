@@ -421,6 +421,16 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 @keyframes acid-drift { 0% { transform:translateX(-16px); } 100% { transform:translateX(16px); } }
 @media (prefers-reduced-motion: reduce) { #zaun-fog { animation:none; } }
 
+/* ---- shareable cards (certificate / lab-notebook) ---- */
+.card-overlay { position:fixed; inset:0; z-index:10002; display:flex; align-items:center; justify-content:center;
+  background:rgba(4,2,10,.82); padding:16px; }
+.card-box { max-width:100%; display:flex; flex-direction:column; align-items:center; gap:12px; }
+.card-img { max-width:100%; border-radius:12px; box-shadow:0 0 24px #0ac8b955, 0 0 0 1px var(--gold-dim); }
+.card-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.card-actions button { padding:10px 16px; border:none; border-radius:10px; cursor:pointer;
+  background:var(--card); color:var(--fg,#f3f5f9); font-size:.95rem; }
+.card-actions .card-save, .card-actions .card-share { background:var(--accent, #4f8cff); font-weight:600; }
+
 /* ---- spot: red-flag multi-select interaction ---- */
 .spot-chips { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
 .spot-chip {
