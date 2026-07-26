@@ -421,6 +421,19 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 @keyframes acid-drift { 0% { transform:translateX(-16px); } 100% { transform:translateX(16px); } }
 @media (prefers-reduced-motion: reduce) { #zaun-fog { animation:none; } }
 
+/* ---- spot: red-flag multi-select interaction ---- */
+.spot-chips { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+.spot-chip {
+  padding:10px 14px; border-radius:12px; background:var(--card);
+  border:1px solid var(--gold-dim); color:var(--ink, var(--fg)); cursor:pointer;
+  font-size:.95rem; text-align:right; transition:border-color .15s, box-shadow .15s;
+}
+.spot-chip.selected { border-color:var(--cyan); box-shadow:0 0 10px #0ac8b955; }
+.spot-chip.correct  { border-color:var(--good, #2fe6a0); box-shadow:0 0 10px #2fe6a066; }
+.spot-chip.wrong    { border-color:var(--bad); box-shadow:0 0 10px #ff465566; animation:spot-shake .3s; }
+.spot-chip:disabled { opacity:.85; cursor:default; }
+@keyframes spot-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+
 /* ---- Relay art: painted two-world map background + champion portrait tokens ---- */
 #art-bg {
   position:fixed; inset:0; z-index:0; pointer-events:none;

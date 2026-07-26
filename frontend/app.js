@@ -406,6 +406,7 @@ function renderQuestion() {
   const q2type = q.type;
   if (q2type === "match") { renderMatch(q); }
   else if (q2type === "order") { renderOrder(q); }
+  else if (q2type === "spot") { renderSpot(q); }
   else {
     const opts = document.getElementById("q-options");
     opts.innerHTML = "";
@@ -417,6 +418,58 @@ function renderQuestion() {
       btn.onclick = () => pickOption(btn, i);
       opts.appendChild(btn);
     });
+  }
+}
+
+function spotIsCorrect(sel, correct) {
+  const a = new Set(sel), b = new Set(correct);
+  return a.size === b.size && [...a].every((x) => b.has(x));
+}
+
+function renderSpot(q) {
+  const opts = document.getElementById("q-options");
+  opts.innerHTML = "";
+  document.getElementById("q-feedback").textContent = "";
+  const wrap = document.createElement("div");
+  wrap.className = "spot-chips";
+  q.options_ar.forEach((text, i) => {
+    const chip = document.createElement("button");
+    chip.className = "spot-chip";
+    chip.textContent = text;
+    chip.dataset.idx = i;
+    chip.onclick = () => { chip.classList.toggle("selected"); chip.classList.remove("wrong"); };
+    wrap.appendChild(chip);
+  });
+  opts.appendChild(wrap);
+  const btn = document.createElement("button");
+  btn.className = "runner-submit";
+  btn.textContent = "تحقّق";
+  btn.onclick = () => checkSpot(btn);
+  opts.appendChild(btn);
+}
+
+function checkSpot(btn) {
+  const q = state.questions[state.idx];
+  const chips = [...document.querySelectorAll(".spot-chip")];
+  const correct = new Set(q.correct_indices);
+  const selected = chips.filter((c) => c.classList.contains("selected")).map((c) => Number(c.dataset.idx));
+  if (spotIsCorrect(selected, q.correct_indices)) {
+    chips.forEach((c) => { c.disabled = true; if (correct.has(Number(c.dataset.idx))) c.classList.add("correct"); });
+    document.getElementById("q-feedback").textContent = "✅ " + (q.explanation_ar || "أحسنت");
+    state.answers.push({ question_id: q.id, retries: state.curRetries, hint_used: state.curHint });
+    btn.textContent = "التالي ➜";
+    btn.onclick = () => nextStep();
+    if (typeof burst === "function") burst(btn, { count: 12 });
+  } else {
+    state.curRetries += 1;
+    chips.forEach((c) => {
+      const idx = Number(c.dataset.idx);
+      if (c.classList.contains("selected") && !correct.has(idx)) c.classList.add("wrong");
+    });
+    const extra = selected.filter((i) => !correct.has(i)).length;
+    const missing = q.correct_indices.filter((i) => !selected.includes(i)).length;
+    document.getElementById("q-feedback").textContent =
+      "❌ " + (extra ? "أزِل اختيارًا غير صحيح. " : "") + (missing ? "لا تزال علامات لم تُحدَّد." : "");
   }
 }
 
