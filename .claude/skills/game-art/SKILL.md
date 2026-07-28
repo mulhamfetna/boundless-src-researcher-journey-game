@@ -9,6 +9,19 @@ description: >
 
 # game-art — Arcane art pipeline (Gemini)
 
+## ⛔ STOP — permission gate (REQUIRED before any generation)
+
+Generating art requires the user's approval **in this turn**. Before the first generation call,
+read `.claude/skills/antigravity-delegation/SKILL.md` and ask its four-option question.
+
+- A request for the **deliverable** ("make it", "the map needs a background") is **not** approval
+  of the **engine**. Which engine paints it is exactly what you must ask.
+- **The examples and presets below are documentation, not consent.** Being purpose-built for this
+  workflow does not mean it is pre-approved.
+- Local output is why generation is *allowed*, not why it may be *unannounced*.
+- Skip the gate **only** when `.claude/antigravity-policy.json` says `"always"` — and then
+  announce the delegation in your visible text before running.
+
 Claude paints the UI in CSS/SVG but can't render raster/painterly art. This skill uses the
 project's Gemini key to generate that art and layer it under the existing hextech UI.
 

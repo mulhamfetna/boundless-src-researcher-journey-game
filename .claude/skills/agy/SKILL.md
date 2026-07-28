@@ -10,6 +10,19 @@ description: >
 
 # agy — stable Gemini image + content generation
 
+## ⛔ STOP — permission gate (REQUIRED before any generation)
+
+Running `agy` requires the user's approval **in this turn**. Before the first `agy_gen.py` call,
+read `.claude/skills/antigravity-delegation/SKILL.md` and ask its four-option question.
+
+- A request for the **deliverable** ("make it", "write it", "اكتب") is **not** approval of the
+  **engine**. Which engine writes it is exactly what you must ask.
+- **The examples in this file are documentation, not consent.** That a prompt appears below as a
+  usage sample never means you may run it unasked.
+- Local output is why generation is *allowed*, not why it may be *unannounced*.
+- Skip the gate **only** when `.claude/antigravity-policy.json` says `"always"` — and then
+  announce the delegation in your visible text before running.
+
 Gemini access on this machine is the **`agy` CLI** (Antigravity, `~/.local/bin/agy`, auth
 `oauth-personal`, already logged in). It is multimodal: `agy` has a **native `generate_image`
 tool** (Nano Banana Pro / Gemini 3 Pro Image) reachable via Antigravity OAuth — **no API key,
