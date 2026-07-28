@@ -453,7 +453,7 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 /* ---- Relay art: painted two-world map background + champion portrait tokens ---- */
 #art-bg {
   position:fixed; inset:0; z-index:0; pointer-events:none;
-  background:url("/content/assets/art/map_bg.png") center top / cover no-repeat;
+  background:url("/content/assets/art/map_bg.png?v=2") center top / cover no-repeat;
   opacity:0.14; transition:opacity .45s ease;
   -webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 45%, transparent 96%);
           mask-image:linear-gradient(to bottom, #000 0%, #000 45%, transparent 96%);

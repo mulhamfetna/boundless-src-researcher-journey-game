@@ -188,3 +188,51 @@ Verify after any frontend deploy:
 VER=$(curl -s "https://src.mulhamfetna.com/app/" | grep -oE "app\.js\?v=[a-z0-9]+" | head -1 | cut -d= -f2)
 diff <(curl -s "https://src.mulhamfetna.com/app/app.js?v=$VER") frontend/app.js && echo "fresh"
 ```
+
+---
+
+## Outage: all `/content/assets/*` 404 after a host reboot (2026-07-28)
+
+**Symptoms:** images stop loading everywhere and the map's colors look wrong
+(`#art-bg` falls back to the bare Zaun gradient, so text loses its intended
+contrast). `/api/*` keeps working, so the app *looks* half-alive.
+
+**Root cause — a boot-order race, not a code bug.** `/mnt/data` is **not mounted
+by `/etc/fstab`** (that line is commented out); the desktop auto-mounts it later
+as `fuseblk`/ntfs-3g. With `restart: unless-stopped`, Docker starts the stack
+seconds after boot — *before* that mount exists. The `./content:/srv/content`
+bind then resolves against the empty placeholder directory under the mountpoint,
+and the real filesystem later mounts *over* it on the host. The container keeps
+holding the empty directory forever.
+
+**Diagnose in one command** — if the inodes differ, you have this bug:
+
+```bash
+echo "host: $(stat -c %i content)  container: $(docker compose exec -T web stat -c %i /srv/content)"
+```
+
+**Immediate fix** (bind mounts re-resolve at container *create*):
+
+```bash
+docker compose up -d --force-recreate web bot
+```
+
+**Then check the edge.** Cloudflare caches those 404s (`max-age=14400`), so
+assets stay broken for users even after the origin is healthy:
+
+```bash
+curl -sI https://src.mulhamfetna.com/content/assets/art/map_bg.png | grep -i "cf-cache-status\|^HTTP"
+```
+
+`cf-cache-status: HIT` + `404` = poisoned edge. Either purge the Cloudflare cache
+(dashboard — there is no API token in `.env`), or bump the `?v=` on the offending
+URL in `styles.css` / `sprites.js` to mint a new cache key. Content-JSON image
+paths cannot be versioned this way — they need a purge.
+
+**Permanent fix (needs root, not yet applied):** make the mount exist before
+Docker starts —
+
+1. uncomment the `/mnt/data` line in `/etc/fstab` so it mounts at boot, and
+2. `systemctl edit docker.service` → `[Unit]` / `RequiresMountsFor=/mnt/data`
+
+Until that is done, **every reboot reintroduces this outage.**

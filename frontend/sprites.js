@@ -59,7 +59,9 @@
     gremlin: "champ_gremlin.png", alchemist: "champ_alchemist.png",
   };
   window.champArt = function (id) {
-    return AVATAR_ART[id] ? '<img class="champ-art" src="/content/assets/art/' + AVATAR_ART[id] + '" alt="" />' : null;
+    // ?v= mints a fresh Cloudflare cache key — the edge cached 404s for these
+    // assets while the content bind-mount was missing (see docs/DEPLOY.md).
+    return AVATAR_ART[id] ? '<img class="champ-art" src="/content/assets/art/' + AVATAR_ART[id] + '?v=2" alt="" />' : null;
   };
   window.STAGE_SPRITES = { foundations: "book", "paper-parts": "puzzle", "paper-types": "doc", journals: "magnifier", publishing: "checklist", submission: "send", capstone: "capstone" };
   window.BADGE_SPRITES = { perfect_capstone: "perfect_capstone", senior_researcher: "senior_researcher", all_stations: "all_stations", flawless: "flawless", streak_10: "streak_10", perfect_quiz: "perfect_quiz", streak_master: "streak_master", dedicated: "dedicated", self_reliant: "self_reliant", first_finish: "first_finish" };
