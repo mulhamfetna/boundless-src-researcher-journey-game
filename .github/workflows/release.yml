@@ -47,7 +47,11 @@ jobs:
     environment: production
     env:
       APP_IMAGE: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
-      DIR: /opt/researcher-journey
+      DIR: /home/dev/mulham/src
+      # Explicit -f disables Compose's automatic override loading, so the
+      # override (which publishes 127.0.0.1:8000 for the smoke test) must be
+      # named here too.
+      COMPOSE_FILES: "-f docker-compose.prod.yml -f docker-compose.override.yml"
     steps:
       - name: Record the image being deployed
         run: |
@@ -60,20 +64,20 @@ jobs:
         run: |
           set -euo pipefail
           cd "$DIR"
-          docker compose -f docker-compose.prod.yml pull
-          docker compose -f docker-compose.prod.yml up -d
+          docker compose $COMPOSE_FILES pull
+          docker compose $COMPOSE_FILES up -d
 
       - name: Migrate schema (idempotent)
         run: |
           set -euo pipefail
           cd "$DIR"
-          docker compose -f docker-compose.prod.yml exec -T web python -m app.migrate
+          docker compose $COMPOSE_FILES exec -T web python -m app.migrate
 
       - name: Seed only changed content
         run: |
           set -euo pipefail
           cd "$DIR"
-          docker compose -f docker-compose.prod.yml exec -T web python -c "
+          docker compose $COMPOSE_FILES exec -T web python -c "
           import sys; sys.path.insert(0, '.')
           from app.db import connect, init_schema
           from app.seed import seed_changed
@@ -101,7 +105,7 @@ jobs:
           echo "::error::Deploy failed — restoring the previous image."
           if [ -f .image-current ]; then
             APP_IMAGE="$(cat .image-current)" \
-              docker compose -f docker-compose.prod.yml up -d || true
+              docker compose $COMPOSE_FILES up -d || true
             echo "restored $(cat .image-current)"
           else
             echo "no previous image recorded; stack left as-is for inspection"
