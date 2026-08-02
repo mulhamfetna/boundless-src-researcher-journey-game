@@ -4,7 +4,11 @@ Living record of the production deployment on the shared server `amd`. Every dec
 records **why** it was made, not just what was done, so the setup can be audited, repeated, or
 reversed by someone who wasn't here.
 
-**Status:** reconnaissance complete. **No changes have been made to the server yet.**
+**Status:** iteration 1 applied (config files only — nothing is running).
+
+**Install location:** `/home/dev/mulham/src` — chosen by the owner so everything this project adds
+lives under one directory instead of being scattered across a shared machine. Removing that one
+directory (plus one Docker volume) removes the entire deployment.
 
 ---
 
@@ -75,8 +79,22 @@ answer that prompt, and piping a password into `sudo -S` would put the secret in
 | Original plan | What we do instead | Why |
 |---|---|---|
 | Create a dedicated `deploy` user | Run as the existing `dev` user | Creating a user needs sudo. `dev` already has docker access, and is the only human account on the box. |
-| Install into `/opt/researcher-journey` | Install into `~/researcher-journey` (`/home/dev/...`) | Writing to `/opt` needs sudo. A home directory is equally durable and needs none. |
+| Install into `/opt/researcher-journey` | Install into `/home/dev/mulham/src` | Writing to `/opt` needs sudo; a home directory is equally durable. The owner also wants everything under one directory rather than scattered across a shared machine. |
 | `systemd` **system** service for backups | A **user `cron`** entry | `crontab -e` needs no sudo. |
+
+### Why `COMPOSE_PROJECT_NAME` is set explicitly
+
+Compose derives the project name from the directory, which here would be `src` — producing
+`src-web-1` on a host already running 21 unrelated containers. `COMPOSE_PROJECT_NAME=researcher-journey`
+(set in `.env`) makes every container and the volume unmistakably ours, so nobody later has to guess
+what `src-web-1` was, and so a stray `docker compose down` in another directory cannot match ours.
+
+### Why the server `.env` is smaller than the laptop's
+
+Only `BOT_TOKEN`, `PUBLIC_URL`, `CLOUDFLARE_TUNNEL_TOKEN`, `ADMIN_ID` (plus the two non-secret
+compose settings) are copied. `GEMINI_API_KEY` and `GEMINI_PROJECT` are **deliberately excluded** —
+they serve local art generation only. Least privilege: a shared machine should not hold a credential
+it has no use for.
 
 **The one place sudo is unavoidable:** making the runner survive logout and reboot (§4). That is a
 single command, run once, by you.
@@ -165,15 +183,29 @@ late-mount race that caused the 2026-07-28 outage **cannot occur here**.
 
 Each is applied only after explicit approval, and each is independently reversible.
 
-| # | Step | Risk | Undo |
-|---|---|---|---|
-| 1 | Create `~/researcher-journey`, compose files, `.env` | none — writes files only | `rm -rf` the directory |
-| 2 | Pull the image, start `web` + `bot` (no tunnel) | none — nothing public yet | `docker compose down` |
-| 3 | Migrate schema, copy `quiz.db` across, verify counts | none — the laptop keeps serving | `docker volume rm` |
-| 4 | Install the GitHub runner (needs a token from you) | low | `./config.sh remove` |
-| 5 | **Cut traffic over** — stop the laptop, start the tunnel | **highest** | restart the laptop stack |
-| 6 | Nightly backup cron | none | `crontab -r` |
-| 7 | Release `v1.0.0` + Zenodo DOI | low | rollback workflow |
+| # | Step | Risk | Undo | Status |
+|---|---|---|---|---|
+| 1 | Create `~/mulham/src`, compose files, `.env` | none — writes files only | `rm -rf ~/mulham/src` | **done** |
+| 2 | Create the volume and load `quiz.db` into it | none — nothing runs; laptop keeps serving | `docker volume rm researcher-journey_quizdata` | next |
+| 3 | Install the GitHub runner | low | `./config.sh remove` | |
+| 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | |
+| 5 | Nightly backup cron | none | `crontab -r` | |
+| 6 | Zenodo DOI + badge | none | — | |
+
+### A sequencing constraint worth understanding
+
+The image `ghcr.io/…:latest` **does not exist yet** — it is built by the release workflow, so there
+is nothing to pull until the first release. That forces the order above:
+
+1. the **database must be in place first** (step 2), because the deploy starts serving immediately;
+2. the **runner must exist** (step 3), or the release's deploy job has nowhere to run;
+3. only then the release (step 4), which builds, deploys, and starts the tunnel in one go.
+
+Because `docker compose up -d` starts **every** service including `cloudflared`, the first deploy is
+also the traffic cut-over. The laptop stack must therefore be stopped immediately before publishing
+the release (see §6), which means a **short outage** — roughly the image build time (2–4 minutes).
+This is accepted deliberately: the alternative, two live connectors, would split users across two
+diverging databases, which is far worse than a few minutes offline.
 
 ---
 
@@ -193,3 +225,4 @@ Each is applied only after explicit approval, and each is independently reversib
 | Date | Change | By |
 |---|---|---|
 | 2026-07-29 | Read-only survey; no changes made | Claude |
+| 2026-07-29 | **Iteration 1**: created `/home/dev/mulham/src`; rsynced `docker-compose.prod.yml`, `docker-compose.override.yml` (127.0.0.1 only), and a minimal `.env` (`chmod 600`, Gemini keys excluded). Nothing started. | Claude |
