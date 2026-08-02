@@ -134,3 +134,52 @@ def test_force_reseeds_everything(tmp_path):
     result = seed_changed(conn, d, force=True)
     assert result["seeded"] == ["alpha"]
     assert result["skipped"] == []
+
+
+def test_adopts_an_existing_quiz_that_has_no_stored_hash(tmp_path):
+    """The production incident of 2026-07-29.
+
+    A database seeded before content hashing existed has rows but no
+    `content_sha:<slug>` in `meta`. Treating "no hash" as "changed" reseeds the
+    quiz and DELETES every attempt — which is exactly what happened on the first
+    real deploy. When a quiz already exists and its provenance is unknown, the
+    safe action is to adopt the current content (record the hash, change nothing)
+    rather than destroy user data we cannot get back.
+    """
+    conn = _fresh()
+    d = str(tmp_path)
+    _write(d, "alpha")
+    seed_changed(conn, d)
+
+    quiz_id = conn.execute("SELECT id FROM quizzes WHERE slug='alpha'").fetchone()["id"]
+    conn.execute(
+        "INSERT INTO contestants (telegram_user_id, first_name, created_at) VALUES (?, ?, ?)",
+        (7, "Vi", "2026-01-01T00:00:00Z"),
+    )
+    conn.execute(
+        "INSERT INTO attempts (contestant_id, quiz_id, total_score) VALUES (?, ?, ?)",
+        (7, quiz_id, 459),
+    )
+    # Simulate a pre-hashing database: rows present, provenance unknown.
+    conn.execute("DELETE FROM meta WHERE key = 'content_sha:alpha'")
+    conn.commit()
+
+    result = seed_changed(conn, d)
+
+    assert result["adopted"] == ["alpha"]
+    assert result["seeded"] == []
+    assert conn.execute("SELECT COUNT(*) c FROM attempts").fetchone()["c"] == 1, \
+        "adopting must not delete attempts"
+    # The hash is now recorded, so subsequent runs skip normally.
+    assert seed_changed(conn, d)["skipped"] == ["alpha"]
+
+
+def test_force_still_reseeds_an_adopted_quiz(tmp_path):
+    conn = _fresh()
+    d = str(tmp_path)
+    _write(d, "alpha")
+    seed_changed(conn, d)
+    conn.execute("DELETE FROM meta WHERE key = 'content_sha:alpha'")
+    conn.commit()
+
+    assert seed_changed(conn, d, force=True)["seeded"] == ["alpha"]

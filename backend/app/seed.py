@@ -94,6 +94,13 @@ def file_sha256(path: str) -> str:
     return h.hexdigest()
 
 
+def _quiz_exists(conn: sqlite3.Connection, slug: str) -> bool:
+    return (
+        conn.execute("SELECT 1 FROM quizzes WHERE slug = ?", (slug,)).fetchone()
+        is not None
+    )
+
+
 def _get_meta(conn: sqlite3.Connection, key: str) -> str | None:
     row = conn.execute("SELECT value FROM meta WHERE key = ?", (key,)).fetchone()
     return row["value"] if row else None
@@ -115,23 +122,47 @@ def seed_changed(
     Reseeding a quiz deletes its attempts (see `seed_quiz`), so seeding
     unconditionally on every deploy would wipe every leaderboard. Hashing per
     file keeps untouched stations — and their boards — intact.
+
+    Three outcomes per quiz:
+
+    * **seeded**  — new quiz, or its hash changed. Reseeded (attempts reset).
+    * **skipped** — stored hash matches. Nothing touched.
+    * **adopted** — the quiz already exists but has *no* stored hash, so its
+      provenance is unknown. The hash is recorded and the data left alone.
+
+    Adoption exists because of a real incident (2026-07-29): a database created
+    before hashing existed has rows but no `content_sha`. Treating "unknown" as
+    "changed" reseeded every station and destroyed every attempt. Data loss is
+    irreversible; stale content is not. So when we cannot tell, we keep the data
+    and record the hash — any genuine later edit changes the hash and applies
+    normally. Use ``force=True`` to reseed regardless.
     """
     seeded: list[str] = []
     skipped: list[str] = []
+    adopted: list[str] = []
     for path in sorted(glob.glob(os.path.join(dir, "*.json"))):
         with open(path, encoding="utf-8") as f:
             doc = json.load(f)
         slug = doc["slug"]
         key = f"content_sha:{slug}"
         sha = file_sha256(path)
-        if not force and _get_meta(conn, key) == sha:
-            skipped.append(slug)
-            continue
+
+        if not force:
+            stored = _get_meta(conn, key)
+            if stored == sha:
+                skipped.append(slug)
+                continue
+            if stored is None and _quiz_exists(conn, slug):
+                # Unknown provenance on an existing quiz — never destroy data.
+                _set_meta(conn, key, sha)
+                adopted.append(slug)
+                continue
+
         seed_quiz(conn, doc)
         _set_meta(conn, key, sha)
         seeded.append(slug)
     conn.commit()
-    return {"seeded": seeded, "skipped": skipped}
+    return {"seeded": seeded, "skipped": skipped, "adopted": adopted}
 
 
 def seed_all(conn: sqlite3.Connection, dir: str = "content/questions") -> list[str]:
