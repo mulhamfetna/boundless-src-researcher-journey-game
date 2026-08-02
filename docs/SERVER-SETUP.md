@@ -4,8 +4,8 @@ Living record of the production deployment on the shared server `amd`. Every dec
 records **why** it was made, not just what was done, so the setup can be audited, repeated, or
 reversed by someone who wasn't here.
 
-**Status:** iterations 1–3 applied (config, database, runner). **The app is not running on the
-server yet; the laptop still serves all traffic.**
+**Status:** **LIVE on the server** since 2026-07-29. The laptop stack is stopped. See the
+incident in §10 — the first deploy lost data and it was recovered.
 
 **Install location:** `/home/dev/mulham/src` — chosen by the owner so everything this project adds
 lives under one directory instead of being scattered across a shared machine. Removing that one
@@ -199,8 +199,8 @@ Each is applied only after explicit approval, and each is independently reversib
 | 1 | Create `~/mulham/src`, compose files, `.env` | none — writes files only | `rm -rf ~/mulham/src` | **done** |
 | 2 | Create the volume and load `quiz.db` into it | none — nothing runs; laptop keeps serving | `docker volume rm researcher-journey_quizdata` | **done** |
 | 3 | Install the GitHub runner | low | `./config.sh remove` | **done** |
-| 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | next |
-| 5 | Nightly backup cron | none | `crontab -r` | |
+| 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | **done** (see §10) |
+| 5 | Nightly backup cron | none | `crontab -r` | next |
 | 6 | Zenodo DOI + badge | none | — | |
 
 ### A sequencing constraint worth understanding
@@ -239,3 +239,66 @@ diverging databases, which is far worse than a few minutes offline.
 | 2026-07-29 | **Iteration 3**: installed GitHub runner `amd-shared` v2.336.0 into `~/mulham/src/actions-runner`, registered with a short-lived token (file-passed, then shredded), installed as systemd service `actions.runner.…amd-shared` (enabled at boot, runs as `dev`). GitHub reports **online**. Installer tarball deleted. | Claude |
 | 2026-07-29 | **Iteration 2**: created volume `researcher-journey_quizdata` and loaded `quiz.db` via `sqlite3.backup()`. Verified all 8 tables match the laptop exactly (6 contestants / 2 attempts / 14 answers / 8 badges / 7 quizzes / 60 questions / 1 duel), `integrity_check: ok`. Transfer copies deleted from both machines. | Claude |
 | 2026-07-29 | **Iteration 1**: created `/home/dev/mulham/src`; rsynced `docker-compose.prod.yml`, `docker-compose.override.yml` (127.0.0.1 only), and a minimal `.env` (`chmod 600`, Gemini keys excluded). Nothing started. | Claude |
+
+
+---
+
+## 10. Incident: the first deploy deleted every attempt (2026-07-29)
+
+**Impact:** all `attempts` (2) and `answers` (14) were deleted; the public leaderboard went empty
+for roughly four minutes. Contestants and badges were untouched. **Fully recovered** — no permanent
+data loss.
+
+**Timeline (UTC)**
+
+| Time | Event |
+|---|---|
+| 12:17:53 | Laptop stack stopped (`down`, no `-v`). Planned downtime begins. |
+| 12:18:30 | Release `v1.0.0` published. Image build starts. |
+| 12:19:39 | Build **succeeded**; deploy job **failed on its first step**. |
+| ~12:20:30 | Deployed manually from the built image — site back up (≈2.5 min downtime). |
+| ~12:21 | Post-deploy check: `attempts 2 → 0`. Leaderboard empty. |
+| ~12:23 | Restored from the laptop volume; content hashes stamped; verified. |
+
+### Cause 1 — the deploy job never ran
+
+`release.yml` had `DIR: /opt/researcher-journey` hard-coded. The install had been moved to
+`/home/dev/mulham/src` at the owner's request and the workflow was never updated, so the job failed
+at `cd "$DIR"`. A second latent bug was found while fixing it: every compose call passed only
+`-f docker-compose.prod.yml`, and an explicit `-f` **disables** Compose's automatic loading of
+`docker-compose.override.yml`. The container would have been recreated without the `127.0.0.1:8000`
+publish, so the smoke test could never have passed even after the path was fixed.
+
+### Cause 2 — the data loss (the important one)
+
+`seed_changed` decides whether to reseed by comparing a stored `content_sha:<slug>` against the
+file's hash. The database copied from the laptop predated that mechanism: it had quiz rows but
+**no stored hashes**. "No hash" was treated as "changed", so all seven stations were reseeded — and
+`seed_quiz` deletes a quiz's answers and attempts before reinserting.
+
+The irony is exact: the feature written to stop deploys wiping leaderboards wiped the leaderboard,
+because its very first run had nothing to compare against.
+
+### Fix
+
+`seed_changed` now distinguishes a third case, **adopt**: if a quiz already exists but has no stored
+hash, its provenance is unknown, so the hash is recorded and *the data is left alone*. The
+reasoning is asymmetric risk — **data loss is irreversible, stale content is not.** Any genuine
+later edit changes the hash and seeds normally; `force=True` still reseeds deliberately.
+
+Covered by `backend/tests/test_seed_changed.py::test_adopts_an_existing_quiz_that_has_no_stored_hash`.
+
+### What this cost, and what saved it
+
+Recovery was possible only because `docker compose down` was used instead of `down -v`, so the
+laptop volume still held the original database. **That single character was the whole backup.**
+This is why §7's nightly backup is no longer optional.
+
+### Lessons applied
+
+1. A path referenced by automation must be asserted, not assumed — the deploy now fails loudly at
+   a wrong path rather than silently at the wrong moment.
+2. Any migration that adopts an existing database must **bootstrap its own metadata first**, or the
+   first run of a "safe" check runs with no baseline.
+3. Verify data counts *after* a deploy, not only service health. The site returned `200` while the
+   leaderboard was empty.
