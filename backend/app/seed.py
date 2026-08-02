@@ -1,4 +1,5 @@
 import glob
+import hashlib
 import json
 import os
 import sqlite3
@@ -82,6 +83,55 @@ def seed_quiz(conn: sqlite3.Connection, doc: dict) -> int:
 def seed_from_file(conn: sqlite3.Connection, path: str) -> int:
     with open(path, encoding="utf-8") as f:
         return seed_quiz(conn, json.load(f))
+
+
+def file_sha256(path: str) -> str:
+    """Content hash of a quiz file, used to decide whether a reseed is needed."""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _get_meta(conn: sqlite3.Connection, key: str) -> str | None:
+    row = conn.execute("SELECT value FROM meta WHERE key = ?", (key,)).fetchone()
+    return row["value"] if row else None
+
+
+def _set_meta(conn: sqlite3.Connection, key: str, value: str) -> None:
+    conn.execute(
+        "INSERT INTO meta (key, value) VALUES (?, ?) "
+        "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+        (key, value),
+    )
+
+
+def seed_changed(
+    conn: sqlite3.Connection, dir: str = "content/questions", force: bool = False
+) -> dict:
+    """Seed only the quizzes whose JSON changed since the last run.
+
+    Reseeding a quiz deletes its attempts (see `seed_quiz`), so seeding
+    unconditionally on every deploy would wipe every leaderboard. Hashing per
+    file keeps untouched stations — and their boards — intact.
+    """
+    seeded: list[str] = []
+    skipped: list[str] = []
+    for path in sorted(glob.glob(os.path.join(dir, "*.json"))):
+        with open(path, encoding="utf-8") as f:
+            doc = json.load(f)
+        slug = doc["slug"]
+        key = f"content_sha:{slug}"
+        sha = file_sha256(path)
+        if not force and _get_meta(conn, key) == sha:
+            skipped.append(slug)
+            continue
+        seed_quiz(conn, doc)
+        _set_meta(conn, key, sha)
+        seeded.append(slug)
+    conn.commit()
+    return {"seeded": seeded, "skipped": skipped}
 
 
 def seed_all(conn: sqlite3.Connection, dir: str = "content/questions") -> list[str]:

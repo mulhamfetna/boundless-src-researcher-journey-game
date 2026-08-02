@@ -106,6 +106,12 @@ CREATE TABLE IF NOT EXISTS duels (
     status           TEXT NOT NULL DEFAULT 'open',
     created_at       TEXT NOT NULL
 );
+-- Small key/value store. Holds `content_sha:<slug>` so a deploy reseeds only
+-- the quizzes whose JSON changed (reseeding deletes that quiz's attempts).
+CREATE TABLE IF NOT EXISTS meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 """
 
 

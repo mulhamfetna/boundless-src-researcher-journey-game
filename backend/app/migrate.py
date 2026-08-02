@@ -142,6 +142,20 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         )
         changes.append("duels.create")
 
+    meta_exists = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='meta'"
+    ).fetchone()
+    if not meta_exists:
+        conn.executescript(
+            """
+            CREATE TABLE meta (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+            """
+        )
+        changes.append("meta.create")
+
     conn.commit()
     return changes
 
