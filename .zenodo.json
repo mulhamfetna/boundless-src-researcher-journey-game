@@ -1,0 +1,22 @@
+{
+  "title": "رحلة الباحث — The Researcher's Journey",
+  "description": "A gamified Arabic (RTL) Telegram Mini App that teaches scientific research methodology through hands-on application tasks rather than recall. Learners evaluate real artifacts — journal solicitations, paper excerpts, submission screens — and defend decisions across six stations and an end-to-end capstone research journey.",
+  "license": "AGPL-3.0-or-later",
+  "upload_type": "software",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Fetna, Mulham",
+      "orcid": "0009-0006-4432-798X"
+    }
+  ],
+  "keywords": [
+    "research methodology",
+    "scientific publishing",
+    "gamification",
+    "educational technology",
+    "Telegram Mini App",
+    "Arabic",
+    "RTL"
+  ]
+}

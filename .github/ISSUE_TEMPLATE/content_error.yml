@@ -1,0 +1,38 @@
+name: Content error
+description: A question, answer key, or explanation is wrong or unclear
+title: "[content] "
+labels: ["content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكرًا لملاحظتك. Content accuracy matters more than anything else in this project —
+        a wrong answer key teaches the wrong thing.
+  - type: input
+    id: station
+    attributes:
+      label: Station (quiz slug)
+      placeholder: journals / foundations / paper-types / paper-parts / publishing / submission / capstone
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Which question?
+      description: Paste the prompt text, or describe where it appears.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong?
+      description: What does it say, and what should it say instead?
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Supporting source
+      description: A citation, a standard (ICMJE / COPE / PRISMA / STROBE / CONSORT), or a link.
+    validations:
+      required: true

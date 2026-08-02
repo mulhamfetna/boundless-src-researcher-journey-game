@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "رحلة الباحث — The Researcher's Journey"
+abstract: >-
+  A gamified Arabic (RTL) Telegram Mini App that teaches scientific research
+  methodology through hands-on application tasks rather than recall. Learners
+  evaluate real artifacts — journal solicitations, paper excerpts, submission
+  screens — and defend decisions across six stations and an end-to-end capstone
+  research journey.
+type: software
+authors:
+  - given-names: Mulham
+    family-names: Fetna
+    email: contact@mulhamfetna.com
+    orcid: "https://orcid.org/0009-0006-4432-798X"
+license: AGPL-3.0-or-later
+repository-code: "https://github.com/mulhamfetna/boundless-src-researcher-journey-game"
+url: "https://src.mulhamfetna.com"
+keywords:
+  - research methodology
+  - scientific publishing
+  - gamification
+  - educational technology
+  - Telegram Mini App
+  - Arabic
+  - RTL

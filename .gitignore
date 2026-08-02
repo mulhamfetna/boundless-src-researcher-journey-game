@@ -11,3 +11,9 @@ content/raw/
 # raw scraped candidates (un-anonymized, kept locally for review only)
 content/assets/journals/candidates/
 content/papers/
+
+# Third-party curriculum PDFs (course material — not ours to redistribute)
+*.pdf
+
+# Raw generation staging (finished assets live in content/assets/art/)
+content/assets/art/incoming/
