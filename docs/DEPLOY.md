@@ -236,3 +236,39 @@ Docker starts —
 2. `systemctl edit docker.service` → `[Unit]` / `RequiresMountsFor=/mnt/data`
 
 Until that is done, **every reboot reintroduces this outage.**
+
+---
+
+## Two compose files: development vs production
+
+| | `docker-compose.yml` | `docker-compose.prod.yml` |
+|---|---|---|
+| Where | your laptop | the server |
+| Image | `build: .` (built locally) | `image: ghcr.io/…:vX.Y.Z` (published) |
+| Content | **bind-mounted** `./content` — edits appear immediately | **baked into the image** — no mount |
+| Ports | `8000:8000` on all interfaces | none here; `127.0.0.1:8000` via a server-side override |
+| Deployed by | you, by hand | `.github/workflows/release.yml` |
+
+**Consequence of baking content in:** a content edit ships as a **release**, not a live reseed.
+That is deliberate — every content state becomes a versioned, citable artifact, and it removes the
+class of failure seen on 2026-07-28 (bind mount resolving to an empty directory).
+
+### Deploying by hand on the server (should rarely be needed)
+
+```bash
+cd /opt/researcher-journey
+APP_IMAGE=ghcr.io/mulhamfetna/boundless-src-researcher-journey-game:v1.0.0 \
+  docker compose -f docker-compose.prod.yml pull
+APP_IMAGE=… docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml exec -T web python -m app.migrate
+```
+
+**Never** run `docker compose down -v` — `-v` deletes the `quizdata` volume, and with it every
+attempt, leaderboard, badge, and duel. Plain `down` is safe.
+
+### Seeding on deploy
+
+The deploy job calls `app.seed.seed_changed`, which reseeds a station **only if its JSON changed**
+(SHA-256 per file, stored in the `meta` table as `content_sha:<slug>`). Unchanged stations keep
+their leaderboards. Editing one station resets only that station's board. Use `force=True` (or the
+manual reseed workflow) to rebuild everything deliberately.

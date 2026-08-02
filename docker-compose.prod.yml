@@ -1,0 +1,43 @@
+# Production stack.
+#
+# The server holds only this file, .env, and the `quizdata` volume — no source
+# code, no git checkout. Deployed automatically by .github/workflows/release.yml.
+#
+# Differences from the development docker-compose.yml:
+#   * `image:` (published, versioned) instead of `build:`
+#   * NO ./content bind mount — content is baked into the image, so every
+#     release is one atomic artifact and content is versioned with the code
+#   * no host port published here (see docker-compose.override.yml on the
+#     server, which binds 127.0.0.1 only so the deploy smoke test can run)
+services:
+  web:
+    image: ${APP_IMAGE:-ghcr.io/mulhamfetna/boundless-src-researcher-journey-game:latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      QUIZ_DB_PATH: /data/quiz.db
+    volumes:
+      - quizdata:/data
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  bot:
+    image: ${APP_IMAGE:-ghcr.io/mulhamfetna/boundless-src-researcher-journey-game:latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      QUIZ_DB_PATH: /data/quiz.db
+    volumes:
+      - quizdata:/data
+    command: ["python", "-m", "app.bot"]
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    # Reaches the web service as http://web:8000 over the compose network.
+    # TLS is terminated at Cloudflare's edge.
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - web
+
+volumes:
+  quizdata:
