@@ -200,8 +200,9 @@ Each is applied only after explicit approval, and each is independently reversib
 | 2 | Create the volume and load `quiz.db` into it | none — nothing runs; laptop keeps serving | `docker volume rm researcher-journey_quizdata` | **done** |
 | 3 | Install the GitHub runner | low | `./config.sh remove` | **done** |
 | 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | **done** (see §10) |
-| 5 | Nightly backup cron | none | `crontab -r` | next |
-| 6 | Zenodo DOI + badge | none | — | |
+| 5 | Nightly backup cron | none | remove the crontab line | **done** |
+| 6 | Verify the fixed pipeline with `v1.0.1` | low | rollback workflow | next |
+| 7 | Zenodo DOI + badge | none | — | |
 
 ### A sequencing constraint worth understanding
 
@@ -236,6 +237,8 @@ diverging databases, which is far worse than a few minutes offline.
 | Date | Change | By |
 |---|---|---|
 | 2026-07-29 | Read-only survey; no changes made | Claude |
+| 2026-07-29 | **Iteration 5**: installed `backup.sh` + cron at 03:30 (appended to the existing crontab, 03:00 job untouched). Backup taken and **restore drill passed** against a scratch volume. | Claude |
+| 2026-07-29 | **Iteration 4**: cut over to the server. Deploy job failed (wrong path); deployed manually; data loss and recovery — see §10. | Claude |
 | 2026-07-29 | **Iteration 3**: installed GitHub runner `amd-shared` v2.336.0 into `~/mulham/src/actions-runner`, registered with a short-lived token (file-passed, then shredded), installed as systemd service `actions.runner.…amd-shared` (enabled at boot, runs as `dev`). GitHub reports **online**. Installer tarball deleted. | Claude |
 | 2026-07-29 | **Iteration 2**: created volume `researcher-journey_quizdata` and loaded `quiz.db` via `sqlite3.backup()`. Verified all 8 tables match the laptop exactly (6 contestants / 2 attempts / 14 answers / 8 badges / 7 quizzes / 60 questions / 1 duel), `integrity_check: ok`. Transfer copies deleted from both machines. | Claude |
 | 2026-07-29 | **Iteration 1**: created `/home/dev/mulham/src`; rsynced `docker-compose.prod.yml`, `docker-compose.override.yml` (127.0.0.1 only), and a minimal `.env` (`chmod 600`, Gemini keys excluded). Nothing started. | Claude |
@@ -302,3 +305,56 @@ This is why §7's nightly backup is no longer optional.
    first run of a "safe" check runs with no baseline.
 3. Verify data counts *after* a deploy, not only service health. The site returned `200` while the
    leaderboard was empty.
+
+
+---
+
+## 11. Backups and restore (installed 2026-07-29)
+
+**What runs:** `~/mulham/src/backup.sh`, nightly at **03:30** via `dev`'s crontab.
+Output: `~/mulham/src/backups/quiz-YYYY-MM-DD.db`, 14-day retention, log in `backups/backup.log`.
+
+**Why 03:30 and not 03:00:** `dev` already has a 03:00 job (`ai-summraize`). The crontab was
+**appended to, never rewritten** — clobbering another project's schedule on a shared machine would
+be unforgivable.
+
+**Why each choice in the script:**
+
+| Choice | Reason |
+|---|---|
+| Runs in a throwaway container | The database lives in a Docker volume and the host has no `sqlite3` |
+| `sqlite3.backup()`, not `cp` | `cp` on a live database can capture a torn, unusable file |
+| Python's binding, not the CLI | The app image is `python:3.12-slim` and ships no `sqlite3` binary |
+| `--user $(id -u):$(id -g)` | Otherwise backups are root-owned and `dev` can neither read nor prune them |
+| `mode=ro` on the source | The backup can never modify production data |
+| Verifies `integrity_check` after writing | An unverified backup is not a backup |
+| Reads the image from `.image-current` | Always backs up using the image actually deployed |
+
+**Verified on installation:** a real backup was taken (`integrity ok, attempts=2`) and then a
+**restore drill** loaded it into a scratch volume and confirmed the recovered leaderboard
+(محمد 459, Abd Al-Kareem 352) before the scratch volume was deleted. Production was untouched
+throughout. Backups are proven restorable, not merely produced.
+
+### Restore runbook
+
+```bash
+cd ~/mulham/src
+IMAGE=$(cat .image-current)
+
+# 1. Inspect a backup BEFORE trusting it (non-destructive, uses a scratch volume)
+docker volume create restore-drill
+docker run --rm -v restore-drill:/data -v ~/mulham/src/backups:/bk:ro alpine:3 \
+  sh -c "cp /bk/quiz-YYYY-MM-DD.db /data/quiz.db"
+docker run --rm -v restore-drill:/data "$IMAGE" python -c \
+  "import sqlite3;c=sqlite3.connect('/data/quiz.db');print(c.execute('PRAGMA integrity_check').fetchone()[0], c.execute('SELECT COUNT(*) FROM attempts').fetchone()[0])"
+docker volume rm restore-drill
+
+# 2. Only once satisfied, restore for real
+docker compose -f docker-compose.prod.yml -f docker-compose.override.yml down   # never -v
+docker run --rm -v researcher-journey_quizdata:/data -v ~/mulham/src/backups:/bk:ro alpine:3 \
+  sh -c "cp /bk/quiz-YYYY-MM-DD.db /data/quiz.db && chmod 644 /data/quiz.db"
+docker compose -f docker-compose.prod.yml -f docker-compose.override.yml up -d
+```
+
+**Note:** a restored database carries its own `meta` hashes, so `seed_changed` behaves correctly
+against it. If the hashes are missing (a very old backup), the adopt path from §10 protects the data.
