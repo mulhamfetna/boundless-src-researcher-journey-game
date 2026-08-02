@@ -7,7 +7,7 @@ the standard table-rebuild pattern (FKs off, copy, drop, rename), preserving ids
 import sqlite3
 
 from app.config import settings
-from app.db import connect
+from app.db import connect, init_schema
 
 
 def _columns(conn, table):
@@ -162,6 +162,11 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
 
 def main():
     conn = connect(settings.db_path)
+    # A fresh deploy starts from an empty volume, so the tables may not exist
+    # yet — migrate() assumes they do (it ALTERs `attempts`). init_schema is
+    # CREATE TABLE IF NOT EXISTS throughout, so this is safe and idempotent on
+    # an existing database and makes `python -m app.migrate` work on a new one.
+    init_schema(conn)
     changes = migrate(conn)
     print("migrated:", changes or "already current")
 
