@@ -1,0 +1,195 @@
+# Server setup — what, how, when, why
+
+Living record of the production deployment on the shared server `amd`. Every decision below
+records **why** it was made, not just what was done, so the setup can be audited, repeated, or
+reversed by someone who wasn't here.
+
+**Status:** reconnaissance complete. **No changes have been made to the server yet.**
+
+---
+
+## 0. The machine (surveyed 2026-07-29, read-only)
+
+| Fact | Value | Why it matters |
+|---|---|---|
+| OS | Ubuntu 24.04.4 LTS | Modern systemd; the official GitHub runner supports it |
+| Arch | `x86_64` | Same as the CI builder — **no ARM cross-build needed** |
+| CPU / RAM | 32 cores / 123 GB (117 GB free) | Our stack needs a fraction of this |
+| Disk | 937 GB, 494 GB free (45 % used) | Images and backups are negligible here |
+| Uptime | 17 days | Stable; but see the reboot risk in §6 |
+| Docker | 29.6.2, Compose v5.3.1 | Both present — nothing to install |
+| User | `dev` (uid 1000), in `docker` **and** `sudo` | Can run containers without sudo |
+| Passwordless sudo | **No** — sudo prompts for a password | Shapes the whole design (§2) |
+
+### What else lives here (this box is busy)
+
+21 running containers, none of them ours: a Postgres (`wsh-pg`, loopback only), SearxNG (`:8081`),
+about ten Squid proxies (`:33333–:44448`), and a fleet of Redroid Android containers.
+
+> **Note, not a task:** many `redroid*` containers are in `Restarting (129)` crash-loops. That is
+> pre-existing and unrelated to this project. **We do not touch them.** Flagging it only so nobody
+> later blames this deployment for the noise in `docker ps`.
+
+### Collision check — everything we need is free
+
+| Resource we want | Status |
+|---|---|
+| TCP port 8000 | **free** (0 listeners) |
+| Volume `*quiz*` / `*research*` | none exist |
+| Containers `web` / `bot` / `cloudflared` | none exist |
+| `/opt/researcher-journey` | does not exist |
+| Existing GitHub Actions runner | none |
+| `cloudflared` (host binary or container) | none |
+
+**Conclusion:** we can deploy without disturbing a single running service.
+
+---
+
+## 1. Why pull-based deployment (and not SSH-from-CI)
+
+**What:** a GitHub Actions *self-hosted runner* runs on the server. It opens an **outbound** HTTPS
+connection to GitHub and waits for jobs.
+
+**Why not the obvious alternative?** The common pattern is "GitHub SSHes into the server and runs a
+deploy script". That requires the server to accept inbound connections from GitHub's IP ranges and
+a private key stored in GitHub secrets. On a **shared** box, that means changing firewall/network
+policy that other services depend on, and creating a credential that, if leaked, grants shell
+access. Rejected.
+
+**Why this is safe here:** nothing listens for GitHub. The runner dials out, exactly like a browser.
+No port opened, no firewall rule, no inbound exposure, no SSH key in GitHub.
+
+**When it runs:** only when a **release is published** (or a rollback is dispatched by hand). Never
+on a pull request — see §5.
+
+---
+
+## 2. Why we avoid `sudo` almost entirely
+
+**The constraint:** `sudo` on this box prompts for a password. A non-interactive SSH session cannot
+answer that prompt, and piping a password into `sudo -S` would put the secret into a command line
+(visible in the process table and in logs). **Unacceptable.**
+
+**The consequence — two deliberate deviations from the original plan:**
+
+| Original plan | What we do instead | Why |
+|---|---|---|
+| Create a dedicated `deploy` user | Run as the existing `dev` user | Creating a user needs sudo. `dev` already has docker access, and is the only human account on the box. |
+| Install into `/opt/researcher-journey` | Install into `~/researcher-journey` (`/home/dev/...`) | Writing to `/opt` needs sudo. A home directory is equally durable and needs none. |
+| `systemd` **system** service for backups | A **user `cron`** entry | `crontab -e` needs no sudo. |
+
+**The one place sudo is unavoidable:** making the runner survive logout and reboot (§4). That is a
+single command, run once, by you.
+
+---
+
+## 3. Why the server holds no source code
+
+The server gets only three things:
+
+```
+~/researcher-journey/
+  docker-compose.prod.yml      # which image to run, and how
+  docker-compose.override.yml  # binds 127.0.0.1:8000 for the smoke test
+  .env                         # secrets, chmod 600
+  └ docker volume "researcher-journey_quizdata"  → /data/quiz.db
+```
+
+**Why no `git clone`?** Because then "what is deployed" becomes "whatever the working tree happens
+to contain" — untracked edits, half-finished merges, a forgotten `git stash`. Instead the unit of
+deployment is an **immutable, versioned image** (`ghcr.io/…:v1.2.3`). What ran yesterday can be
+reproduced exactly. Rollback is pulling an older tag, not reverse-engineering a directory.
+
+**Why is content baked into the image?** Because content *is* part of the release. On 2026-07-28 a
+bind-mounted content directory silently resolved to an empty folder after a reboot and every image
+404'd. Baking it in makes that failure impossible and makes each release a single citable artifact.
+The cost — a content fix needs a release — is accepted deliberately.
+
+---
+
+## 4. The database: why it survives everything
+
+**What:** a Docker **named volume**, mounted at `/data`, holding `quiz.db`.
+
+**Why a named volume and not a bind mount?** A bind mount depends on a host path existing and
+resolving correctly at container start — exactly the failure that broke the app on 2026-07-28. A
+named volume is managed by Docker, has no host-path dependency, and is untouched by
+`docker compose down`, `up`, `pull`, image replacement, or container deletion.
+
+**When could data be lost?** Only three ways, all deliberate:
+1. `docker compose down -v` — the `-v` deletes volumes. **Never run this.**
+2. `docker volume rm` — explicit.
+3. Disk failure — which is why §7 adds nightly backups.
+
+**Why `sqlite3 .backup` and not `cp`?** Copying a SQLite file while a process is writing can capture
+a torn, unrecoverable file. `.backup` uses SQLite's online-backup API and is safe on a live database.
+
+---
+
+## 5. Why a public repo + self-hosted runner is still safe
+
+GitHub warns against self-hosted runners on public repositories: normally, anyone can open a pull
+request whose workflow code then executes on your machine. On a shared server that would be severe.
+
+**How it is neutralised — trust is split by event:**
+
+| Job | Runs where | Triggered by | Executes contributor code? |
+|---|---|---|---|
+| `backend`, `frontend`, `content`, `workflow-security` | GitHub's disposable runners | `pull_request` | Yes — safely, in GitHub's sandbox |
+| `build` | GitHub's runners | `release: published` | No |
+| `deploy` | **this server** | `release: published` **only** | No — fixed script |
+
+A fork's pull request can never reach the server: the only workflow that touches it is gated to
+`release: published`, an event only a maintainer can trigger. The `workflow-security` CI job
+mechanically re-checks this on every pull request, so the guarantee cannot be lost by accident.
+
+---
+
+## 6. The Cloudflare tunnel cut-over (the one genuinely risky step)
+
+**The hazard:** the tunnel token identifies a *connector*. If the laptop and the server both run
+`cloudflared` with the **same token**, Cloudflare sees two healthy connectors for one tunnel and
+**load-balances between them**. Users would randomly hit the laptop or the server — the same URL
+serving two different databases, with attempts landing in whichever machine answered.
+
+**Therefore:** the laptop stack must be stopped **before** the server's `cloudflared` starts, and
+the cut-over is a single deliberate step, never an accident.
+
+**Reboot risk:** all our containers use `restart: unless-stopped`, so they return automatically
+after a reboot. Unlike the laptop, `~/researcher-journey` lives on the root filesystem, so the
+late-mount race that caused the 2026-07-28 outage **cannot occur here**.
+
+---
+
+## 7. Planned iterations
+
+Each is applied only after explicit approval, and each is independently reversible.
+
+| # | Step | Risk | Undo |
+|---|---|---|---|
+| 1 | Create `~/researcher-journey`, compose files, `.env` | none — writes files only | `rm -rf` the directory |
+| 2 | Pull the image, start `web` + `bot` (no tunnel) | none — nothing public yet | `docker compose down` |
+| 3 | Migrate schema, copy `quiz.db` across, verify counts | none — the laptop keeps serving | `docker volume rm` |
+| 4 | Install the GitHub runner (needs a token from you) | low | `./config.sh remove` |
+| 5 | **Cut traffic over** — stop the laptop, start the tunnel | **highest** | restart the laptop stack |
+| 6 | Nightly backup cron | none | `crontab -r` |
+| 7 | Release `v1.0.0` + Zenodo DOI | low | rollback workflow |
+
+---
+
+## 8. Credential hygiene
+
+- The server password was pasted into a chat transcript. **Rotate it.** All access here uses the
+  SSH key `amd-trading`; the password is never used, stored, or written to any file.
+- `BOT_TOKEN` also appeared in a transcript. It has never been in git, so publishing the repo did
+  not leak it — but rotate it via `@BotFather` regardless.
+- `.env` on the server is `chmod 600` (readable only by `dev`) and is never printed by a workflow.
+- GitHub needs **no** secrets beyond the automatic `GITHUB_TOKEN`: GHCR authentication is built in.
+
+---
+
+## 9. Change log
+
+| Date | Change | By |
+|---|---|---|
+| 2026-07-29 | Read-only survey; no changes made | Claude |
