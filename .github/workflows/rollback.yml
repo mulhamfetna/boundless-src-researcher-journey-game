@@ -1,0 +1,47 @@
+name: Rollback
+
+# Manual recovery: redeploy a previously published tag.
+# Manually dispatched only — never triggered by pull requests.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag to roll back to (e.g. v1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    name: redeploy an earlier tag
+    runs-on: self-hosted
+    environment: production
+    env:
+      APP_IMAGE: ghcr.io/${{ github.repository }}:${{ inputs.tag }}
+      DIR: /opt/researcher-journey
+    steps:
+      - name: Pull and start the requested tag
+        run: |
+          set -euo pipefail
+          cd "$DIR"
+          echo "rolling back to $APP_IMAGE"
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 15); do
+            if curl -fsS http://127.0.0.1:8000/api/quizzes >/dev/null 2>&1; then
+              echo "api ok"; exit 0
+            fi
+            sleep 2
+          done
+          echo "rollback did not come up"; exit 1
+
+      - name: Record the running image
+        run: |
+          cd "$DIR"
+          echo "$APP_IMAGE" > .image-current

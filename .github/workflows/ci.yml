@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+
+# Read-only: this workflow never needs to write to the repo or packages.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Both jobs run on GitHub-hosted, disposable runners. Pull-request code is
+  # untrusted, so it must never execute on the self-hosted runner (the server).
+  backend:
+    name: backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -e './backend[dev]'
+
+      - name: Test
+        working-directory: backend
+        run: pytest -q
+
+  frontend:
+    name: frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+
+      - name: Test
+        working-directory: frontend
+        run: npm test
+
+  # Defence in depth: fails if any workflow ever exposes the self-hosted runner
+  # (the server) to pull-request code. Catches the mistake at review time.
+  workflow-security:
+    name: workflow-security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No self-hosted job may be reachable from a pull request
+        run: |
+          python3 - <<'PY'
+          import glob, sys, yaml
+          bad = []
+          for f in sorted(glob.glob(".github/workflows/*.yml")):
+              d = yaml.safe_load(open(f))
+              trig = d.get(True) or d.get("on")   # bare `on:` parses as True
+              keys = set(trig) if isinstance(trig, dict) else (
+                  {trig} if isinstance(trig, str) else set(trig or []))
+              selfhosted = [j for j, c in d.get("jobs", {}).items()
+                            if "self-hosted" in str(c.get("runs-on"))]
+              if selfhosted and {"pull_request", "pull_request_target"} & keys:
+                  bad.append((f, selfhosted))
+              print(f"{f}: self-hosted={selfhosted or 'none'} triggers={sorted(keys)}")
+          if bad:
+              print("\nVIOLATION: self-hosted runner reachable from a pull request:", bad)
+              sys.exit(1)
+          print("\nok — the server is unreachable from pull-request code")
+          PY
+
+  # Guards the content invariants that the app depends on at runtime.
+  content:
+    name: content
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -e './backend[dev]'
+
+      - name: Validate every quiz document
+        working-directory: backend
+        run: |
+          python - <<'PY'
+          import glob, json, sys
+          from app.content_schema import validate_quiz
+          bad = 0
+          for path in sorted(glob.glob("../content/questions/*.json")):
+              doc = json.load(open(path, encoding="utf-8"))
+              try:
+                  validate_quiz(doc)
+              except Exception as e:
+                  print(f"INVALID {path}: {e}"); bad += 1
+                  continue
+              missing = [q["prompt_ar"][:40] for q in doc["questions"]
+                         if not q.get("concept")]
+              if missing:
+                  print(f"MISSING concept in {path}: {missing}"); bad += 1
+              print(f"ok {path} ({len(doc['questions'])} tasks)")
+          sys.exit(1 if bad else 0)
+          PY
