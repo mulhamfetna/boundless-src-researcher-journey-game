@@ -4,8 +4,8 @@ Living record of the production deployment on the shared server `amd`. Every dec
 records **why** it was made, not just what was done, so the setup can be audited, repeated, or
 reversed by someone who wasn't here.
 
-**Status:** iterations 1–2 applied (config + database staged). **Nothing is running; the
-laptop still serves all traffic.**
+**Status:** iterations 1–3 applied (config, database, runner). **The app is not running on the
+server yet; the laptop still serves all traffic.**
 
 **Install location:** `/home/dev/mulham/src` — chosen by the owner so everything this project adds
 lives under one directory instead of being scattered across a shared machine. Removing that one
@@ -97,8 +97,14 @@ compose settings) are copied. `GEMINI_API_KEY` and `GEMINI_PROJECT` are **delibe
 they serve local art generation only. Least privilege: a shared machine should not hold a credential
 it has no use for.
 
-**The one place sudo is unavoidable:** making the runner survive logout and reboot (§4). That is a
-single command, run once, by you.
+**The one place sudo was unavoidable:** `./svc.sh install dev`, which writes a unit file to
+`/etc/systemd/system/`. This is what makes the runner start automatically after a reboot — without
+it the runner would die at logout and deployments would silently stop working.
+
+**How the password was handled:** written to a `600` file, transferred with `rsync`, fed to
+`sudo -S` via stdin redirection, then **shredded on both machines** immediately afterwards. It was
+never placed on a command line, so it never appeared in the process table or shell history. The
+same pattern was used for the runner registration token.
 
 ---
 
@@ -192,8 +198,8 @@ Each is applied only after explicit approval, and each is independently reversib
 |---|---|---|---|---|
 | 1 | Create `~/mulham/src`, compose files, `.env` | none — writes files only | `rm -rf ~/mulham/src` | **done** |
 | 2 | Create the volume and load `quiz.db` into it | none — nothing runs; laptop keeps serving | `docker volume rm researcher-journey_quizdata` | **done** |
-| 3 | Install the GitHub runner | low | `./config.sh remove` | next |
-| 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | |
+| 3 | Install the GitHub runner | low | `./config.sh remove` | **done** |
+| 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | next |
 | 5 | Nightly backup cron | none | `crontab -r` | |
 | 6 | Zenodo DOI + badge | none | — | |
 
@@ -230,5 +236,6 @@ diverging databases, which is far worse than a few minutes offline.
 | Date | Change | By |
 |---|---|---|
 | 2026-07-29 | Read-only survey; no changes made | Claude |
+| 2026-07-29 | **Iteration 3**: installed GitHub runner `amd-shared` v2.336.0 into `~/mulham/src/actions-runner`, registered with a short-lived token (file-passed, then shredded), installed as systemd service `actions.runner.…amd-shared` (enabled at boot, runs as `dev`). GitHub reports **online**. Installer tarball deleted. | Claude |
 | 2026-07-29 | **Iteration 2**: created volume `researcher-journey_quizdata` and loaded `quiz.db` via `sqlite3.backup()`. Verified all 8 tables match the laptop exactly (6 contestants / 2 attempts / 14 answers / 8 badges / 7 quizzes / 60 questions / 1 duel), `integrity_check: ok`. Transfer copies deleted from both machines. | Claude |
 | 2026-07-29 | **Iteration 1**: created `/home/dev/mulham/src`; rsynced `docker-compose.prod.yml`, `docker-compose.override.yml` (127.0.0.1 only), and a minimal `.env` (`chmod 600`, Gemini keys excluded). Nothing started. | Claude |
