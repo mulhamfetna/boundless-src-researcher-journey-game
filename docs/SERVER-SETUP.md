@@ -106,10 +106,10 @@ single command, run once, by you.
 The server gets only three things:
 
 ```
-~/researcher-journey/
-  docker-compose.prod.yml      # which image to run, and how
-  docker-compose.override.yml  # binds 127.0.0.1:8000 for the smoke test
-  .env                         # secrets, chmod 600
+/home/dev/mulham/src/
+  docker-compose.prod.yml      # which image to run, and how          (644)
+  docker-compose.override.yml  # binds 127.0.0.1:8000 for the smoke test (644)
+  .env                         # secrets                               (600)
   └ docker volume "researcher-journey_quizdata"  → /data/quiz.db
 ```
 
