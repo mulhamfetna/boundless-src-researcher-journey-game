@@ -4,7 +4,8 @@ Living record of the production deployment on the shared server `amd`. Every dec
 records **why** it was made, not just what was done, so the setup can be audited, repeated, or
 reversed by someone who wasn't here.
 
-**Status:** iteration 1 applied (config files only — nothing is running).
+**Status:** iterations 1–2 applied (config + database staged). **Nothing is running; the
+laptop still serves all traffic.**
 
 **Install location:** `/home/dev/mulham/src` — chosen by the owner so everything this project adds
 lives under one directory instead of being scattered across a shared machine. Removing that one
@@ -139,8 +140,12 @@ named volume is managed by Docker, has no host-path dependency, and is untouched
 2. `docker volume rm` — explicit.
 3. Disk failure — which is why §7 adds nightly backups.
 
-**Why `sqlite3 .backup` and not `cp`?** Copying a SQLite file while a process is writing can capture
-a torn, unrecoverable file. `.backup` uses SQLite's online-backup API and is safe on a live database.
+**Why `.backup` and not `cp`?** Copying a SQLite file while a process is writing can capture a torn,
+unrecoverable file. The online-backup API is safe against a live writer.
+
+**Implementation note:** the app image is `python:3.12-slim` and does **not** ship the `sqlite3`
+CLI, so the backup is taken with Python's `sqlite3.Connection.backup()` — the same online-backup
+API, always available because the app already depends on the module.
 
 ---
 
@@ -186,8 +191,8 @@ Each is applied only after explicit approval, and each is independently reversib
 | # | Step | Risk | Undo | Status |
 |---|---|---|---|---|
 | 1 | Create `~/mulham/src`, compose files, `.env` | none — writes files only | `rm -rf ~/mulham/src` | **done** |
-| 2 | Create the volume and load `quiz.db` into it | none — nothing runs; laptop keeps serving | `docker volume rm researcher-journey_quizdata` | next |
-| 3 | Install the GitHub runner | low | `./config.sh remove` | |
+| 2 | Create the volume and load `quiz.db` into it | none — nothing runs; laptop keeps serving | `docker volume rm researcher-journey_quizdata` | **done** |
+| 3 | Install the GitHub runner | low | `./config.sh remove` | next |
 | 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | |
 | 5 | Nightly backup cron | none | `crontab -r` | |
 | 6 | Zenodo DOI + badge | none | — | |
@@ -225,4 +230,5 @@ diverging databases, which is far worse than a few minutes offline.
 | Date | Change | By |
 |---|---|---|
 | 2026-07-29 | Read-only survey; no changes made | Claude |
+| 2026-07-29 | **Iteration 2**: created volume `researcher-journey_quizdata` and loaded `quiz.db` via `sqlite3.backup()`. Verified all 8 tables match the laptop exactly (6 contestants / 2 attempts / 14 answers / 8 badges / 7 quizzes / 60 questions / 1 duel), `integrity_check: ok`. Transfer copies deleted from both machines. | Claude |
 | 2026-07-29 | **Iteration 1**: created `/home/dev/mulham/src`; rsynced `docker-compose.prod.yml`, `docker-compose.override.yml` (127.0.0.1 only), and a minimal `.env` (`chmod 600`, Gemini keys excluded). Nothing started. | Claude |
