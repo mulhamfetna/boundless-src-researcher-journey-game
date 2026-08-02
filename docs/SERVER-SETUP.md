@@ -174,7 +174,7 @@ serving two different databases, with attempts landing in whichever machine answ
 the cut-over is a single deliberate step, never an accident.
 
 **Reboot risk:** all our containers use `restart: unless-stopped`, so they return automatically
-after a reboot. Unlike the laptop, `~/researcher-journey` lives on the root filesystem, so the
+after a reboot. Unlike the laptop, `/home/dev/mulham/src` lives on the root filesystem, so the
 late-mount race that caused the 2026-07-28 outage **cannot occur here**.
 
 ---
