@@ -300,38 +300,114 @@ function elementUnder(x, y, selector) {
   return el ? el.closest(selector) : null;
 }
 
+// Shrink text until it fits its box, instead of letting the page grow past the
+// screen. Game UIs scale text to the frame; documents grow and scroll. Question
+// content is never changed — only how large it is drawn.
+// `measure` is injectable because jsdom has no layout engine.
+function fitToBox(el, opts) {
+  const measure = (opts && opts.measure) ||
+    ((e) => ({ content: e.scrollHeight, box: e.clientHeight }));
+  const sizes = [16, 15, 14, 13, 12];
+  for (const size of sizes) {
+    el.style.fontSize = size + "px";
+    const m = measure(el);
+    if (m.content <= m.box) return size;
+  }
+  return sizes[sizes.length - 1];
+}
+
+// Scale the interaction to the play area after it renders, so a long question
+// shrinks its text rather than pushing the page taller. Runs twice: once after
+// layout settles, once on resize (the Telegram viewport changes when the
+// keyboard or the header collapses).
+function fitPlayArea() {
+  const opts = document.getElementById("q-options");
+  if (!opts) return;
+  const run = () => fitToBox(opts);
+  run();
+  if (typeof window.requestAnimationFrame === "function") window.requestAnimationFrame(run);
+  if (!window.__fitBound) {
+    window.__fitBound = true;
+    window.addEventListener("resize", () => {
+      const el = document.getElementById("q-options");
+      if (el && el.querySelector(".match-wrap, .order-list")) fitToBox(el);
+    });
+  }
+}
+
+// A one-line rule so the interaction is discoverable without a tutorial.
+function playHint(text) {
+  const el = document.createElement("div");
+  el.className = "play-hint";
+  el.textContent = text;
+  return el;
+}
+
+// Tap is the primary interaction (issue #15): a learner selects a chip, then
+// taps its slot. Distance stops mattering, so a slot below the fold is fine.
+// Dragging is kept for mouse users, where it is reliable.
 function renderMatch(q) {
   const opts = document.getElementById("q-options");
   opts.innerHTML = "";
   const wrap = document.createElement("div");
   wrap.className = "match-wrap";
-  const leftCol = document.createElement("div");
-  leftCol.className = "match-col";
-  const rightCol = document.createElement("div");
-  rightCol.className = "match-col";
-  wrap.append(leftCol, rightCol);
+  const list = document.createElement("div");
+  list.className = "match-list";
+  const tray = document.createElement("div");
+  tray.className = "chip-tray";
+  wrap.append(playHint("اختر إجابة ثم اضغط مكانها"), list, tray);
   opts.appendChild(wrap);
 
-  // left fixed rows, each with a drop slot
+  let selected = null;
+  const select = (chip) => {
+    if (selected) selected.classList.remove("selected");
+    selected = chip;
+    if (chip) chip.classList.add("selected");
+  };
+  const syncRow = (slot) => {
+    const row = slot.closest(".match-row");
+    if (row) row.classList.toggle("linked", !!slot.querySelector(".chip"));
+  };
+
   q.left_ar.forEach((text, li) => {
     const row = document.createElement("div");
-    row.innerHTML = `<div style="margin-bottom:4px">${text}</div>`;
+    row.className = "match-row";
+    const label = document.createElement("div");
+    label.className = "match-label";
+    label.textContent = text;
     const slot = document.createElement("div");
     slot.className = "slot";
     slot.dataset.left = li;
-    row.appendChild(slot);
-    leftCol.appendChild(row);
+    slot.addEventListener("click", () => {
+      const existing = slot.querySelector(".chip");
+      if (existing) {
+        // Tapping a filled slot picks the chip back up, so a mistake is one tap to undo.
+        tray.appendChild(existing);
+        select(existing);
+      } else if (selected) {
+        const from = selected.parentElement;
+        slot.appendChild(selected);
+        select(null);
+        if (from && from.classList.contains("slot")) syncRow(from);
+      }
+      syncRow(slot);
+    });
+    row.append(label, slot);
+    list.appendChild(row);
   });
 
-  // right draggable chips, shuffled, carrying original index
   const order = q.right_ar.map((_, i) => i).sort(() => Math.random() - 0.5);
   order.forEach((ri) => {
     const chip = document.createElement("div");
     chip.className = "chip";
     chip.textContent = q.right_ar[ri];
     chip.dataset.right = ri;
-    rightCol.appendChild(chip);
-    makeChipDraggable(chip, rightCol);
+    tray.appendChild(chip);
+    chip.addEventListener("click", () => {
+      if (chip._dragged) { chip._dragged = false; return; }  // the tail of a mouse drag
+      select(selected === chip ? null : chip);
+    });
+    makeChipDraggable(chip, tray);
   });
 
   ensureSubmitButton(() => {
@@ -346,10 +422,15 @@ function renderMatch(q) {
 
 function makeChipDraggable(chip, home) {
   chip.addEventListener("pointerdown", (e) => {
+    // Touch belongs to tapping and scrolling — a finger cannot own both a drag
+    // and a scroll. Mouse keeps the drag, which is where it works well.
+    if (e.pointerType && e.pointerType !== "mouse") return;
     e.preventDefault();
+    chip._dragged = false;
     chip.setPointerCapture(e.pointerId);
     chip.classList.add("dragging");
     const move = (ev) => {
+      chip._dragged = true;
       chip.style.position = "fixed";
       chip.style.left = ev.clientX - 30 + "px";
       chip.style.top = ev.clientY - 20 + "px";
@@ -387,30 +468,70 @@ function makeChipDraggable(chip, home) {
   });
 }
 
+// Renumber the picked rows 1..n after any pick or un-pick.
+function renumberPicks(list) {
+  const picked = [...list.querySelectorAll(".order-row.picked")]
+    .sort((a, b) => Number(a.dataset.pickedAt) - Number(b.dataset.pickedAt));
+  picked.forEach((row, i) => {
+    row.dataset.seq = String(i + 1);
+    const badge = row.querySelector(".seq-badge");
+    if (badge) badge.textContent = String(i + 1);
+  });
+}
+
+// The answer is whatever the learner tapped, in tap order. With no taps at all
+// we fall back to on-screen order, so mouse dragging still works unchanged.
+function readOrderSequence() {
+  const list = document.querySelector(".order-list");
+  if (!list) return [];
+  const picked = [...list.querySelectorAll(".order-row.picked")]
+    .sort((a, b) => Number(a.dataset.seq) - Number(b.dataset.seq));
+  const rows = picked.length ? picked : [...list.querySelectorAll(".order-row")];
+  return rows.map((r) => Number(r.dataset.orig));
+}
+
+// Tap the items in the order you believe is right; each one takes the next
+// number. No reordering, so nothing has to travel across a scrolling page.
 function renderOrder(q) {
   const opts = document.getElementById("q-options");
   opts.innerHTML = "";
+  opts.appendChild(playHint("اضغط العناصر بالترتيب الصحيح"));
   const list = document.createElement("div");
   list.className = "order-list";
   opts.appendChild(list);
+  let pickCounter = 0;
   const order = q.items_ar.map((_, i) => i).sort(() => Math.random() - 0.5);
   order.forEach((oi) => {
     const row = document.createElement("div");
     row.className = "order-row";
     row.dataset.orig = oi;
-    row.innerHTML = `<span class="handle">≡</span><span>${q.items_ar[oi]}</span>`;
+    row.innerHTML =
+      `<span class="seq-badge"></span><span class="order-text">${q.items_ar[oi]}</span>` +
+      `<span class="handle">≡</span>`;
+    row.addEventListener("click", () => {
+      if (row._dragged) { row._dragged = false; return; }  // the tail of a mouse drag
+      if (row.classList.contains("picked")) {
+        row.classList.remove("picked");
+        delete row.dataset.seq;
+        delete row.dataset.pickedAt;
+        row.querySelector(".seq-badge").textContent = "";
+      } else {
+        row.classList.add("picked");
+        row.dataset.pickedAt = String(++pickCounter);
+      }
+      renumberPicks(list);
+    });
     list.appendChild(row);
     makeRowReorderable(row, list);
   });
-  ensureSubmitButton(() => {
-    const sequence = [...list.querySelectorAll(".order-row")].map((r) => Number(r.dataset.orig));
-    checkComplex({ sequence });
-  });
+  ensureSubmitButton(() => checkComplex({ sequence: readOrderSequence() }));
 }
 
 function makeRowReorderable(row, list) {
   row.addEventListener("pointerdown", (e) => {
+    if (e.pointerType && e.pointerType !== "mouse") return;
     e.preventDefault();
+    row._dragged = false;
     // Capture on the STABLE list, not the row: reordering moves `row` in the DOM
     // every step, and a captured element that moves fires lostpointercapture in
     // Chrome — which silently kills the drag after one step. The list never moves.
@@ -419,6 +540,7 @@ function makeRowReorderable(row, list) {
     const move = (ev) => {
       const over = elementUnder(ev.clientX, ev.clientY, ".order-row");
       if (over && over !== row) {
+        row._dragged = true;
         const rect = over.getBoundingClientRect();
         const before = ev.clientY < rect.top + rect.height / 2;
         list.insertBefore(row, before ? over : over.nextSibling);
@@ -522,8 +644,8 @@ function renderQuestion() {
   else { img.classList.add("hidden"); img.removeAttribute("src"); }
 
   const q2type = q.type;
-  if (q2type === "match") { renderMatch(q); }
-  else if (q2type === "order") { renderOrder(q); }
+  if (q2type === "match") { renderMatch(q); fitPlayArea(); }
+  else if (q2type === "order") { renderOrder(q); fitPlayArea(); }
   else if (q2type === "spot") { renderSpot(q); }
   else {
     const opts = document.getElementById("q-options");
