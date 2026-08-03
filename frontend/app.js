@@ -1,7 +1,11 @@
+// رحلة الباحث — The Researcher's Journey
+// Copyright (C) 2026 Boundless Academic Services, the Scientific Research Camp
+// initiative, and Mulham Fetna.
+// Licensed under AGPL-3.0-or-later. See LICENSE and NOTICE.
 const tg = window.Telegram ? window.Telegram.WebApp : { initData: "", ready() {}, expand() {} };
 tg.ready(); tg.expand();
 
-const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding", "report-issue", "duel"];
+const screens = ["home", "runner", "report", "board", "badges", "funfact", "progress", "onboarding", "report-issue", "duel", "about"];
 function show(name) {
   screens.forEach(s => document.getElementById("screen-" + s).classList.toggle("hidden", s !== name));
   if (document.body) document.body.dataset.screen = name;
@@ -20,6 +24,48 @@ const BADGES = {
   first_finish: { ico: "first_finish", name_ar: "البداية" },
 };
 const BADGE_ORDER = ["perfect_capstone", "senior_researcher", "all_stations", "flawless", "streak_10", "perfect_quiz", "streak_master", "dedicated", "self_reliant", "first_finish"];
+
+// Copyright attribution (issue #18). AGPL-3.0 expects the notice to reach the
+// people RUNNING the program, not only those reading the repository — hence the
+// home footer, the onboarding screen, the About screen and the shared cards.
+// Single source of truth: change a name here and it changes everywhere.
+const CREDITS = {
+  year: "2026",
+  author: "Mulham Fetna",
+  orgs_ar: ["باوندلس للخدمات الأكاديمية", "معسكر البحث العلمي"],
+  orgs_en: ["Boundless Academic Services", "Scientific Research Camp initiative"],
+  licence: "AGPL-3.0-or-later",
+  repo: "https://github.com/mulhamfetna/boundless-src-researcher-journey-game",
+};
+CREDITS.line_ar = "© " + CREDITS.year + " " + CREDITS.orgs_ar.join(" و");
+CREDITS.line_full_ar = CREDITS.line_ar + " — جميع الحقوق محفوظة";
+
+function renderCredits() {
+  [document.getElementById("credits"), document.getElementById("ob-credits")]
+    .filter(Boolean)
+    .forEach((el) => { el.textContent = CREDITS.line_ar; });
+}
+
+function showAbout() {
+  const body = document.getElementById("about-body");
+  if (body) {
+    body.innerHTML =
+      '<p class="about-lead">رحلة الباحث — لعبة تعليمية لمنهجية البحث العلمي.</p>' +
+      '<h3>حقوق النشر</h3>' +
+      '<p>' + CREDITS.line_full_ar + '</p>' +
+      '<ul class="about-list">' +
+        CREDITS.orgs_ar.map((o, i) => '<li>' + o + ' <span class="en">' + CREDITS.orgs_en[i] + '</span></li>').join("") +
+        '<li>' + CREDITS.author + '</li>' +
+      '</ul>' +
+      '<h3>الرخصة</h3>' +
+      '<p>هذا البرنامج حر ومفتوح المصدر بموجب رخصة <span dir="ltr">' + CREDITS.licence + '</span>. ' +
+      'يحق لك دراسته وتعديله وإعادة توزيعه، وإذا شغّلت نسخة معدّلة كخدمة عبر الشبكة فيجب إتاحة مصدرها لمستخدميها.</p>' +
+      '<p class="about-link">' + CREDITS.repo + '</p>';
+  }
+  const back = document.getElementById("about-back");
+  if (back) back.onclick = loadHome;
+  show("about");
+}
 
 async function api(path, opts = {}) {
   const res = await fetch("/api" + path, opts);
@@ -88,6 +134,9 @@ async function renderMap(profile) {
   document.getElementById("btn-my-badges").onclick = loadBadges;
   document.getElementById("btn-my-progress").onclick = loadDashboard;
   document.getElementById("btn-report").onclick = showReport;
+  const ab = document.getElementById("btn-about");
+  if (ab) ab.onclick = showAbout;
+  renderCredits();
   const rv = document.getElementById("btn-review");
   if (rv) rv.onclick = startReview;
   if (typeof embers === "function") {
@@ -155,6 +204,7 @@ function showOnboarding() {
     await saveProfile({ name, avatar: chosen, onboarded: true });
     loadHome();
   };
+  renderCredits();
   show("onboarding");
 }
 

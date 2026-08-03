@@ -528,3 +528,14 @@ body[data-screen="onboarding"] #art-bg { opacity:0.45; }
 /* One-line rule for tap-based tasks — discoverable without a tutorial. */
 .play-hint { flex:0 0 auto; text-align:center; font-size:.78rem; color:var(--muted);
   opacity:.85; margin:0 0 2px; }
+
+/* Copyright attribution (issue #18) — quiet but always present. */
+.credits { text-align:center; font-size:.72rem; color:var(--muted); opacity:.7;
+  margin:14px 0 4px; line-height:1.6; }
+.about-body { line-height:1.7; }
+.about-body h3 { text-align:right; font-size:1.05rem; margin:14px 0 4px; color:var(--gold); }
+.about-list { list-style:none; padding:0; margin:0; }
+.about-list li { background:var(--card); border-radius:10px; padding:8px 10px; margin:6px 0; }
+.about-list .en { display:block; font-size:.75rem; color:var(--muted); direction:ltr; text-align:right; }
+.about-lead { color:var(--fg); }
+.about-link { direction:ltr; text-align:center; font-size:.75rem; color:var(--muted); word-break:break-all; }

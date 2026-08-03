@@ -104,6 +104,19 @@ fixed. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 If this work is useful in yours, please cite it — see [`CITATION.cff`](CITATION.cff). Every release
 is archived on Zenodo with its own DOI.
 
+## Credits & copyright
+
+**© 2026 Boundless Academic Services · Scientific Research Camp initiative · Mulham Fetna**
+
+| | |
+|---|---|
+| **باوندلس للخدمات الأكاديمية** | Boundless Academic Services |
+| **معسكر البحث العلمي** | Scientific Research Camp initiative |
+| **ملهم فتنة** | Mulham Fetna — author ([ORCID](https://orcid.org/0009-0006-4432-798X)) |
+
+Built for the **Scientific Research Camp** initiative by **Boundless Academic Services** as an open
+educational tool. All three parties are joint copyright holders — see [`NOTICE`](NOTICE).
+
 ## Licence
 
 [AGPL-3.0-or-later](LICENSE). Derivatives must remain open source **including when run as a network

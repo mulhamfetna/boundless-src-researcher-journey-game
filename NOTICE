@@ -1,0 +1,48 @@
+رحلة الباحث — The Researcher's Journey
+======================================
+
+Copyright (C) 2026
+    Boundless Academic Services            — باوندلس للخدمات الأكاديمية
+    Scientific Research Camp initiative    — معسكر البحث العلمي
+    Mulham Fetna                           — ملهم فتنة
+
+All three are joint copyright holders of this work.
+
+Author
+------
+Mulham Fetna <contact@mulhamfetna.com>
+ORCID: https://orcid.org/0009-0006-4432-798X
+
+Produced for the Scientific Research Camp initiative by Boundless Academic
+Services as an open educational tool for teaching scientific research
+methodology.
+
+Licence
+-------
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/>.
+
+The full licence text is in the file `LICENSE`.
+
+Because this is an AGPL work: if you run a modified version of this program on a
+server and let other people interact with it there, you must also offer those
+users the source of your modified version.
+
+Third-party material
+--------------------
+The Arabic curriculum PDFs used to derive the questions are third-party course
+material and are NOT included in this repository. Only the quiz content authored
+for this project is distributed here.
+
+Citing
+------
+See `CITATION.cff`. Every release is archived on Zenodo with its own DOI.
