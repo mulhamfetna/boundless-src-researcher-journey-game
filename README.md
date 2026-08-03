@@ -5,7 +5,7 @@
 **A gamified Arabic (RTL) Telegram Mini App that teaches scientific research methodology
 by *applying* it, not memorising it.**
 
-<!-- DOI-BADGE -->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21759627.svg)](https://doi.org/10.5281/zenodo.21759627)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 [Play it](https://src.mulhamfetna.com) · [@src_quize_bot](https://t.me/src_quize_bot)
@@ -101,8 +101,28 @@ fixed. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Citing
 
-If this work is useful in yours, please cite it — see [`CITATION.cff`](CITATION.cff). Every release
-is archived on Zenodo with its own DOI.
+Every release is archived on Zenodo with its own DOI. **Cite the concept DOI**
+[`10.5281/zenodo.21759627`](https://doi.org/10.5281/zenodo.21759627) unless you need one specific version — it always resolves to
+the newest release.
+
+> Boundless Academic Services, Scientific Research Camp initiative, & Fetna, M. (2026).
+> *رحلة الباحث — The Researcher's Journey* [Computer software]. Zenodo.
+> https://doi.org/10.5281/zenodo.21759627
+
+```bibtex
+@software{researcher_journey,
+  title     = {رحلة الباحث — The Researcher's Journey},
+  author    = {Fetna, Mulham and {Boundless Academic Services} and {Scientific Research Camp initiative}},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21759627},
+  url       = {https://doi.org/10.5281/zenodo.21759627},
+  license   = {AGPL-3.0-or-later}
+}
+```
+
+Machine-readable metadata: [`CITATION.cff`](CITATION.cff). Per-version DOIs are listed on the
+[Zenodo record](https://doi.org/10.5281/zenodo.21759627).
 
 ## Credits & copyright
 

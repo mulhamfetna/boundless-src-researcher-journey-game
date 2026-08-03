@@ -18,6 +18,11 @@ authors:
     alias: "باوندلس للخدمات الأكاديمية"
   - name: "Scientific Research Camp initiative"
     alias: "معسكر البحث العلمي"
+doi: "10.5281/zenodo.21759627"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21759627"
+    description: "Concept DOI — always resolves to the latest release"
 license: AGPL-3.0-or-later
 repository-code: "https://github.com/mulhamfetna/boundless-src-researcher-journey-game"
 url: "https://src.mulhamfetna.com"
