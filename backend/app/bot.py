@@ -1,3 +1,9 @@
+"""رحلة الباحث — The Researcher's Journey.
+
+Copyright (C) 2026 Boundless Academic Services, the Scientific Research Camp
+initiative, and Mulham Fetna.
+Licensed under AGPL-3.0-or-later. See LICENSE and NOTICE.
+"""
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes
 

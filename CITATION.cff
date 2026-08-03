@@ -13,6 +13,11 @@ authors:
     family-names: Fetna
     email: contact@mulhamfetna.com
     orcid: "https://orcid.org/0009-0006-4432-798X"
+    affiliation: "Boundless Academic Services"
+  - name: "Boundless Academic Services"
+    alias: "باوندلس للخدمات الأكاديمية"
+  - name: "Scientific Research Camp initiative"
+    alias: "معسكر البحث العلمي"
 license: AGPL-3.0-or-later
 repository-code: "https://github.com/mulhamfetna/boundless-src-researcher-journey-game"
 url: "https://src.mulhamfetna.com"

@@ -7,7 +7,14 @@
   "creators": [
     {
       "name": "Fetna, Mulham",
-      "orcid": "0009-0006-4432-798X"
+      "orcid": "0009-0006-4432-798X",
+      "affiliation": "Boundless Academic Services"
+    },
+    {
+      "name": "Boundless Academic Services"
+    },
+    {
+      "name": "Scientific Research Camp initiative"
     }
   ],
   "keywords": [
@@ -18,5 +25,6 @@
     "Telegram Mini App",
     "Arabic",
     "RTL"
-  ]
+  ],
+  "notes": "Copyright (C) 2026 Boundless Academic Services, the Scientific Research Camp initiative, and Mulham Fetna. Licensed under AGPL-3.0-or-later."
 }

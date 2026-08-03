@@ -1,5 +1,9 @@
 // Shareable Canvas cards: capstone certificate + lab-notebook portfolio.
 (function () {
+  // Kept in step with CREDITS in app.js (tested in tests/credits.test.js).
+  // card.js loads before app.js and must not depend on it, so the string is
+  // repeated here rather than imported — the test asserts they stay identical.
+  var CARD_CREDIT = "© 2026 باوندلس للخدمات الأكاديمية ومعسكر البحث العلمي";
   // Deterministic short verification code (FNV-1a).
   function shortHash(str) {
     let h = 2166136261 >>> 0;
@@ -34,6 +38,12 @@
     ctx.fillStyle = "#e8d8ff"; ctx.font = "19px 'Cairo',sans-serif";
     let y = 210;
     (o.lines || []).forEach(function (ln) { ctx.fillText(ln, R, y); y += 36; });
+    // Attribution (issue #18). These cards are saved and forwarded to other
+    // chats, so the credit has to travel with the image — a notice only inside
+    // the app would never be seen by whoever receives it.
+    ctx.textAlign = "center"; ctx.fillStyle = "#7d8bab"; ctx.font = "14px 'Cairo',sans-serif";
+    ctx.fillText(CARD_CREDIT, canvas.width / 2, H - 66);
+
     // footer: verification code (LTR) + brand stamp (RTL)
     ctx.textAlign = "left"; ctx.fillStyle = "#9aa4bf"; ctx.font = "13px monospace";
     ctx.fillText("رحلة الباحث • " + (o.code || ""), 48, H - 34);
