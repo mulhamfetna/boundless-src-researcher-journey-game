@@ -4,8 +4,9 @@ Living record of the production deployment on the shared server `amd`. Every dec
 records **why** it was made, not just what was done, so the setup can be audited, repeated, or
 reversed by someone who wasn't here.
 
-**Status:** **LIVE on the server** since 2026-07-29. The laptop stack is stopped. See the
-incident in §10 — the first deploy lost data and it was recovered.
+**Status:** **LIVE on the server**, deployed automatically by GitHub Releases. The laptop stack is
+stopped. `v1.0.1` was deployed end-to-end by the pipeline with zero data loss. See §10 for the
+v1.0.0 incident and §11 for backups.
 
 **Install location:** `/home/dev/mulham/src` — chosen by the owner so everything this project adds
 lives under one directory instead of being scattered across a shared machine. Removing that one
@@ -201,8 +202,8 @@ Each is applied only after explicit approval, and each is independently reversib
 | 3 | Install the GitHub runner | low | `./config.sh remove` | **done** |
 | 4 | **Cut traffic over**: stop the laptop, publish `v1.0.0` → build + deploy + tunnel | **highest** | rollback workflow, or restart the laptop stack | **done** (see §10) |
 | 5 | Nightly backup cron | none | remove the crontab line | **done** |
-| 6 | Verify the fixed pipeline with `v1.0.1` | low | rollback workflow | next |
-| 7 | Zenodo DOI + badge | none | — | |
+| 6 | Verify the fixed pipeline with `v1.0.1` | low | rollback workflow | **done — pipeline proven** |
+| 7 | Zenodo DOI + badge | none | — | webhook active; awaiting the published record |
 
 ### A sequencing constraint worth understanding
 
@@ -237,6 +238,7 @@ diverging databases, which is far worse than a few minutes offline.
 | Date | Change | By |
 |---|---|---|
 | 2026-07-29 | Read-only survey; no changes made | Claude |
+| 2026-07-29 | **Iteration 6**: merged `dev`→`main` (4/4 checks green), published `v1.0.1`. **The automated deploy ran on the server and passed every step in 19 s** — pull, migrate, seed, smoke test. Seed reported `seeded: []`, all 7 skipped: the data-loss fix works in production. | Claude |
 | 2026-07-29 | **Iteration 5**: installed `backup.sh` + cron at 03:30 (appended to the existing crontab, 03:00 job untouched). Backup taken and **restore drill passed** against a scratch volume. | Claude |
 | 2026-07-29 | **Iteration 4**: cut over to the server. Deploy job failed (wrong path); deployed manually; data loss and recovery — see §10. | Claude |
 | 2026-07-29 | **Iteration 3**: installed GitHub runner `amd-shared` v2.336.0 into `~/mulham/src/actions-runner`, registered with a short-lived token (file-passed, then shredded), installed as systemd service `actions.runner.…amd-shared` (enabled at boot, runs as `dev`). GitHub reports **online**. Installer tarball deleted. | Claude |

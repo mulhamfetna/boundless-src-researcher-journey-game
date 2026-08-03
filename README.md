@@ -31,6 +31,14 @@ submission & tracking — plus **رحلة البحث الكبرى**, the 14-task
 and `spot` (red-flag multi-select). Scoring is retry- and hint-aware; explanations are per-option,
 so a wrong answer teaches rather than punishes.
 
+## 📖 Full system handbook
+
+**[`docs/handbook/`](docs/handbook/README.md)** — a complete, diagram-driven explanation of the
+whole system: local development, the application internals, the content and scoring engine, the
+GitHub workflow, the CI/CD pipeline, the server, data safety, the security model, **every design
+decision with the alternatives it beat**, two real incident post-mortems, and a step-by-step guide
+to reproducing the entire thing from an empty directory.
+
 ## Architecture
 
 Three processes in one Docker Compose stack:
