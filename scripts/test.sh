@@ -20,5 +20,8 @@ echo
 echo "== frontend drag e2e (real browser; skips if no Chrome) =="
 ( cd "$ROOT/frontend" && node tests/drag.e2e.mjs )
 
+echo "== frontend phone play-area e2e (360x640; skips if no Chrome) =="
+( cd "$ROOT/frontend" && node tests/phone.e2e.mjs )
+
 echo
 echo "All suites passed."
