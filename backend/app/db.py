@@ -62,7 +62,10 @@ CREATE TABLE IF NOT EXISTS answers (
     time_ms       INTEGER NOT NULL,
     points_awarded INTEGER NOT NULL,
     retries        INTEGER NOT NULL DEFAULT 0,
-    hint_used      INTEGER NOT NULL DEFAULT 0
+    hint_used      INTEGER NOT NULL DEFAULT 0,
+    -- The learner moved on without solving it (issue #29): zero points, breaks
+    -- the streak, and the report shows it as not answered correctly.
+    skipped        INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS badges (

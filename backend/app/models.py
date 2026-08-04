@@ -53,12 +53,13 @@ def finish_attempt(conn, attempt_id, total_score, accuracy, duration_ms, finishe
     conn.commit()
 
 
-def record_answer(conn, attempt_id, question_id, given, is_correct, time_ms, points, retries=0, hint_used=0):
+def record_answer(conn, attempt_id, question_id, given, is_correct, time_ms, points, retries=0, hint_used=0, skipped=0):
     conn.execute(
         """INSERT INTO answers
-           (attempt_id, question_id, given_json, is_correct, time_ms, points_awarded, retries, hint_used)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (attempt_id, question_id, json.dumps(given), int(is_correct), time_ms, points, int(retries), int(hint_used)),
+           (attempt_id, question_id, given_json, is_correct, time_ms, points_awarded, retries, hint_used, skipped)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (attempt_id, question_id, json.dumps(given), int(is_correct), time_ms, points, int(retries),
+         int(hint_used), int(skipped)),
     )
     conn.commit()
 
