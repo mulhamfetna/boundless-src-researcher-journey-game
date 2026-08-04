@@ -233,3 +233,27 @@ def list_issue_reports(conn, limit=20):
     return conn.execute(
         "SELECT * FROM issue_reports ORDER BY id DESC LIMIT ?", (limit,)
     ).fetchall()
+
+
+def all_contestant_ids(conn) -> list[int]:
+    """Every user the bot already knows — the audience for an announcement.
+
+    Telegram forbids unsolicited first contact, so this is by definition the
+    complete set of people we are allowed to message.
+    """
+    return [r["telegram_user_id"] for r in
+            conn.execute("SELECT telegram_user_id FROM contestants ORDER BY telegram_user_id")]
+
+
+def contestant_exists(conn, user_id: int) -> bool:
+    return conn.execute(
+        "SELECT 1 FROM contestants WHERE telegram_user_id = ?", (user_id,)
+    ).fetchone() is not None
+
+
+def find_contestant_id_by_username(conn, username: str) -> int | None:
+    row = conn.execute(
+        "SELECT telegram_user_id FROM contestants WHERE lower(username) = lower(?)",
+        (username,),
+    ).fetchone()
+    return row["telegram_user_id"] if row else None

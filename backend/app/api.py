@@ -352,7 +352,7 @@ def me_dashboard(request: Request, x_init_data: str = Header(default="")):
 
 
 @router.post("/report")
-def report(payload: dict, request: Request, x_init_data: str = Header(default="")):
+def report(payload: dict, request: Request, background_tasks: BackgroundTasks, x_init_data: str = Header(default="")):
     conn = _conn(request)
     try:
         parsed = validate_init_data(x_init_data, settings.bot_token)
@@ -383,7 +383,32 @@ def report(payload: dict, request: Request, x_init_data: str = Header(default=""
         "text": text,
         "raw_json": json.dumps(parsed, ensure_ascii=False),
     })
+
+    # Push it to the admin (#34). Storing a report and telling nobody meant
+    # reports were effectively lost — the admin had no reason to run /reports.
+    # Sent in the background so the learner's request is never delayed, and
+    # wrapped so a Telegram outage cannot fail their submission.
+    if settings.admin_id:
+        who = user.get("first_name") or "مستخدم"
+        handle = f" (@{user['username']})" if user.get("username") else ""
+        meta = " · ".join(filter(None, [payload.get("platform"), payload.get("version")]))
+        note = (
+            "🐞 بلاغ جديد من داخل التطبيق\n"
+            f"من: {who}{handle} — id {user['id']}\n"
+            + (f"المنصّة: {meta}\n" if meta else "")
+            + f"\n{text}"
+        )
+        background_tasks.add_task(_notify_admin_safely, settings.admin_id, note)
+
     return {"ok": True}
+
+
+def _notify_admin_safely(admin_id: int, text: str) -> None:
+    """Never let a delivery problem surface as a failed learner request."""
+    try:
+        notify.send_report_dm(admin_id, text)
+    except Exception:
+        pass
 
 
 def _now(conn):
