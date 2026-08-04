@@ -626,9 +626,14 @@ function checkComplex(givenExtra) {
     correct = q.correct_sequence.every((v, i) => seq[i] === v);
     if (!correct) {
       state.curRetries += 1;
-      const rows = [...document.querySelectorAll(".order-row")];
-      rows.forEach((r, i) => {
-        const isCorrect = Number(r.dataset.orig) === q.correct_sequence[i];
+      // Mark by the position the learner CHOSE (its tap number), not by where
+      // the row happens to sit in the DOM. Since tap-in-sequence the two are
+      // unrelated, and marking DOM order produced meaningless colours (#25).
+      // Untapped rows stay unmarked — the learner never placed them.
+      [...document.querySelectorAll(".order-row")].forEach((r) => {
+        const seq = Number(r.dataset.seq);          // 1-based, NaN when untapped
+        if (!seq) { r.classList.remove("wrong", "correct"); return; }
+        const isCorrect = Number(r.dataset.orig) === q.correct_sequence[seq - 1];
         r.classList.toggle("wrong", !isCorrect);
         r.classList.toggle("correct", isCorrect);
       });
@@ -694,8 +699,8 @@ function renderQuestion() {
   else { img.classList.add("hidden"); img.removeAttribute("src"); }
 
   const q2type = q.type;
-  if (q2type === "match") { renderMatch(q); fitPlayArea(); }
-  else if (q2type === "order") { renderOrder(q); fitPlayArea(); }
+  if (q2type === "match") { renderMatch(q); }
+  else if (q2type === "order") { renderOrder(q); }
   else if (q2type === "spot") { renderSpot(q); }
   else {
     const opts = document.getElementById("q-options");
@@ -709,6 +714,9 @@ function renderQuestion() {
       opts.appendChild(btn);
     });
   }
+  // Fit EVERY question type, not just match/order. An image question with long
+  // options overflowed because it was never measured (#24).
+  fitPlayArea();
 }
 
 function spotIsCorrect(sel, correct) {
