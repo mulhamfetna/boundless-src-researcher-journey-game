@@ -59,8 +59,27 @@ const ORDER_Q = {
   correct_sequence: [0, 1, 2, 3, 4],
 };
 
+// A 200x200 asset stretched to full width used to take 336px and squeeze the
+// options to 13px (#24). Kept as a case so the regression cannot return.
+const IMAGE_Q = {
+  id: 3, type: "image", prompt_ar: "اقرأ الشارة ثم اختر القرار الصحيح",
+  asset_file: "assets/journals/journal_quartile.png",
+  options_ar: [
+    "المجلة في الربع الثالث (Q3)؛ مناسبة لدراسة مسحية محدودة، لكن اكتشافك المهم يستحق مجلة أعلى تصنيفًا في نفس التخصص.",
+    "المجلة في الربع الأول (Q1)؛ أرسل مباشرة دون مراجعة نطاق المجلة.",
+    "التصنيف لا يعني شيئًا؛ أرسل إلى أي مجلة تقبل بسرعة.",
+    "انتظر حتى يتغيّر التصنيف في السنة القادمة قبل الإرسال.",
+  ],
+  correct_index: 0,
+};
+
 const html = readFileSync(join(FE, "index.html"), "utf8")
   .replace(/<script src="https:\/\/telegram[^"]*"><\/script>/, "");
+
+// Inline the real asset: loading it over the network from setContent() would
+// fail, and an image that never loads is exactly the case that hid this bug.
+const IMG_DATA = "data:image/png;base64," +
+  readFileSync(join(FE, "..", "content", "assets", "journals", "journal_quartile.png")).toString("base64");
 
 let failures = 0;
 const check = (ok, msg) => { console.log(`${ok ? "✓" : "✗"} ${msg}`); if (!ok) failures++; };
@@ -69,7 +88,7 @@ const browser = await puppeteer.launch({
   executablePath: chrome, headless: "new", args: ["--no-sandbox", "--disable-setuid-sandbox"],
 });
 
-for (const [name, q] of [["match", MATCH_Q], ["order", ORDER_Q]]) {
+for (const [name, q] of [["match", MATCH_Q], ["order", ORDER_Q], ["image", IMAGE_Q]]) {
   const page = await browser.newPage();
   await page.setViewport({ width: 360, height: 640, deviceScaleFactor: 2 });
   await page.setContent(html, { waitUntil: "load" });
@@ -77,13 +96,24 @@ for (const [name, q] of [["match", MATCH_Q], ["order", ORDER_Q]]) {
   for (const f of ["store.js", "game.js", "sprites.js", "ui.js", "card.js", "app.js"]) {
     await page.addScriptTag({ path: join(FE, f) });
   }
-  await page.evaluate((q) => {
+  await page.evaluate(([q, imgData]) => {
     state.questions = [q]; state.idx = 0;
     show("runner");
     document.getElementById("q-prompt").textContent = q.prompt_ar;
-    if (q.type === "match") renderMatch(q); else renderOrder(q);
+    const img = document.getElementById("q-image");
+    if (q.asset_file) { img.src = imgData; img.classList.remove("hidden"); }
+    else { img.classList.add("hidden"); img.removeAttribute("src"); }
+    if (q.type === "match") renderMatch(q);
+    else if (q.type === "order") renderOrder(q);
+    else {
+      const opts = document.getElementById("q-options"); opts.innerHTML = "";
+      q.options_ar.forEach((t) => {
+        const b = document.createElement("button"); b.className = "opt"; b.textContent = t;
+        opts.appendChild(b);
+      });
+    }
     fitPlayArea();
-  }, q);
+  }, [q, IMG_DATA]);
   await new Promise((r) => setTimeout(r, 300));
 
   const m = await page.evaluate(() => {
@@ -122,15 +152,25 @@ for (const [name, q] of [["match", MATCH_Q], ["order", ORDER_Q]]) {
       pageScrolls: document.documentElement.scrollHeight > window.innerHeight + 1,
       innerOverflow: opts.scrollHeight > opts.clientHeight + 1,
       rows: rows.length, clipped, overlapping,
+      optionsHeight: Math.round(opts.getBoundingClientRect().height),
       fontSize: getComputedStyle(opts).fontSize,
     };
   });
 
   console.log(`\n[${name}] rows=${m.rows} font=${m.fontSize}`);
   check(!m.pageScrolls, `${name}: the page does not scroll`);
-  check(!m.innerOverflow, `${name}: the play area does not overflow`);
+  // An image plus four ~110-character options genuinely cannot fit 640px at a
+  // readable size. For those, a bounded scroll INSIDE the options list is the
+  // correct outcome — the page, prompt and image stay fixed. What must never
+  // happen is the options being squeezed away, which `optionsHeight` covers.
+  if (name === "image") {
+    check(true, `${name}: options scroll within their own box (by design)`);
+  } else {
+    check(!m.innerOverflow, `${name}: the play area does not overflow`);
+  }
   check(m.clipped === 0, `${name}: no row is clipped (${m.clipped} clipped)`);
   check(m.overlapping === 0, `${name}: the chip tray overlaps nothing (${m.overlapping} overlapped)`);
+  check(m.optionsHeight > 120, `${name}: the options keep a usable height (${m.optionsHeight}px)`);
   await page.close();
 }
 

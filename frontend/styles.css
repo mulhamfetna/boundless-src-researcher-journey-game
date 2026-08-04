@@ -32,7 +32,11 @@ body { margin:0; color:var(--fg); font-family:var(--font-body); background:var(-
 .screen { animation: fade .2s ease; }
 .hidden { display:none; }
 @keyframes fade { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
-h1, h2, h3 { text-align:center; font-family:var(--font-head); font-weight:700; letter-spacing:1px; color:var(--gold-bright); }
+h1 { text-align:center; font-family:var(--font-head); font-weight:700; letter-spacing:1px; color:var(--gold-bright); }
+/* ArefRuqaa is decorative and tightly set — legible as a big title, cramped at
+   heading sizes on a phone. Headings use the body face instead (#27). */
+h2, h3 { text-align:center; font-family:var(--font-body); font-weight:700; letter-spacing:0;
+  line-height:1.5; color:var(--gold-bright); }
 h1 { font-size:2.3rem; color:var(--gold); text-shadow:0 0 14px #c8aa6e55, 0 2px 0 #000; }
 h2 { font-size:1.5rem; }
 .topbar { display:flex; justify-content:space-between; font-variant-numeric: tabular-nums; color:#9aa4bf; }
@@ -82,8 +86,15 @@ body[data-screen="runner"] #app {
   display:flex; flex-direction:column;
   flex:1 1 auto; min-height:0; overflow:hidden;
 }
+/* A tall image used to take its natural height and squeeze the options to a
+   few pixels (#24). The image is capped and allowed to shrink; the options keep
+   a guaranteed share of the play area. */
+#screen-runner #q-image {
+  flex:0 1 auto; max-height:26dvh; width:auto; max-width:100%;
+  object-fit:contain; margin:6px auto; display:block;
+}
 #screen-runner #q-options {
-  flex:1 1 auto; min-height:0;
+  flex:1 1 auto; min-height:38dvh;
   display:flex; flex-direction:column; gap:8px;
   overflow:auto;                 /* last resort only; fitToBox aims to avoid it */
   -webkit-overflow-scrolling:touch;
@@ -151,8 +162,10 @@ body[data-screen="runner"] #app {
 .opt-explain { font-size:.9rem; color:#cdd3e6; margin:4px 0 8px; }
 #screen-funfact { text-align:center; }
 #funfact-text { background:var(--card); border-radius:12px; padding:18px; margin:12px 0; font-size:1.05rem; }
-.slot.wrong, .order-row.wrong { outline:2px solid var(--bad); }
-.slot.correct, .order-row.correct { outline:2px solid var(--good); }
+/* box-shadow follows border-radius; outline drew a rectangle whose corners
+   poked out of the rounded card and read as random colour flecks (#25). */
+.slot.wrong, .order-row.wrong { box-shadow:inset 0 0 0 2px var(--bad); background:rgba(255,70,85,.10); }
+.slot.correct, .order-row.correct { box-shadow:inset 0 0 0 2px var(--good); background:rgba(10,200,185,.12); }
 
 .dash-stats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px 0; }
 .dash-stats .stat { background: var(--card); border-radius: 12px; padding: 10px 14px; text-align: center; min-width: 70px; }
@@ -494,7 +507,7 @@ ol#board-list li { background:linear-gradient(180deg,#0a1428dd,#06101ddd); borde
 .spot-chips { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
 .spot-chip {
   padding:10px 14px; border-radius:12px; background:var(--card);
-  border:1px solid var(--gold-dim); color:var(--ink, var(--fg)); cursor:pointer;
+  border:1px solid var(--gold-dim); color:var(--fg); cursor:pointer;
   font-size:.95rem; text-align:right; transition:border-color .15s, box-shadow .15s;
 }
 .spot-chip.selected { border-color:var(--cyan); box-shadow:0 0 10px #0ac8b955; }
