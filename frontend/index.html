@@ -36,6 +36,7 @@
 
     <section id="screen-runner" class="screen hidden">
       <div class="topbar">
+        <button id="q-exit-btn" class="icon-btn" title="الخروج من المحطة">✕</button>
         <span id="progress"></span>
       </div>
       <div id="boss-banner" class="hidden"></div>
@@ -43,7 +44,10 @@
       <h2 id="q-prompt"></h2>
       <img id="q-image" class="q-image hidden" alt="" />
       <div id="q-options"></div>
-      <button id="q-hint-btn" class="hint-btn">💡 تلميح</button>
+      <div class="runner-tools">
+        <button id="q-hint-btn" class="hint-btn">💡 تلميح</button>
+        <button id="q-skip-btn" class="skip-btn">تخطّي ⏭️</button>
+      </div>
       <div id="q-hint" class="hint-box hidden"></div>
       <div id="q-feedback" class="feedback-box"></div>
     </section>

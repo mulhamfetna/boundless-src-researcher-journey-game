@@ -142,6 +142,10 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         )
         changes.append("duels.create")
 
+    if "skipped" not in _columns(conn, "answers"):
+        conn.execute("ALTER TABLE answers ADD COLUMN skipped INTEGER NOT NULL DEFAULT 0")
+        changes.append("answers.skipped")
+
     meta_exists = conn.execute(
         "SELECT name FROM sqlite_master WHERE type='table' AND name='meta'"
     ).fetchone()
