@@ -692,6 +692,10 @@ function renderQuestion() {
     hintBtn.classList.add("hidden");
   }
 
+  const exitBtn = document.getElementById("q-exit-btn");
+  if (exitBtn) exitBtn.onclick = () => exitStation();
+  const skipBtn = document.getElementById("q-skip-btn");
+  if (skipBtn) skipBtn.onclick = () => skipQuestion();
   document.getElementById("progress").textContent = `${state.idx + 1}/${state.questions.length}`;
   document.getElementById("q-prompt").textContent = q.prompt_ar;
   const img = document.getElementById("q-image");
@@ -717,6 +721,57 @@ function renderQuestion() {
   // Fit EVERY question type, not just match/order. An image question with long
   // options overflowed because it was never measured (#24).
   fitPlayArea();
+}
+
+// Leaving a station (#28). Closing the whole Mini App was the only way out.
+// The in-progress attempt is discarded — nothing is submitted, so an abandoned
+// run never reaches the leaderboard.
+function exitStation(opts) {
+  const ask = !opts || opts.confirm !== false;
+  const go = () => {
+    state.questions = [];
+    state.answers = [];
+    state.idx = 0;
+    state.curRetries = 0;
+    state.curHint = false;
+    // Switch immediately: loadHome() is async, and waiting on the network before
+    // leaving makes the button feel broken.
+    show("home");
+    // The screen has already switched; a failed refresh must not surface as an
+    // unhandled rejection.
+    Promise.resolve(loadHome()).catch(() => {});
+  };
+  if (ask && tg && typeof tg.showConfirm === "function") {
+    tg.showConfirm("هل تريد الخروج من المحطة؟ لن يُحتسب تقدّمك في هذه المحاولة.", (ok) => { if (ok) go(); });
+    return;
+  }
+  if (ask && typeof window.confirm === "function") {
+    if (!window.confirm("هل تريد الخروج من المحطة؟ لن يُحتسب تقدّمك في هذه المحاولة.")) return;
+  }
+  go();
+}
+
+// Skipping (#29). Getting stuck on one task should not end the session, but a
+// skip is not free: the server scores it zero and it breaks the streak. The
+// explanation is shown first, so a skip still teaches the point.
+function skipQuestion() {
+  const q = state.questions[state.idx];
+  if (!q) return;
+  state.answers.push({
+    question_id: q.id,
+    retries: state.curRetries,
+    hint_used: state.curHint,
+    skipped: true,
+  });
+  const note = "تُخطّيت — " + (q.explanation_ar || "");
+  state.idx += 1;
+  state.curRetries = 0;
+  state.curHint = false;
+  if (state.idx >= state.questions.length) { submit(); return; }
+  renderQuestion();
+  // renderQuestion clears the feedback box, so the note is written after it.
+  const fb = document.getElementById("q-feedback");
+  if (fb) { fb.textContent = note; fb.classList.add("skipped-note"); }
 }
 
 function spotIsCorrect(sel, correct) {

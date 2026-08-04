@@ -552,3 +552,17 @@ body[data-screen="onboarding"] #art-bg { opacity:0.45; }
 .about-list .en { display:block; font-size:.75rem; color:var(--muted); direction:ltr; text-align:right; }
 .about-lead { color:var(--fg); }
 .about-link { direction:ltr; text-align:center; font-size:.75rem; color:var(--muted); word-break:break-all; }
+
+/* Exit + skip controls (#28, #29). Present but quiet — an escape hatch, not an
+   invitation. The skip is styled as a cost, not a shortcut. */
+.topbar { align-items:center; gap:10px; }
+.icon-btn { width:auto; margin:0; padding:4px 10px; font-size:1rem; line-height:1;
+  clip-path:none; border-radius:8px; color:var(--muted); background:transparent;
+  border:1px solid var(--gold-dim); }
+.icon-btn:hover { color:var(--bad); border-color:var(--bad); box-shadow:none; }
+.runner-tools { flex:0 0 auto; display:flex; gap:8px; margin-top:6px; }
+.runner-tools > button { margin:0; flex:1 1 50%; padding:10px; font-size:.9rem; }
+.skip-btn { color:var(--muted); border-color:#3a3350; }
+.skip-btn:hover { color:var(--gold-bright); border-color:var(--gold-dim); box-shadow:none; }
+.feedback-box.skipped-note { color:var(--muted); font-size:.85rem; border-right:3px solid var(--gold-dim);
+  padding-right:8px; }

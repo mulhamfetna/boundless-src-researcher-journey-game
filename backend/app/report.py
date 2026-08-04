@@ -26,7 +26,9 @@ def build_report(conn, attempt_id: int) -> dict:
         items.append({
             "type": q["type"], "prompt_ar": q["prompt_ar"], "is_correct": bool(ans["is_correct"]),
             "correct_ar": correct_ar, "retries": ans["retries"], "hint_used": bool(ans["hint_used"]),
-            "first_try": ans["retries"] == 0 and not ans["hint_used"],
+            "skipped": bool(ans["skipped"]),
+            # A skip is never a first try, whatever the retry count says.
+            "first_try": (not ans["skipped"]) and ans["retries"] == 0 and not ans["hint_used"],
             "explanation_ar": q["explanation_ar"], "source_page": q["source_page"],
             "asset_file": asset["file_path"] if asset else None,
             "passage": data.get("passage", ""), "source_url": data.get("source_url", ""),

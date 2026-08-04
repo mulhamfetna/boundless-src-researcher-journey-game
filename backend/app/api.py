@@ -220,8 +220,13 @@ def submit(slug: str, payload: dict, request: Request, background_tasks: Backgro
             continue
         retries = int(a.get("retries", 0))
         hint_used = bool(a.get("hint_used", False))
-        first_try = retries == 0 and not hint_used
-        pts = score_retry(q["base_points"], retries, hint_used, streak)
+        # Skipping (#29) costs everything for that question: retrying floors at
+        # 10% of base, so without an explicit zero, skipping would be the cheap
+        # way out. It also never counts as a first try, so the streak breaks and
+        # accuracy drops.
+        skipped = bool(a.get("skipped", False))
+        first_try = (not skipped) and retries == 0 and not hint_used
+        pts = 0 if skipped else score_retry(q["base_points"], retries, hint_used, streak)
         streak = streak + 1 if first_try else 0
         max_streak = max(max_streak, streak)
         if first_try:
@@ -229,8 +234,10 @@ def submit(slug: str, payload: dict, request: Request, background_tasks: Backgro
         if hint_used:
             hints_used += 1
         total += pts
-        models.record_answer(conn, attempt_id, qid, {"retries": retries, "hint_used": hint_used},
-                             True, 0, pts, retries=retries, hint_used=int(hint_used))
+        models.record_answer(conn, attempt_id, qid,
+                             {"retries": retries, "hint_used": hint_used, "skipped": skipped},
+                             not skipped, 0, pts, retries=retries, hint_used=int(hint_used),
+                             skipped=int(skipped))
 
     answered = len(answers)
     accuracy = first_try_count / answered if answered else 0.0
