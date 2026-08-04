@@ -78,8 +78,17 @@ describe("#25 ordering feedback reflects the learner's chosen order", () => {
     });
   });
 
-  it("marks every item green when the order is fully correct", () => {
+  it("accepts a fully correct order", () => {
+    // A second question follows, so accepting the first advances the runner
+    // instead of running the whole submit chain (which would need a report
+    // payload and would throw asynchronously — CI catches that, a printed
+    // summary does not).
+    const filler = {
+      id: 99, type: "mcq", prompt_ar: "س", concept: "c",
+      options_ar: ["أ", "ب"], correct_index: 0, option_explanations_ar: ["", ""],
+    };
     const app = loadApp(ORDER_Q);
+    app.state.questions = [ORDER_Q, filler];
     app.renderOrder(ORDER_Q);
     const byItem = {};
     rows().forEach((r) => { byItem[r.dataset.orig] = r; });
@@ -88,6 +97,7 @@ describe("#25 ordering feedback reflects the learner's chosen order", () => {
     app.checkComplex({ sequence: app.readOrderSequence() });
 
     expect(app.state.answers.length).toBe(1);   // accepted
+    expect(app.state.answers[0].question_id).toBe(ORDER_Q.id);
   });
 });
 
