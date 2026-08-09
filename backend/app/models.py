@@ -257,3 +257,15 @@ def find_contestant_id_by_username(conn, username: str) -> int | None:
         (username,),
     ).fetchone()
     return row["telegram_user_id"] if row else None
+
+
+def describe_contestant(conn, user_id: int) -> str:
+    """Human label for a user id, so an admin can confirm the right person."""
+    row = conn.execute(
+        "SELECT first_name, username FROM contestants WHERE telegram_user_id = ?", (user_id,)
+    ).fetchone()
+    if not row:
+        return f"id {user_id}"
+    name = row["first_name"] or "مستخدم"
+    handle = f" (@{row['username']})" if row["username"] else ""
+    return f"{name}{handle} — id {user_id}"

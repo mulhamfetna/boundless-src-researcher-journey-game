@@ -185,3 +185,23 @@ def test_pressing_start_registers_the_user_so_announcements_reach_them(conn):
     after = models.all_contestant_ids(conn)
     assert 900 not in before and 900 in after
     assert models.find_contestant_id_by_username(conn, "cait") == 900
+
+
+def test_a_chat_that_does_not_exist_is_unreachable_not_a_failure():
+    """The real /announce reported 3 'failures' that were only absent chats."""
+    def send(uid, text):
+        if uid == 2:
+            raise LookupError("chat not found")
+        return True
+
+    result = broadcast([1, 2, 3], "hi", send=send)
+    assert result.unreachable == 1
+    assert result.failed == 0
+    assert result.sent == 2
+    assert result.total == 3
+    assert "لم يبدأوا محادثة البوت" in result.summary_ar()
+
+
+def test_the_summary_stays_quiet_about_categories_with_nothing_in_them():
+    clean = broadcast([1], "hi", send=lambda u, t: True).summary_ar()
+    assert "فشل" not in clean and "حظروا" not in clean and "لم يبدأوا" not in clean
