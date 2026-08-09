@@ -4,10 +4,11 @@ Copyright (C) 2026 Boundless Academic Services, the Scientific Research Camp
 initiative, and Mulham Fetna.
 Licensed under AGPL-3.0-or-later. See LICENSE and NOTICE.
 """
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppInfo
+from telegram import (BotCommand, BotCommandScopeChat, BotCommandScopeDefault,
+                      InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppInfo)
 import asyncio
 
-from telegram.error import Forbidden
+from telegram.error import BadRequest, Forbidden
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from app import models
@@ -130,6 +131,11 @@ async def announce_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return True
         except Forbidden:
             raise PermissionError("blocked")
+        except BadRequest as e:
+            # "chat not found" means nobody is there — not a failure (#39).
+            if "not found" in str(e).lower():
+                raise LookupError("chat not found")
+            raise
 
     outcome = await _broadcast_async(ids, text, send)
     await update.message.reply_text("📣 انتهى الإعلان.\n" + outcome.summary_ar())
@@ -157,33 +163,71 @@ async def dm_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     body = " ".join(args[1:]).strip()
+    # Name who it actually resolved to: echoing the argument back told the admin
+    # nothing about whether the right account was found (#40).
+    who = models.describe_contestant(conn2 := connect(settings.db_path), target)
+    conn2.close()
     try:
         await context.bot.send_message(chat_id=target, text=body)
-        await update.message.reply_text(f"✅ أُرسلت إلى {args[0]}.")
+        await update.message.reply_text(f"✅ أُرسلت إلى {who}.")
     except Forbidden:
-        await update.message.reply_text(f"⚠️ {args[0]} حظر البوت، تعذّر الإرسال.")
+        await update.message.reply_text(f"⚠️ {who} حظر البوت، تعذّر الإرسال.")
+    except BadRequest as e:
+        if "not found" in str(e).lower():
+            await update.message.reply_text(f"⚠️ {who} لم يبدأ محادثة مع البوت بعد، لا يمكن مراسلته.")
+        else:
+            await update.message.reply_text(f"⚠️ تعذّر الإرسال: {e}")
     except Exception as e:
         await update.message.reply_text(f"⚠️ تعذّر الإرسال: {e}")
 
 
 async def _broadcast_async(ids, text, send):
     """Async twin of broadcast.broadcast — same counting and throttling rules."""
-    sent = blocked = failed = 0
+    sent = blocked = failed = unreachable = 0
     for i, uid in enumerate(ids):
         try:
             await send(uid, text)
             sent += 1
         except PermissionError:
             blocked += 1
+        except LookupError:
+            unreachable += 1
         except Exception:
             failed += 1
         if i < len(ids) - 1:
             await asyncio.sleep(SEND_INTERVAL_S)
-    return Outcome(sent=sent, blocked=blocked, failed=failed)
+    return Outcome(sent=sent, blocked=blocked, failed=failed, unreachable=unreachable)
+
+
+PUBLIC_COMMANDS = [
+    BotCommand("start", "ابدأ اللعبة"),
+    BotCommand("leaderboard", "لوحة الصدارة"),
+]
+ADMIN_COMMANDS = PUBLIC_COMMANDS + [
+    BotCommand("reports", "بلاغات المستخدمين"),
+    BotCommand("announce", "إعلان لجميع المستخدمين"),
+    BotCommand("dm", "رسالة لمستخدم محدّد"),
+]
+
+
+async def _publish_commands(app: Application) -> None:
+    """Show a command menu (#38).
+
+    Admin commands go to the admin's chat scope only — advertising /announce and
+    /dm to every learner would invite them to probe commands they cannot use.
+    """
+    try:
+        await app.bot.set_my_commands(PUBLIC_COMMANDS, scope=BotCommandScopeDefault())
+        if settings.admin_id:
+            await app.bot.set_my_commands(
+                ADMIN_COMMANDS, scope=BotCommandScopeChat(chat_id=settings.admin_id)
+            )
+    except Exception:
+        pass          # a menu problem must never stop the bot from running
 
 
 def build_application() -> Application:
-    app = Application.builder().token(settings.bot_token).build()
+    app = Application.builder().token(settings.bot_token).post_init(_publish_commands).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("leaderboard", leaderboard_cmd))
     app.add_handler(CommandHandler("reports", reports_cmd))

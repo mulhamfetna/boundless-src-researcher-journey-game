@@ -111,6 +111,23 @@ jobs:
             echo "no previous image recorded; stack left as-is for inspection"
           fi
 
+      # Announce AFTER the smoke test, so nothing is announced that is not
+      # actually live. Selective (minor/major, or [announce] in the notes),
+      # deduplicated, and it can never fail the deploy — see app/announce_release.
+      - name: Announce the release to players
+        continue-on-error: true
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TITLE: ${{ github.event.release.name }}
+          RELEASE_NOTES: ${{ github.event.release.body }}
+        run: |
+          cd "$DIR"
+          docker compose $COMPOSE_FILES exec -T \
+            -e RELEASE_TAG="$RELEASE_TAG" \
+            -e RELEASE_TITLE="$RELEASE_TITLE" \
+            -e RELEASE_NOTES="$RELEASE_NOTES" \
+            web python -m app.announce_release || true
+
       - name: Record success
         run: |
           cd "$DIR"
