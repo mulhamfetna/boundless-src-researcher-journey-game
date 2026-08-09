@@ -22,7 +22,7 @@ from app.models import get_quiz_by_slug, leaderboard, leaderboard_overall, list_
 def leaderboard_text(conn, slug: str) -> str:
     quiz = get_quiz_by_slug(conn, slug)
     if not quiz:
-        return "لا توجد مسابقة بهذا الاسم."
+        return "لا توجد محطة بهذا الاسم."
     rows = leaderboard(conn, quiz["id"])
     if not rows:
         return f"لا نتائج بعد في: {quiz['title_ar']}"
@@ -60,8 +60,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             conn.close()
 
     url = settings.public_url.rstrip("/") + "/app/"
-    kb = InlineKeyboardMarkup([[InlineKeyboardButton("ابدأ المسابقة 🎮", web_app=WebAppInfo(url=url))]])
-    await update.message.reply_text("أهلاً بك في مسابقة الجلسات! اضغط للبدء:", reply_markup=kb)
+    kb = InlineKeyboardMarkup([[InlineKeyboardButton("ابدأ الرحلة 🚀", web_app=WebAppInfo(url=url))]])
+    await update.message.reply_text(
+        "أهلاً بك في «رحلة الباحث» 🔬\n"
+        "تتدرّب هنا على منهجية البحث والنشر العلمي عبر مهامّ تطبيقية، لا حفظ ولا تلقين.\n\n"
+        "اضغط للبدء:",
+        reply_markup=kb,
+    )
 
 
 async def leaderboard_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
