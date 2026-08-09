@@ -497,6 +497,60 @@ const SCENES = {
     console.log("  wrote gameplay.mp4 + gameplay.gif");
   },
 
+  /** Every screen the handbook documents, captured from the running app. */
+  async screens(page) {
+    await shot(page, "screen-onboarding");          // we are on it before onboarding
+    await onboard(page);
+    await shot(page, "screen-map");
+
+    // Each task type, on a lore-free question wherever the sample offers one.
+    const TYPES = ["mcq", "tf", "image", "match", "order", "spot"];
+    const captured = new Set();
+    for (const station of ["متطلبات النشر", "الإرسال والتتبع", "تصنيف المجلات العلمية",
+                           "أجزاء الورقة البحثية", "أنواع الأوراق البحثية العلمية"]) {
+      if (TYPES.every((t) => captured.has(t))) break;
+      await enterStation(page, station);
+      for (let guard = 0; guard < 20; guard++) {
+        if (await page.evaluate(() => document.body.dataset.screen) !== "runner") break;
+        const q = await currentQuestion(page);
+        if (!q) break;
+        if (TYPES.includes(q.type) && !captured.has(q.type)) {
+          await sleep(400);
+          await shot(page, `task-${q.type}`);
+          captured.add(q.type);
+        }
+        if (!await answerCorrectly(page, { pace: 60 })) break;
+      }
+      if (await page.evaluate(() => document.body.dataset.screen) === "runner") await exitToMap(page);
+      else {
+        for (let i = 0; i < 4; i++) { if (!await dismissMentor(page)) break; }
+        if (await page.evaluate(() => document.body.dataset.screen) === "report") {
+          await page.evaluate(() => document.getElementById("screen-report")?.scrollTo(0, 0));
+          await sleep(200);
+          await shot(page, "screen-report");
+          await tap(page, "#btn-board");
+          await sleep(1000);
+          await shot(page, "screen-board");
+        }
+        await goHome(page);
+      }
+    }
+    const missing = TYPES.filter((t) => !captured.has(t));
+    if (missing.length) console.log(`  ! task types not drawn in these samples: ${missing.join(", ")}`);
+
+    for (const [btn, screen, name] of [
+      ["#btn-my-badges", "badges", "screen-badges"],
+      ["#btn-my-progress", "progress", "screen-progress"],
+      ["#btn-about", "about", "screen-about"],
+      ["#btn-report", "report-issue", "screen-report-issue"],
+    ]) {
+      await tap(page, btn);
+      await sleep(1200);
+      if (await page.evaluate(() => document.body.dataset.screen) === screen) await shot(page, name);
+      await goHome(page);
+    }
+  },
+
   /** Play one station end to end — proves the driver handles every task type. */
   async smoke(page) {
     await onboard(page);

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>دليل اللاعب — رحلة الباحث</title>
+<style>
+/* Fonts are embedded so the document renders identically offline and in print.
+   Both are SIL Open Font License; the attribution is on the rights page. */
+@font-face { font-family:"Cairo"; src:url({{FONT:Cairo-arabic}}) format("woff2"); font-weight:400 700; font-display:block; }
+@font-face { font-family:"ArefRuqaa"; src:url({{FONT:ArefRuqaa-Bold}}) format("woff2"); font-weight:700; font-display:block; }
+
+:root{
+  --navy:#0a1428; --navy-2:#0e1b33; --panel:#101f3a; --line:#22375c;
+  --gold:#c8aa6e; --gold-bright:#e2c687; --teal:#0ac8b9; --teal-soft:#7fe3da;
+  --ivory:#f0e6d2; --muted:#9fb0c9;
+}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+body{
+  margin:0; background:var(--navy); color:var(--ivory);
+  font-family:"Cairo",system-ui,"Segoe UI",Tahoma,sans-serif;
+  font-size:11.5pt; line-height:1.85;
+}
+.page{max-width:190mm; margin:0 auto; padding:14mm 12mm}
+
+h1,h2,h3,h4{font-family:"ArefRuqaa","Cairo",serif; font-weight:700; line-height:1.5; margin:0 0 .5em}
+h2{
+  color:var(--gold-bright); font-size:19pt; margin-top:0;
+  padding-bottom:.35em; border-bottom:2px solid var(--gold);
+}
+h3{color:var(--teal-soft); font-size:14.5pt; margin-top:1.6em}
+h4{color:var(--gold); font-size:12.5pt; margin-top:1.2em}
+p{margin:0 0 .9em}
+a{color:var(--teal); text-decoration:none; border-bottom:1px dotted var(--teal)}
+strong{color:var(--gold-bright)}
+code,.mono{font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.9em;
+  background:#0b1a30; border:1px solid var(--line); border-radius:4px; padding:.05em .4em; direction:ltr; display:inline-block}
+
+/* ---------- cover ---------- */
+.cover{
+  min-height:238mm; display:flex; flex-direction:column; justify-content:center;
+  text-align:center; padding:16mm 14mm;
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(10,200,185,.16), transparent 60%),
+    radial-gradient(90% 50% at 50% 100%, rgba(200,170,110,.14), transparent 60%),
+    linear-gradient(160deg,#0a1428,#0e1b33 60%,#0a1e2c);
+}
+.cover .mark{font-family:"ArefRuqaa",serif; font-size:40pt; color:var(--gold-bright); margin:0 0 .1em; line-height:1.2}
+.cover .rule{width:66mm; height:2px; margin:6mm auto; background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.cover .sub{font-size:15pt; color:var(--teal-soft); margin-bottom:1.2em}
+.cover .lede{max-width:120mm; margin:0 auto 2.4em; color:var(--muted); font-size:11.5pt}
+.cover .orgs{font-size:11pt; color:var(--ivory)}
+.cover .orgs span{display:block; margin:.15em 0}
+.cover .meta{margin-top:auto; padding-top:12mm; color:var(--muted); font-size:9.5pt}
+
+/* ---------- table of contents ---------- */
+.toc{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:6mm 8mm}
+.toc ol{margin:0; padding-inline-start:1.4em}
+.toc li{margin:.35em 0}
+.toc a{border:0; color:var(--ivory)}
+.toc a:hover{color:var(--teal)}
+
+/* ---------- figures ---------- */
+figure{margin:1.2em 0; text-align:center; break-inside:avoid}
+figure img{
+  width:62mm; max-width:100%; border-radius:12px;
+  border:1px solid var(--line); box-shadow:0 6px 22px rgba(0,0,0,.45);
+}
+figcaption{margin-top:.6em; color:var(--muted); font-size:9.5pt; line-height:1.6}
+.fig-row{display:flex; gap:8mm; justify-content:center; flex-wrap:wrap; margin:1.2em 0}
+.fig-row figure{margin:0; flex:0 0 auto}
+.fig-row img{width:54mm}
+
+/* screenshot beside its explanation */
+.split{display:flex; gap:8mm; align-items:flex-start; break-inside:avoid; margin:1.4em 0}
+.split .shot{flex:0 0 56mm}
+.split .shot img{width:56mm; border-radius:12px; border:1px solid var(--line); box-shadow:0 6px 22px rgba(0,0,0,.45)}
+.split .body{flex:1 1 auto; min-width:0}
+.split .body > :first-child{margin-top:0}
+
+/* ---------- callouts ---------- */
+.note,.warn,.key{
+  border-radius:10px; padding:4mm 6mm; margin:1.1em 0; break-inside:avoid;
+  border:1px solid var(--line); background:var(--panel);
+}
+.note{border-inline-start:4px solid var(--teal)}
+.warn{border-inline-start:4px solid #e0a02f}
+.key{border-inline-start:4px solid var(--gold); background:#12233f}
+.note p:last-child,.warn p:last-child,.key p:last-child{margin-bottom:0}
+.label{display:block; font-weight:700; color:var(--gold-bright); margin-bottom:.25em}
+
+/* ---------- tables ---------- */
+table{width:100%; border-collapse:collapse; margin:1.1em 0; font-size:10.5pt; break-inside:avoid}
+th,td{border:1px solid var(--line); padding:.5em .7em; text-align:right; vertical-align:top}
+th{background:#12233f; color:var(--gold-bright); font-weight:700}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02)}
+
+/* ---------- misc ---------- */
+.steps{counter-reset:s; list-style:none; padding:0; margin:1em 0}
+.steps li{counter-increment:s; position:relative; padding-inline-start:11mm; margin:.75em 0}
+.steps li::before{
+  content:counter(s); position:absolute; inset-inline-start:0; top:.05em;
+  width:7.5mm; height:7.5mm; border-radius:50%; background:var(--gold); color:#0a1428;
+  font-weight:700; display:grid; place-items:center; font-size:10pt;
+}
+.pill{display:inline-block; background:#12233f; border:1px solid var(--gold-line,#463714);
+  border-radius:999px; padding:.1em .8em; color:var(--gold-bright); font-size:10pt; margin:.15em}
+.chapter{break-before:page; padding-top:4mm}
+.lead{font-size:12.5pt; color:var(--teal-soft); margin-bottom:1.2em}
+footer.doc{margin-top:9mm; padding-top:5mm; margin-bottom:0; border-top:1px solid var(--line);
+  color:var(--muted); font-size:9.5pt; text-align:center}
+
+@page{size:A4; margin:12mm}
+@media print{
+  body{background:var(--navy)}
+  .page{max-width:none; padding:0}
+  a{color:var(--teal-soft)}
+  /* Keep a heading with the text it introduces. */
+  h2,h3,h4{break-after:avoid-page}
+  /* The closing note was landing alone on a page of its own. */
+  footer.doc{break-before:avoid-page}
+  .chapter:last-of-type{break-after:avoid-page}
+  body > :last-child, .page > :last-child{margin-bottom:0; padding-bottom:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<section class="cover">
+  <div class="mark">رحلة الباحث</div>
+  <div class="rule"></div>
+  <div class="sub">دليل اللاعب الكامل</div>
+  <p class="lede">
+    من فتح البوت لأول مرّة، حتى إنهاء الرحلة الكبرى والحصول على بطاقة الإتمام.
+    كل ما في هذا الدليل من صور مأخوذ من التطبيق أثناء تشغيله فعليًا.
+  </p>
+  <div class="orgs">
+    <span>باوندلس للخدمات الأكاديمية</span>
+    <span>مبادرة معسكر البحث العلمي</span>
+  </div>
+  <div class="meta">
+    الإصدار الأول · <span class="mono">t.me/src_quize_bot</span><br />
+    © ٢٠٢٦ — مرخَّص برخصة AGPL-3.0-or-later
+  </div>
+</section>
+
+<div class="page">
+
+<!-- ============================ TOC ============================ -->
+<section class="chapter">
+  <h2>المحتويات</h2>
+  <div class="toc">
+    <ol>
+      <li><a href="#c1">الوصول إلى اللعبة</a></li>
+      <li><a href="#c2">أول دقيقة</a></li>
+      <li><a href="#c3">الخريطة والمحطات السبع</a></li>
+      <li><a href="#c4">أنواع المهامّ الستّ</a></li>
+      <li><a href="#c5">النقاط: كيف تُحتسب فعلًا</a></li>
+      <li><a href="#c6">التقرير ورسالة البوت</a></li>
+      <li><a href="#c7">لوحة الصدارة والأوسمة ولوحة الإتقان</a></li>
+      <li><a href="#c8">المبارزة والرحلة الكبرى وبطاقة الإتمام</a></li>
+      <li><a href="#c9">الخروج من محطة والإبلاغ عن مشكلة</a></li>
+      <li><a href="#c10">أسئلة شائعة</a></li>
+      <li><a href="#c11">الحقوق والرخصة والاقتباس</a></li>
+    </ol>
+  </div>
+
+  <div class="key">
+    <span class="label">في سطرين</span>
+    <p>«رحلة الباحث» تدريب تطبيقي على منهجية البحث والنشر العلمي، يعمل داخل تيليجرام.
+    لن تُسأل عن تعريفات؛ ستتّخذ قرارات على مادة حقيقية — وتُحتسب نقاطك على الخادم، لا على جهازك.</p>
+  </div>
+</section>
+
+<!-- ============================ 1 ============================ -->
+<section class="chapter" id="c1">
+  <h2>١ · الوصول إلى اللعبة</h2>
+  <p class="lead">لا تحتاج إلى تحميل تطبيق، ولا إلى إنشاء حساب جديد. إن كان لديك تيليجرام، فأنت جاهز.</p>
+
+  <ol class="steps">
+    <li>افتح تيليجرام، واكتب في خانة البحث: <code>@src_quize_bot</code></li>
+    <li>افتح المحادثة واضغط <strong>Start</strong> (أو أرسل الأمر <code>/start</code>).</li>
+    <li>سيردّ البوت برسالة ترحيب وزرّ <strong>«ابدأ الرحلة 🚀»</strong>. اضغطه.</li>
+    <li>تفتح اللعبة داخل تيليجرام مباشرةً. لا شيء يُثبَّت على جهازك.</li>
+  </ol>
+
+  <div class="note">
+    <span class="label">الرابط المباشر</span>
+    <p>يمكنك أيضًا فتح <span class="mono">https://t.me/src_quize_bot</span> من أي متصفّح، وسيحوّلك إلى المحادثة داخل تيليجرام.
+    هذا هو الرابط الذي تشاركه مع زملائك.</p>
+  </div>
+
+  <div class="warn">
+    <span class="label">إن لم تُفتح اللعبة</span>
+    <p>تأكّد أن تطبيق تيليجرام لديك محدَّث. النسخ القديمة جدًا لا تدعم «التطبيقات المصغّرة» (Mini Apps).
+    وإن ظلّت الشاشة فارغة، أغلق النافذة وافتحها مرّة أخرى من <code>/start</code>.</p>
+  </div>
+</section>
+
+<!-- ============================ 2 ============================ -->
+<section class="chapter" id="c2">
+  <h2>٢ · أول دقيقة</h2>
+
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:screen-onboarding}}" alt="شاشة البداية" /></div>
+    <div class="body">
+      <h3>اسمك ورمزك</h3>
+      <p>في أول فتح تظهر شاشة تعريف قصيرة: اكتب <strong>اسمك</strong> كما تريده أن يظهر في لوحة الصدارة،
+      ثم اختر <strong>رمزًا</strong> يمثّلك من الرموز المعروضة.</p>
+      <p>الاسم والرمز يخصّانك وحدك ويمكن تغيير الرمز لاحقًا بالضغط على صورتك في أعلى الخريطة.</p>
+      <p>ثم اضغط <strong>«ابدأ الرحلة 🚀»</strong>.</p>
+      <div class="note">
+        <p>لا يُطلب منك بريد إلكتروني ولا كلمة مرور ولا رقم هاتف. هويّتك داخل اللعبة هي حسابك في تيليجرام.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 3 ============================ -->
+<section class="chapter" id="c3">
+  <h2>٣ · الخريطة والمحطات السبع</h2>
+
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:screen-map}}" alt="خريطة المحطات" /></div>
+    <div class="body">
+      <p class="lead">الخريطة هي شاشتك الرئيسية. منها تدخل المحطات، وإليها تعود بعد كل جولة.</p>
+      <p>في الأعلى شريطك الشخصي: رمزك، اسمك، رتبتك ومستواك، وشريط تقدّم يمتلئ كلما جمعت نقاطًا.</p>
+      <p>تحته المحطات مرتّبة بالتسلسل. المحطة التالية لك مُعلَّمة، والمحطات المنتهية تحمل علامة إتمام.</p>
+      <p><strong>لا توجد أقفال:</strong> يمكنك دخول أي محطة في أي وقت. الترتيب اقتراح تعليمي، لا شرط.</p>
+    </div>
+  </div>
+
+  <h3>ماذا تمارس في كل محطة</h3>
+  <table>
+    <thead><tr><th style="width:34%">المحطة</th><th>ما تتدرّب عليه فيها</th></tr></thead>
+    <tbody>
+      <tr><td>تصنيف المجلات العلمية</td><td>فحص رصانة المجلة وتصنيفها، وكشف المؤشّرات التي تدلّ على مجلة مفترسة قبل الإرسال.</td></tr>
+      <tr><td>أسس البحث العلمي واختيار الفجوة البحثية</td><td>تمييز الفجوة البحثية الحقيقية من الادّعاء، واستخراجها من الأدبيات المتاحة.</td></tr>
+      <tr><td>أنواع الأوراق البحثية العلمية</td><td>مطابقة الهدف البحثي بنوع الورقة المناسب: تجريبية، مراجعة، دراسة حالة وغيرها.</td></tr>
+      <tr><td>أجزاء الورقة البحثية</td><td>تقييم العنوان والملخّص والكلمات المفتاحية، وتشريح بنية الورقة جزءًا جزءًا.</td></tr>
+      <tr><td>متطلبات النشر</td><td>تضارب المصالح، إقرار مساهمات المؤلفين، خطاب التغطية، ومتطلبات المجلات الرصينة.</td></tr>
+      <tr><td>الإرسال والتتبع</td><td>مسار المخطوطة من الفحص الفنّي والمراجعة الأولية حتى القرار والإنتاج ومنح الـDOI.</td></tr>
+      <tr><td>الرحلة الكبرى</td><td>محطة ختامية تجمع المحطات الستّ في مسار واحد.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <span class="label">قبل كل محطة</span>
+    <p>يظهر مرشدك برسالة قصيرة تمهّد للمحطة. اضغط <strong>«متابعة»</strong> للبدء.</p>
+  </div>
+</section>
+
+<!-- ============================ 4 ============================ -->
+<section class="chapter" id="c4">
+  <h2>٤ · أنواع المهامّ الستّ</h2>
+  <p class="lead">لكل نوع طريقة إجابة مختلفة. هذه هي الستّة كلها، بصور من داخل اللعبة.</p>
+
+  <h3>١) اختيار من متعدّد</h3>
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:task-mcq}}" alt="سؤال اختيار من متعدّد" /></div>
+    <div class="body">
+      <p><strong>كيف تجيب:</strong> اضغط الخيار الذي تراه صحيحًا.</p>
+      <p>إن كان صحيحًا يتحوّل إلى الأخضر مع شرح موجز، وتنتقل تلقائيًا إلى المهمّة التالية.
+      وإن كان خاطئًا يتحوّل إلى الأحمر ويبقى السؤال مفتوحًا لتحاول مرّة أخرى — مع خصم على النقاط (الفصل ٥).</p>
+    </div>
+  </div>
+
+  <h3>٢) صحّ أو خطأ</h3>
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:task-tf}}" alt="سؤال صحّ أو خطأ" /></div>
+    <div class="body">
+      <p><strong>كيف تجيب:</strong> اضغط <span class="pill">صحّ</span> أو <span class="pill">خطأ</span>.</p>
+      <p>تعمل تمامًا كالاختيار من متعدّد، بخيارين فقط.</p>
+    </div>
+  </div>
+
+  <h3>٣) سؤال على صورة</h3>
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:task-image}}" alt="سؤال مبني على صورة" /></div>
+    <div class="body">
+      <p><strong>كيف تجيب:</strong> اقرأ الصورة أولًا — لقطة حقيقية من صفحة مجلة أو ورقة منشورة أو نظام إرسال — ثم اختر الإجابة.</p>
+      <p>الصورة ليست زينة: الجواب موجود فيها. يمكنك تكبيرها بالضغط عليها إن كان النصّ دقيقًا.</p>
+    </div>
+  </div>
+
+  <h3>٤) المطابقة</h3>
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:task-match}}" alt="سؤال مطابقة" /></div>
+    <div class="body">
+      <p><strong>كيف تجيب:</strong> اضغط بطاقة من الأسفل لتختارها، ثم اضغط الفراغ الذي تنتمي إليه في الأعلى.</p>
+      <p>أخطأت؟ اضغط الفراغ الممتلئ فيعود ما فيه إلى الأسفل — تراجُع بضغطة واحدة.</p>
+      <p>بعد ملء كل الفراغات اضغط <span class="pill">تأكيد</span>.</p>
+      <div class="note"><p>على الحاسوب يمكنك سحب البطاقات بالفأرة أيضًا. على الهاتف، الضغط أدقّ وأسرع.</p></div>
+    </div>
+  </div>
+
+  <h3>٥) الترتيب</h3>
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:task-order}}" alt="سؤال ترتيب" /></div>
+    <div class="body">
+      <p><strong>كيف تجيب:</strong> اضغط العناصر <strong>بالترتيب الصحيح</strong>، واحدًا تلو الآخر. يظهر رقم على كل عنصر تضغطه ليبيّن موضعه.</p>
+      <p>غيّرت رأيك؟ اضغط العنصر مرّة أخرى ليتراجع، وتُعاد ترقيم البقيّة تلقائيًا.</p>
+      <p>ثم اضغط <span class="pill">تأكيد</span>.</p>
+      <div class="warn"><p>الترتيب هو ترتيب <em>ضغطك</em>، لا ترتيب ظهور العناصر على الشاشة. لا تحتاج إلى تحريك أي شيء.</p></div>
+    </div>
+  </div>
+
+  <h3>٦) تحديد المؤشّرات</h3>
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:task-spot}}" alt="سؤال تحديد" /></div>
+    <div class="body">
+      <p><strong>كيف تجيب:</strong> اضغط <em>كل</em> العناصر التي ينطبق عليها السؤال — قد تكون واحدة أو عدّة. اضغط مرّة أخرى لإلغاء التحديد.</p>
+      <p>ثم اضغط <span class="pill">تحقّق</span>.</p>
+      <p>إن كان اختيارك ناقصًا أو زائدًا ستُخبَر أيّهما، دون أن يُكشف الجواب — ويبقى السؤال مفتوحًا.</p>
+      <div class="key"><p>هذا أقرب أنواع المهامّ إلى العمل الحقيقي: أنت لا تختار إجابة، بل تفحص مادة وتحكم عليها.</p></div>
+    </div>
+  </div>
+
+  <h3>أدوات متاحة في كل مهمّة</h3>
+  <table>
+    <thead><tr><th style="width:26%">الأداة</th><th>ماذا تفعل</th><th style="width:26%">تكلفتها</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill">💡 تلميح</span></td><td>يعرض تلميحًا يوجّهك دون أن يعطيك الجواب.</td><td>خصم ٢٠٪ من نقاط المهمّة</td></tr>
+      <tr><td><span class="pill">تخطّي ⏭️</span></td><td>ينتقل إلى المهمّة التالية ويكشف لك الإجابة الصحيحة.</td><td><strong>صفر نقاط</strong> وكسر السلسلة</td></tr>
+      <tr><td><span class="pill">✕</span></td><td>الخروج من المحطة كليًا (الفصل ٩).</td><td>لا تُسجَّل المحاولة</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 5 ============================ -->
+<section class="chapter" id="c5">
+  <h2>٥ · النقاط: كيف تُحتسب فعلًا</h2>
+  <p class="lead">النقاط تُحسب على الخادم لا على جهازك، ولكل مهمّة نقاط أساسية تختلف بحسب صعوبتها.</p>
+
+  <h3>المعادلة</h3>
+  <div class="key">
+    <p style="text-align:center; font-size:12.5pt">
+      النقاط = النقاط الأساسية × <strong>معامل المحاولات</strong> × <strong>معامل السلسلة</strong>
+    </p>
+  </div>
+
+  <h4>معامل المحاولات — كم يكلّفك الخطأ والتلميح</h4>
+  <table>
+    <thead><tr><th>الحالة</th><th style="width:24%">المتبقّي</th></tr></thead>
+    <tbody>
+      <tr><td>إجابة صحيحة من أول محاولة، دون تلميح</td><td><strong>١٠٠٪</strong></td></tr>
+      <tr><td>محاولة خاطئة واحدة</td><td>٧٥٪</td></tr>
+      <tr><td>محاولتان خاطئتان</td><td>٥٠٪</td></tr>
+      <tr><td>استخدام التلميح</td><td>−٢٠٪ إضافية</td></tr>
+      <tr><td>مهما تعدّدت الأخطاء</td><td>لا تقلّ عن ١٠٪</td></tr>
+      <tr><td>التخطّي</td><td><strong>صفر</strong></td></tr>
+    </tbody>
+  </table>
+  <p>كل محاولة خاطئة تخصم ٢٥٪، والتلميح يخصم ٢٠٪، ويمكن أن يجتمعا. لكن هناك حدًّا أدنى: مهما أخطأت،
+  الإجابة الصحيحة في النهاية تُبقي لك ١٠٪ على الأقل. <strong>التخطّي وحده يعطي صفرًا</strong> — وهذا مقصود،
+  وإلّا لكان التخطّي أرخص من المحاولة.</p>
+
+  <h4>معامل السلسلة — مكافأة الدقّة المتّصلة</h4>
+  <p>كل إجابة صحيحة <strong>من أول محاولة ودون تلميح</strong> تزيد سلسلتك بمقدار واحد، وكل خطوة في السلسلة
+  تضيف ١٠٪ إلى نقاطك، حتى ٥ خطوات كحدّ أقصى:</p>
+  <table>
+    <thead><tr><th>السلسلة</th><th>٠</th><th>١</th><th>٢</th><th>٣</th><th>٤</th><th>٥ فأكثر</th></tr></thead>
+    <tbody><tr><td>المعامل</td><td>×١٫٠</td><td>×١٫١</td><td>×١٫٢</td><td>×١٫٣</td><td>×١٫٤</td><td><strong>×١٫٥</strong></td></tr></tbody>
+  </table>
+  <div class="warn">
+    <span class="label">ما الذي يكسر السلسلة</span>
+    <p>أي محاولة خاطئة، أو استخدام تلميح، أو تخطّي. عندها تعود السلسلة إلى الصفر وتبدأ من جديد.</p>
+  </div>
+
+  <div class="note">
+    <span class="label">النتيجة العملية</span>
+    <p>الفارق بين لاعب متسرّع ولاعب متأنٍّ ليس فارق نقطتين. مهمّة تُحلّ من أول محاولة وسط سلسلة طويلة
+    قد تساوي <strong>خمسة عشر ضعف</strong> المهمّة نفسها بعد أخطاء متكرّرة وتلميح. التمهّل يُكافأ.</p>
+  </div>
+</section>
+
+<!-- ============================ 6 ============================ -->
+<section class="chapter" id="c6">
+  <h2>٦ · التقرير ورسالة البوت</h2>
+
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:screen-report}}" alt="شاشة النتيجة" /></div>
+    <div class="body">
+      <p class="lead">بعد آخر مهمّة في المحطة تظهر شاشة النتيجة.</p>
+      <p>في الأعلى: مجموع نقاطك، وعدد ما أصبته من أول محاولة، وترتيبك في هذه المحطة.</p>
+      <p>وتحته <strong>مراجعة مهمّة بمهمّة</strong>: نصّ السؤال، وهل أصبته من أول محاولة، والإجابة الصحيحة مع شرحها.</p>
+      <p>هذا الجزء هو الأهمّ تعليميًا — لا تغلق الشاشة قبل قراءته.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="label">رسالة على الخاص</span>
+    <p>يرسل لك البوت أيضًا ملخّص نتيجتك في المحادثة، لتعود إليه لاحقًا دون فتح اللعبة.</p>
+  </div>
+</section>
+
+<!-- ============================ 7 ============================ -->
+<section class="chapter" id="c7">
+  <h2>٧ · لوحة الصدارة والأوسمة ولوحة الإتقان</h2>
+
+  <div class="fig-row">
+    <figure><img src="{{SHOT:screen-board}}" alt="لوحة الصدارة" /><figcaption>لوحة الصدارة</figcaption></figure>
+    <figure><img src="{{SHOT:screen-badges}}" alt="الأوسمة" /><figcaption>أوسمتي</figcaption></figure>
+    <figure><img src="{{SHOT:screen-progress}}" alt="لوحة الإتقان" /><figcaption>تقدّمي</figcaption></figure>
+  </div>
+
+  <h3>لوحة الصدارة</h3>
+  <p>ثلاثة عروض: <span class="pill">هذه المحطة</span> لترتيبك في المحطة التي أنهيتها للتو،
+  <span class="pill">الإجمالي</span> لمجموع نقاطك في كل المحطات، و<span class="pill">الموسم 🏆</span> للمنافسة الجارية.</p>
+  <p>يُحتسب لك في كل محطة <strong>أفضل</strong> نتيجة حقّقتها فيها، لا آخر نتيجة — فإعادة المحاولة لا تضرّك أبدًا.</p>
+
+  <h3>الأوسمة</h3>
+  <table>
+    <thead><tr><th style="width:34%">الوسام</th><th>كيف تناله</th></tr></thead>
+    <tbody>
+      <tr><td>البداية</td><td>إنهاء أول محطة.</td></tr>
+      <tr><td>محطة كاملة</td><td>إصابة كل مهامّ المحطة من أول محاولة.</td></tr>
+      <tr><td>بلا تلميحات</td><td>إنهاء محطة دون استخدام أي تلميح.</td></tr>
+      <tr><td>بلا أخطاء</td><td>محطة كاملة <em>ودون</em> أي تلميح معًا.</td></tr>
+      <tr><td>سلسلة</td><td>الوصول إلى سلسلة من ٥ إجابات صحيحة متتالية من أول محاولة.</td></tr>
+      <tr><td>سلسلة ١٠</td><td>الوصول إلى سلسلة من ١٠.</td></tr>
+      <tr><td>كل المحطات</td><td>إنهاء المحطات الستّ الموضوعية كلها.</td></tr>
+      <tr><td>المثابرة</td><td>إتمام ١٠ محاولات.</td></tr>
+      <tr><td>الرحلة الكبرى</td><td>إتمام المحطة الختامية بإصابة كاملة.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>لوحة الإتقان</h3>
+  <p>أهمّ شاشة في اللعبة إن كنت تستخدمها للتعلّم لا للمنافسة. تعرض <strong>المفاهيم</strong> التي مررت بها،
+  ومستوى إتقانك لكل مفهوم — لا رقمًا عامًّا، بل خريطة تُظهر أين أنت قويّ وأين تحتاج إلى تكرار.
+  المفاهيم الضعيفة تُعلَّم بـ<span class="pill">تدرّب</span>.</p>
+  <div class="note">
+    <span class="label">🧠 مراجعة سريعة</span>
+    <p>من الخريطة، يجمع لك هذا الزرّ مهامّ من المفاهيم التي أخطأت فيها تحديدًا، عبر كل المحطات.
+    مراجعة مركّزة على ضعفك أنت، لا على المنهج كله.</p>
+  </div>
+</section>
+
+<!-- ============================ 8 ============================ -->
+<section class="chapter" id="c8">
+  <h2>٨ · المبارزة والرحلة الكبرى وبطاقة الإتمام</h2>
+
+  <h3>⚔️ المبارزة</h3>
+  <p>من شاشة النتيجة يمكنك تحدّي زميل: يرسل لك البوت رابط تحدٍّ تشاركه معه، فيجيب كلاكما عن السؤال نفسه،
+  <strong>ويُحتسب الزمن</strong>. الأسرع بالإجابة الصحيحة يفوز.</p>
+
+  <h3>🏁 الرحلة الكبرى</h3>
+  <p>المحطة السابعة، وهي محطة ختامية تجمع المحطات الستّ في مسار واحد: فجوة بحثية، ثم اختيار مجلة،
+  ثم تجهيز المخطوطة، ثم الإرسال. يُنصح بدخولها بعد إنهاء المحطات الستّ.</p>
+
+  <h3>🪪 بطاقة الإتمام</h3>
+  <p>عند إتمام الرحلة الكبرى تُتاح لك بطاقة تحمل اسمك ونتيجتك و<strong>رمز تحقّق قصيرًا</strong>، يمكنك حفظها ومشاركتها.
+  وهناك أيضًا <strong>بطاقة إنجاز</strong> من شاشة «تقدّمي» تلخّص مسيرتك كاملة.</p>
+  <div class="warn">
+    <span class="label">تنويه</span>
+    <p>بطاقة الإتمام <strong>ليست شهادة أكاديمية معتمدة</strong>، ولا تمنح ساعات معتمدة. هي إثبات إتمام داخل اللعبة.</p>
+  </div>
+</section>
+
+<!-- ============================ 9 ============================ -->
+<section class="chapter" id="c9">
+  <h2>٩ · الخروج من محطة والإبلاغ عن مشكلة</h2>
+
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:screen-report-issue}}" alt="نموذج الإبلاغ" /></div>
+    <div class="body">
+      <h3>الخروج من محطة</h3>
+      <p>زرّ <span class="pill">✕</span> أعلى الشاشة يخرجك إلى الخريطة. المحاولة غير المكتملة
+      <strong>لا تُسجَّل ولا تُرسَل</strong> — لا نقاط ولا أثر في لوحة الصدارة. ابدأ من جديد متى شئت.</p>
+
+      <h3>الإبلاغ عن مشكلة</h3>
+      <p>من الخريطة: <span class="pill">أبلِغ عن مشكلة</span>. اكتب ما واجهته — خطأ في محتوى، أو خلل في العرض،
+      أو اقتراح — واضغط <strong>إرسال</strong>. يصل البلاغ إلى المشرف مباشرة.</p>
+      <p>إن كان البلاغ عن مهمّة بعينها، فاذكر نصّ السؤال أو المحطة؛ ذلك يختصر الطريق كثيرًا.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 10 ============================ -->
+<section class="chapter" id="c10">
+  <h2>١٠ · أسئلة شائعة</h2>
+
+  <h4>هل يُحفظ تقدّمي؟</h4>
+  <p><strong>نعم.</strong> نقاطك ومحاولاتك وأوسمتك محفوظة على الخادم ومرتبطة بحسابك في تيليجرام.
+  تحديثات اللعبة لا تمسّها، ويمكنك الإغلاق والعودة متى شئت.</p>
+
+  <h4>هل أحتاج إلى تحميل تطبيق؟</h4>
+  <p>لا. تعمل داخل تيليجرام نفسه.</p>
+
+  <h4>هل هي مجانية؟</h4>
+  <p>نعم، بالكامل. ولا توجد أي مشتريات داخلها.</p>
+
+  <h4>هل يمكنني إعادة محطة أنهيتها؟</h4>
+  <p>نعم، ومن دون أي مخاطرة: يُحتسب لك <strong>أفضل</strong> نتيجة في كل محطة، فالإعادة إمّا أن ترفع نتيجتك أو تتركها كما هي.</p>
+
+  <h4>لماذا تختلف الأسئلة في كل مرّة؟</h4>
+  <p>تُختار مهامّ كل محاولة من بنك أكبر، بتوزيع متوازن على المفاهيم. الإعادة تعني مهامّ جديدة غالبًا، لا تكرارًا للحفظ.</p>
+
+  <h4>وجدت خطأً علميًا في مهمّة.</h4>
+  <p>أبلِغ عنه من <span class="pill">أبلِغ عن مشكلة</span> واذكر نصّ السؤال. المحتوى يُراجَع ويُصحَّح، والمشروع مفتوح المصدر
+  فيمكنك أيضًا فتح Issue على GitHub.</p>
+
+  <h4>ما الذي يُحفظ عنّي؟</h4>
+  <p>اسمك الأول ومعرّفك في تيليجرام (لعرضهما في لوحة الصدارة)، وإجاباتك ونقاطك وأوسمتك.
+  لا يُطلب بريد ولا هاتف ولا كلمة مرور، ولا توجد إعلانات ولا متتبّعات.</p>
+
+  <h4>هل بطاقة الإتمام شهادة معتمدة؟</h4>
+  <p>لا. هي إثبات إتمام داخل اللعبة، تحمل رمز تحقّق.</p>
+</section>
+
+<!-- ============================ 11 ============================ -->
+<section class="chapter" id="c11">
+  <h2>١١ · الحقوق والرخصة والاقتباس</h2>
+
+  <div class="split">
+    <div class="shot"><img src="{{SHOT:screen-about}}" alt="شاشة عن اللعبة" /></div>
+    <div class="body">
+      <p>حقوق «رحلة الباحث» مملوكة بالاشتراك لـ:</p>
+      <p><strong>باوندلس للخدمات الأكاديمية</strong><br />
+         <strong>مبادرة معسكر البحث العلمي</strong><br />
+         <strong>ملهم فتنة</strong></p>
+      <p>© ٢٠٢٦ — جميع الحقوق محفوظة.</p>
+      <p>هذه المعلومات متاحة دائمًا داخل اللعبة من <span class="pill">عن اللعبة ℹ️</span>.</p>
+    </div>
+  </div>
+
+  <h3>الرخصة</h3>
+  <p>البرنامج مفتوح المصدر برخصة <strong>AGPL-3.0-or-later</strong>: لك حقّ الاطّلاع على الشيفرة ودراستها
+  وتعديلها وإعادة توزيعها، على أن تبقى أي نسخة مشتقّة مفتوحة المصدر بالرخصة نفسها — حتى إن قُدِّمت
+  كخدمة عبر الشبكة.</p>
+  <p class="mono" style="direction:ltr; display:block">https://github.com/mulhamfetna/boundless-src-researcher-journey-game</p>
+
+  <h3>الاقتباس الأكاديمي</h3>
+  <p>المشروع مؤرشف على Zenodo وله معرّف رقمي دائم، فيمكن اقتباسه في الأعمال الأكاديمية:</p>
+  <p class="mono" style="direction:ltr; display:block">DOI: 10.5281/zenodo.21759627</p>
+  <p>ويمكن لأي جهة تعليمية أن تشتقّ اللعبة وتكيّفها لمحتوى معسكرها أو مقرّرها الخاص، ضمن شروط الرخصة.</p>
+
+  <h3>الخطوط</h3>
+  <p>يستخدم هذا الدليل خطَّي <strong>Cairo</strong> و<strong>Aref Ruqaa</strong>، وكلاهما مرخَّص برخصة الخطوط
+  المفتوحة SIL Open Font License.</p>
+
+  <footer class="doc">
+    كل الصور في هذا الدليل مأخوذة من التطبيق أثناء تشغيله، بحساب تجريبي وبيانات تجريبية.<br />
+    رحلة الباحث · <span class="mono">t.me/src_quize_bot</span>
+  </footer>
+</section>
+
+</div>
+</body>
+</html>
