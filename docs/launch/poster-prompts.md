@@ -1,23 +1,54 @@
 # Poster prompts — «رحلة الباحث» launch
 
-Five prompts to run in Gemini, then hand the results back for review.
+Five posters. **Each has two prompt variants:**
+
+| | |
+|---|---|
+| **A — text baked in** | The Arabic is written into the prompt for the model to render. Try this first: if it lands, the poster is finished in one shot and only small areas need touching up in Canva. |
+| **B — text-free** | Empty reserved zones; the Arabic is set afterwards in real type. The reliable fallback. |
+
+Both variants describe **the same composition, palette and geometry**, so a failed A can be
+swapped for B without redesigning anything.
 
 ---
 
-## Read this before generating
+## Read this first
 
-**1. Every prompt produces TEXT-FREE art.**
-Image models render Arabic script as convincing-looking nonsense — correct letterforms,
-meaningless words. In front of an academic audience that is fatal, and it is the single
-most likely way this set fails. So each prompt asks for a composition with **empty
-reserved zones**, and the Arabic headline is set afterwards in real type (Cairo /
-Aref Ruqaa, both already in `frontend/fonts/`). Each prompt states where its empty
-space must be.
+### How likely is variant A to work?
 
-If a render comes back with any lettering in it — Arabic, Latin, or invented — it is
-rejected, not retouched.
+Image models render Arabic by imitating letter shapes, not by spelling. Success falls off
+sharply with the amount of text, so try A in this order and expect to fall back:
 
-**2. The palette is the product's own**, so the posters and the game read as one thing:
+| Poster | Arabic in variant A | Realistic odds |
+|---|---|---|
+| **C** — teaser | 1 headline + 5 short lines | ⚠️ moderate |
+| **A** — hero | 1 headline + wordmark | ✅ best odds — try this one first |
+| **B** — differentiator | 1 headline + 1 line | ✅ good |
+| **E** — institutional | 1 headline + 3 technical lines | ⚠️ moderate (Latin/digits are easier than Arabic) |
+| **D** — all stations | 7 names + 7 descriptions | ❌ low — expect to use variant B |
+
+Generate **3–4 attempts** of each variant A before giving up on it. The same prompt produces
+very different spelling quality run to run.
+
+### When to touch up in Canva, and when to discard
+
+| Situation | What to do |
+|---|---|
+| Letters correct, spacing or kerning slightly off | Touch up — or leave it |
+| One word malformed, rest perfect | Cover that word with real type in Canva |
+| Two or more words malformed | **Discard.** Run variant B and set all the text properly |
+| Letters disconnected, or reversed order | **Discard** — this is the model failing at Arabic, not a fixable blemish |
+| Any invented glyph anywhere | **Discard** |
+
+> A poster with one malformed Arabic word in front of researchers is not a poster that needs
+> editing — it is a poster that failed. The reputational cost of shipping fake Arabic is far
+> higher than the time saved.
+
+**Safest hybrid, and what I would actually do:** run variant A; if the *headline* is clean,
+keep the art and re-set the smaller labels in Canva anyway. Headlines are large enough to
+judge at a glance; small labels are where bad spelling hides.
+
+### Palette — the product's own, so posters and game read as one thing
 
 | Role | Hex |
 |---|---|
@@ -26,36 +57,80 @@ rejected, not retouched.
 | Secondary accent | `#0ac8b9` (teal), highlight `#cdfafa` |
 | Paper / type | `#f0e6d2` (warm ivory) |
 
-**3. Visual register: scientific-editorial, not game art.** The reference points are a
-journal cover, a well-made conference poster, a scientific-diagram plate. Nothing
-fantastical, no characters, no neon, no "epic". The game's themed world is deliberately
-absent from all public material.
+### Register
 
-**4. Every prompt ends with the same negative clause.** Keep it — it is doing most of
-the work:
+Scientific-editorial: a journal cover, a good conference poster, an engraved plate.
+No characters, no neon, no fantasy. The game's themed world appears nowhere in public material.
 
-> `--no text, letters, words, typography, watermarks, signatures, human faces, characters, cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare, stock-photo people`
+### The shared negative clause — keep it on every prompt
+
+**Variant B (text-free):**
+```
+--no text, letters, words, typography, watermarks, signatures, human faces, characters,
+cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy,
+cluttered composition, lens flare, stock-photo people
+```
+
+**Variant A (text baked in)** — same list minus the text terms:
+```
+--no watermarks, signatures, human faces, characters, cartoon, anime, video-game art,
+neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare,
+stock-photo people, Latin transliteration, mirrored or disconnected Arabic letters
+```
+
+### Text instruction to paste into every variant A
+
+```
+TEXT REQUIREMENTS: render the Arabic text EXACTLY as written below, in fully connected
+right-to-left Arabic script, in a clean modern Arabic sans-serif (Cairo / Tajawal style).
+Do not translate it, do not transliterate it, do not invent additional words, and do not
+add any text that is not listed. Arabic letters must be joined correctly within each word.
+Spelling must match character for character.
+```
 
 ---
 
-## Poster A — «خط الرحلة» · The research pipeline
-**Role:** hero, launch day (ت=٠). **Ratios:** 4:5 (Telegram/Instagram), 1200×630 (LinkedIn/Facebook).
+# Poster A — «خط الرحلة» · The research pipeline
+**Role:** hero, launch day. **Ratios:** 4:5 (Telegram/Instagram), 1200×630 (LinkedIn/Facebook).
 
-### Prompt
+### Variant A — text baked in
 ```
-A refined scientific-editorial poster illustration: a single continuous pathway
-crossing the composition, marked by seven evenly spaced station nodes rendered as
-small precise hexagonal medallions in brushed gold. Each node is connected by a thin
-engraved gold line with fine tick marks, like a measured scale on a scientific
-instrument. Background is a deep navy gradient (#0a1428 to #0e1b33) with a barely
-visible technical grid and faint concentric contour lines. Behind the pathway,
-translucent layered manuscript pages float at low opacity — visible as paper texture
-and column blocks only, never as readable writing. A soft teal (#0ac8b9) light rises
-from the final node, the only cool accent in an otherwise warm gold scheme. Restrained,
+A refined scientific-editorial poster: a single continuous pathway crossing the lower two
+thirds of the composition, marked by seven evenly spaced station nodes rendered as small
+precise hexagonal medallions in brushed gold (#c8aa6e). The nodes are joined by a thin
+engraved gold line with fine tick marks, like a measured scale on a scientific instrument.
+Background is a deep navy gradient (#0a1428 to #0e1b33) with a barely visible technical grid
+and faint concentric contour lines. Behind the pathway, translucent layered manuscript pages
+float at low opacity — paper texture and column blocks only. A soft teal (#0ac8b9) light
+rises from the final node, the only cool accent in an otherwise warm gold scheme. Restrained,
 generous negative space, museum-quality print finish, subtle paper grain.
 
-COMPOSITION REQUIREMENT: the entire upper third must remain empty deep-navy field with
-no detail, reserved for a headline. Keep a clear margin around all four edges.
+TEXT REQUIREMENTS: render the Arabic text EXACTLY as written below, in fully connected
+right-to-left Arabic script, in a clean modern Arabic sans-serif (Cairo / Tajawal style).
+Do not translate it, do not transliterate it, do not invent additional words, and do not
+add any text that is not listed. Arabic letters must be joined correctly within each word.
+Spelling must match character for character.
+
+Centred across the empty upper third, as a large elegant headline in warm ivory (#f0e6d2):
+«من الفكرة إلى النشر»
+
+Directly beneath it, smaller, in gold (#c8aa6e):
+«سبع محطات تتدرّب فيها، لا تُحاضَر»
+
+Small, at the very bottom edge, centred, in muted grey:
+«رحلة الباحث»
+
+Style: scientific journal cover, editorial infographic, engraved plate, matte print.
+--no watermarks, signatures, human faces, characters, cartoon, anime, video-game art,
+neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare,
+stock-photo people, Latin transliteration, mirrored or disconnected Arabic letters
+```
+
+### Variant B — text-free
+Same first paragraph as above, then:
+```
+COMPOSITION REQUIREMENT: the entire upper third must remain an empty deep-navy field with no
+detail, reserved for a headline. Keep a clear margin around all four edges.
 
 Style: scientific journal cover, editorial infographic, engraved plate, matte print.
 --no text, letters, words, typography, watermarks, signatures, human faces, characters,
@@ -63,30 +138,51 @@ cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy,
 cluttered composition, lens flare, stock-photo people
 ```
 
-### Type to composite afterwards
-- Headline: **«من الفكرة إلى النشر — سبع محطات تتدرّب فيها، لا تُحاضَر»**
-- Wordmark: **رحلة الباحث**
-- Footer: `t.me/src_quize_bot` · `© باوندلس للخدمات الأكاديمية ومعسكر البحث العلمي`
+**Type to set in Canva (variant B):**
+- Headline **«من الفكرة إلى النشر»** · sub **«سبع محطات تتدرّب فيها، لا تُحاضَر»**
+- Wordmark **رحلة الباحث** · footer `t.me/src_quize_bot` · `© باوندلس للخدمات الأكاديمية ومعسكر البحث العلمي`
 
 ---
 
-## Poster B — «تتدرّب على أوراق حقيقية» · The differentiator
+# Poster B — «تتدرّب على أوراق حقيقية» · The differentiator
 **Role:** the "why this is different" post. **Ratio:** 4:5.
 
-### Prompt
+### Variant A — text baked in
 ```
-A scientific-editorial illustration of a single printed research paper page seen at a
-slight three-quarter angle, floating on a deep navy field (#0a1428). The page is warm
-ivory (#f0e6d2) with realistic paper grain; its content is rendered as abstract
-greeked column blocks and rule lines — texture that reads as an academic page without
-any legible writing. One paragraph block is marked by a precise teal (#0ac8b9)
-highlight rectangle, and a thin gold (#c8aa6e) leader line runs from that block toward
-empty space at the edge, ending in a small hexagonal gold node. Two or three fine
-gold circles suggest annotation marks elsewhere on the page. Soft directional light
+A scientific-editorial illustration of a single printed research paper page seen at a slight
+three-quarter angle, floating on a deep navy field (#0a1428), positioned in the right half of
+the composition. The page is warm ivory (#f0e6d2) with realistic paper grain; its content is
+abstract greeked column blocks and rule lines — texture that reads as an academic page. One
+paragraph block is marked by a precise teal (#0ac8b9) highlight rectangle, and a thin gold
+(#c8aa6e) leader line runs from it toward the left, ending in a small hexagonal gold node.
+Two or three fine gold circles suggest annotation marks elsewhere. Soft directional light
 from upper left, gentle shadow beneath the sheet.
 
-COMPOSITION REQUIREMENT: the left third must remain an empty deep-navy field with no
-detail, reserved for a headline and a caption.
+TEXT REQUIREMENTS: render the Arabic text EXACTLY as written below, in fully connected
+right-to-left Arabic script, in a clean modern Arabic sans-serif (Cairo / Tajawal style).
+Do not translate it, do not transliterate it, do not invent additional words, and do not
+add any text that is not listed. Arabic letters must be joined correctly within each word.
+Spelling must match character for character.
+
+In the empty left third, as a large headline in warm ivory (#f0e6d2):
+«لا أمثلة نظرية»
+
+Beneath it, smaller, in gold (#c8aa6e), on two lines:
+«تتدرّب على أوراق منشورة فعلًا»
+«وعلى شاشات الإرسال الحقيقية»
+
+Style: scientific journal cover, editorial infographic, precise technical illustration,
+matte print, shallow depth of field.
+--no watermarks, signatures, human faces, characters, cartoon, anime, video-game art,
+neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare,
+stock-photo people, Latin transliteration, mirrored or disconnected Arabic letters
+```
+
+### Variant B — text-free
+Same first paragraph, then:
+```
+COMPOSITION REQUIREMENT: the left third must remain an empty deep-navy field with no detail,
+reserved for a headline and a caption.
 
 Style: scientific journal cover, editorial infographic, precise technical illustration,
 matte print, shallow depth of field.
@@ -95,34 +191,55 @@ cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy,
 cluttered composition, lens flare, stock-photo people
 ```
 
-### Type to composite afterwards
-- Headline: **«لا أمثلة نظرية»**
-- Sub: **«تتدرّب على أوراق منشورة فعلًا، وعلى شاشات الإرسال الحقيقية»**
-
 ---
 
-## Poster C — «كيف تكشف مجلة مفترسة؟» · The teaser
+# Poster C — «كيف تكشف مجلة مفترسة؟» · The teaser
 **Role:** ت−٢, released with **no branding at all**. **Ratios:** 1:1 (WhatsApp) and 4:5.
 
-> This is the highest-forward asset in the set. It sells nothing and asks a question
-> that concerns every researcher personally, which is exactly why it travels. Publish it
-> with the question only — the product is not mentioned until launch day.
+> The highest-forward asset in the set. It sells nothing and asks a question that concerns
+> every researcher personally, which is exactly why it travels. Publish it with the question
+> only — the product is not named until launch day.
 
-### Prompt
+### Variant A — text baked in
 ```
-A scientific-editorial illustration: five identical blank card panels arranged in a
-clean vertical stack on a deep navy field (#0a1428), seen straight on. Four cards are
-warm ivory (#f0e6d2) with a fine gold (#c8aa6e) hairline border and a small precise
-hexagonal marker at the leading edge; each card's surface carries faint greeked rule
-lines suggesting a printed checklist item, never legible writing. The fifth and final
-card is different: empty, unfilled, its border drawn as a broken dashed gold outline,
-its marker missing — visibly incomplete. Subtle teal (#0ac8b9) rim light along the
-stack's edge. Restrained, high contrast, generous margins, museum print quality,
+A scientific-editorial illustration: five identical card panels arranged in a clean vertical
+stack on a deep navy field (#0a1428), seen straight on. Four cards are warm ivory (#f0e6d2)
+with a fine gold (#c8aa6e) hairline border and a small precise hexagonal marker at the
+leading edge. The fifth and final card is different: empty, its border drawn as a broken
+dashed gold outline, its marker missing — visibly incomplete. Subtle teal (#0ac8b9) rim light
+along the stack's edge. Restrained, high contrast, generous margins, museum print quality,
 subtle paper grain.
 
+TEXT REQUIREMENTS: render the Arabic text EXACTLY as written below, in fully connected
+right-to-left Arabic script, in a clean modern Arabic sans-serif (Cairo / Tajawal style).
+Do not translate it, do not transliterate it, do not invent additional words, and do not
+add any text that is not listed. Arabic letters must be joined correctly within each word.
+Spelling must match character for character.
+
+Across the empty upper area, as a headline in warm ivory (#f0e6d2), on two lines:
+«مجلة تَعِدك بالنشر خلال ٤٨ ساعة دون مراجعة»
+«هل تعرف كيف تكشفها؟»
+
+On the four ivory cards, one line each, in dark navy text, right-aligned:
+card 1: «وعد بنشر سريع مضمون قبل بدء التحكيم»
+card 2: «دعوة فورية للانضمام إلى هيئة التحرير دون سجلّ علمي»
+card 3: «بريد تحرير على نطاق عام لا مؤسسي»
+card 4: «إطراء مبالغ فيه في رسالة لا تذكر عنوان بحثك»
+
+On the fifth empty dashed card, centred, in gold (#c8aa6e):
+«… والخامسة؟»
+
+Style: scientific journal cover, editorial infographic, engraved plate, matte print.
+--no watermarks, signatures, human faces, characters, cartoon, anime, video-game art,
+neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare,
+stock-photo people, Latin transliteration, mirrored or disconnected Arabic letters
+```
+
+### Variant B — text-free
+Same first paragraph, then:
+```
 COMPOSITION REQUIREMENT: the upper quarter must remain an empty deep-navy field with no
-detail, reserved for a headline. Each card must contain a clear empty band for a line
-of type.
+detail, reserved for a headline. Each card must contain a clear empty band for one line of type.
 
 Style: scientific journal cover, editorial infographic, engraved plate, matte print.
 --no text, letters, words, typography, watermarks, signatures, human faces, characters,
@@ -130,70 +247,133 @@ cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy,
 cluttered composition, lens flare, stock-photo people
 ```
 
-### Type to composite afterwards
-- Headline: **«مجلة تَعِدك بالنشر خلال ٤٨ ساعة دون مراجعة. هل تعرف كيف تكشفها؟»**
-- Four filled cards — each of these is checkable and non-controversial:
-  1. **وعد بنشر سريع مضمون قبل بدء التحكيم**
-  2. **دعوة فورية للانضمام إلى هيئة التحرير دون سجلّ علمي**
-  3. **بريد تحرير على نطاق عام لا مؤسسي**
-  4. **إطراء مبالغ فيه في رسالة عامة لا تذكر عنوان بحثك**
-- Fifth card, left empty: **«… والخامسة؟»**
-
 ---
 
-## Poster D — «المحطات السبع» · Carousel
-**Role:** ت+٢ carousel; the same plate also opens each chapter of the player handbook.
-**Ratio:** 1:1, seven slides.
+# Poster D — «لوحة الرحلة» · All seven stations, one poster
+**Role:** the reference poster — forwardable, printable, pinnable. Replaces the carousel, so
+it works where carousels do not: WhatsApp, a printed handout, a slide.
+**Ratio:** 4:5 or 2:3 portrait. **Generate at the highest resolution available** — this one
+carries the most detail.
 
-### Prompt (run once; recolour per slide, or regenerate with the node index moved)
+> **Expect to use variant B here.** Fourteen separate Arabic strings is far beyond what image
+> models spell reliably. Variant A is included because it costs one attempt to find out, and
+> the payoff is a finished poster; but plan on setting this text yourself.
+
+### Variant A — text baked in
 ```
-A single precise hexagonal medallion centred on a deep navy field (#0a1428), rendered
-as a brushed gold (#c8aa6e) engraved emblem with a fine double border and small
-machined notches at each vertex. The medallion's interior is an empty recessed panel
-of darker navy, lit by a faint teal (#0ac8b9) inner glow. Around it, a thin gold
-circular scale with fine tick marks, and a subtle radial gradient falling off into
-darkness. Symmetrical, centred, generous margins, museum-quality engraved print,
-subtle paper grain.
+A large scientific-editorial reference poster on a deep navy field (#0a1428 to #0e1b33),
+portrait orientation. A single engraved gold (#c8aa6e) pathway ascends the composition from
+bottom right to top left in gentle steps, with fine tick marks along it like a measured
+scale. Seven station nodes sit along the path, each a precise hexagonal medallion in brushed
+gold with a small recessed centre, numbered in sequence. Beside each medallion, a clean
+horizontal label plate in slightly lighter navy with a thin gold hairline border, holding
+room for a title and one line of description. The medallions warm progressively: the lowest
+is plain gold, the highest carries a soft teal (#0ac8b9) inner glow. A barely visible
+technical grid and faint contour lines sit behind everything. Generous margins, strict
+alignment, museum-quality engraved print, subtle paper grain.
 
-COMPOSITION REQUIREMENT: the medallion's interior panel must remain completely empty,
-and the lower third of the image must remain an empty navy field, both reserved for
-type.
+TEXT REQUIREMENTS: render the Arabic text EXACTLY as written below, in fully connected
+right-to-left Arabic script, in a clean modern Arabic sans-serif (Cairo / Tajawal style).
+Do not translate it, do not transliterate it, do not invent additional words, and do not
+add any text that is not listed. Arabic letters must be joined correctly within each word.
+Spelling must match character for character.
 
-Style: engraved medal plate, scientific instrument detail, editorial infographic, matte print.
+Headline across the top, in warm ivory (#f0e6d2):
+«رحلة الباحث — من الفكرة إلى النشر»
+
+On the seven label plates, from the lowest node upward. Title in gold, description beneath
+it in muted ivory:
+1 «تصنيف المجلات العلمية» — «فحص رصانة المجلة وكشف المؤشّرات المفترسة»
+2 «أسس البحث واختيار الفجوة البحثية» — «استخراج فجوة بحثية حقيقية من الأدبيات»
+3 «أنواع الأوراق البحثية» — «مطابقة الهدف البحثي بنوع الورقة المناسب»
+4 «أجزاء الورقة البحثية» — «تقييم العنوان والملخّص والكلمات المفتاحية»
+5 «متطلبات النشر» — «تضارب المصالح وإقرار المساهمات وخطاب التغطية»
+6 «الإرسال والتتبع» — «من الفحص الفنّي حتى منح الـDOI»
+7 «الرحلة الكبرى» — «محطة ختامية تجمع المحطات الستّ»
+
+At the bottom edge, small and centred:
+«t.me/src_quize_bot»
+
+Style: scientific reference plate, editorial infographic, engraved diagram, matte print.
+--no watermarks, signatures, human faces, characters, cartoon, anime, video-game art,
+neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare,
+stock-photo people, Latin transliteration, mirrored or disconnected Arabic letters
+```
+
+### Variant B — text-free  *(the one to plan on)*
+Same first paragraph, then:
+```
+COMPOSITION REQUIREMENT: every label plate must be completely empty — flat panels with a
+hairline border and no marks inside. The medallion centres must be empty. The top sixth of
+the poster must remain an empty deep-navy field reserved for a headline, and the bottom edge
+must keep a clear empty strip. Alignment must be exact: all seven plates share the same left
+edge and the same height.
+
+Style: scientific reference plate, editorial infographic, engraved diagram, matte print.
 --no text, letters, words, typography, watermarks, signatures, human faces, characters,
 cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy,
 cluttered composition, lens flare, stock-photo people
 ```
 
-### Type per slide — station name, then what you *practise* there
-| # | المحطة | يُمارَس فيها |
+**Type to set in Canva (variant B)** — headline **«رحلة الباحث — من الفكرة إلى النشر»**, then:
+
+| # | المحطة | ما تتدرّب عليه |
 |---|---|---|
 | ١ | تصنيف المجلات العلمية | فحص رصانة المجلة وكشف المؤشّرات المفترسة |
 | ٢ | أسس البحث واختيار الفجوة البحثية | استخراج فجوة بحثية حقيقية من الأدبيات |
-| ٣ | أنواع الأوراق البحثية العلمية | مطابقة الهدف البحثي بنوع الورقة المناسب |
-| ٤ | أجزاء الورقة البحثية | تقييم الملخّص والعنوان والكلمات المفتاحية |
+| ٣ | أنواع الأوراق البحثية | مطابقة الهدف البحثي بنوع الورقة المناسب |
+| ٤ | أجزاء الورقة البحثية | تقييم العنوان والملخّص والكلمات المفتاحية |
 | ٥ | متطلبات النشر | تضارب المصالح وإقرار المساهمات وخطاب التغطية |
-| ٦ | الإرسال والتتبع | مسار الإرسال من الفحص الفنّي حتى منح الـDOI |
+| ٦ | الإرسال والتتبع | من الفحص الفنّي حتى منح الـDOI |
 | ٧ | الرحلة الكبرى | محطة ختامية تجمع المحطات الستّ |
+
+Footer: `t.me/src_quize_bot` · `© باوندلس للخدمات الأكاديمية ومعسكر البحث العلمي`
+
+> **Why the numbers matter:** the plates must be visually identical and exactly aligned, so
+> that setting seven rows of type in Canva is one repeated operation rather than seven
+> separate judgement calls. If a render's plates drift in size or spacing, discard it — an
+> uneven grid costs more to fix than to regenerate.
 
 ---
 
-## Poster E — «مفتوحة المصدر وقابلة للاقتباس» · Institutional
+# Poster E — «مفتوحة المصدر وقابلة للاقتباس» · Institutional
 **Role:** ت+٤, LinkedIn. Aimed at departments and other camps, not students. **Ratio:** 1200×630.
 
-### Prompt
+### Variant A — text baked in
 ```
-A restrained scientific-editorial composition on a deep navy field (#0a1428): a stack
-of three offset printed pages in warm ivory (#f0e6d2), and beside them a precise
-engraved gold (#c8aa6e) hexagonal seal with a fine double border and an empty recessed
-centre. A thin gold line links the seal to the page stack, with small tick marks along
-it. The pages show only greeked column texture and rule lines, never legible writing.
-Cool teal (#0ac8b9) rim light along the top edge of the stack. Wide horizontal
-composition, strongly asymmetric, very generous empty space on the right half.
+A restrained scientific-editorial composition on a deep navy field (#0a1428), wide horizontal
+format: on the left, a stack of three offset printed pages in warm ivory (#f0e6d2), and beside
+them a precise engraved gold (#c8aa6e) hexagonal seal with a fine double border and an empty
+recessed centre. A thin gold line links the seal to the page stack, with small tick marks
+along it. The pages show only greeked column texture and rule lines. Cool teal (#0ac8b9) rim
+light along the top edge of the stack. Strongly asymmetric, with the entire right half left
+open.
 
-COMPOSITION REQUIREMENT: the entire right half must remain an empty deep-navy field
-with no detail, reserved for a headline and three short lines. The seal's centre must
-remain empty.
+TEXT REQUIREMENTS: render the text EXACTLY as written below. Arabic must be fully connected
+right-to-left script in a clean modern Arabic sans-serif (Cairo / Tajawal style); Latin text
+and digits must be in a clean monospace face. Do not translate, do not transliterate, do not
+invent additional words, and do not add any text that is not listed. Spelling must match
+character for character.
+
+In the empty right half, as a headline in warm ivory (#f0e6d2):
+«اقتبسها. اشتقّها. استخدمها في معسكرك.»
+
+Beneath it, three short lines in gold (#c8aa6e):
+«AGPL-3.0 — مفتوحة المصدر بالكامل»
+«DOI: 10.5281/zenodo.21759627»
+«github.com/mulhamfetna/boundless-src-researcher-journey-game»
+
+Style: scientific journal cover, editorial infographic, engraved plate, matte print.
+--no watermarks, signatures, human faces, characters, cartoon, anime, video-game art,
+neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare,
+stock-photo people, mirrored or disconnected Arabic letters
+```
+
+### Variant B — text-free
+Same first paragraph, then:
+```
+COMPOSITION REQUIREMENT: the entire right half must remain an empty deep-navy field with no
+detail, reserved for a headline and three short lines. The seal's centre must remain empty.
 
 Style: scientific journal cover, editorial infographic, engraved plate, matte print.
 --no text, letters, words, typography, watermarks, signatures, human faces, characters,
@@ -201,22 +381,28 @@ cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy,
 cluttered composition, lens flare, stock-photo people
 ```
 
-### Type to composite afterwards
-- Headline: **«اقتبسها. اشتقّها. استخدمها في معسكرك.»**
-- Three lines:
-  - `AGPL-3.0 — مفتوحة المصدر بالكامل`
-  - `DOI: 10.5281/zenodo.21759627`
-  - `github.com/mulhamfetna/boundless-src-researcher-journey-game`
+> **Check the DOI and the URL character by character** on any variant A render of this poster.
+> A misrendered digit in a DOI is worse than no DOI: it points at nothing, and it is the one
+> line on the poster an academic reader is most likely to try.
 
 ---
 
 ## Review checklist — apply to every render before it ships
 
-1. **No lettering of any kind.** Any glyph, in any script, invented or not → reject.
-2. **Reserved zones actually empty** — headline space must be flat field, not "mostly clear".
-3. **Palette holds** — navy ground, gold primary, teal secondary. No stray purple, magenta or orange.
-4. **No characters, no faces, no fantasy** — if it reads as game art rather than a journal plate, reject.
-5. **Legible at thumbnail size** — shrink to 150px wide; if the structure disappears, the composition is too busy.
-6. **Margins survive cropping** — Telegram, Instagram and LinkedIn crop differently; nothing essential within 8% of any edge.
+**Both variants**
+1. **Palette holds** — navy ground, gold primary, teal secondary. No stray purple, magenta or orange.
+2. **No characters, no faces, no fantasy.** If it reads as game art rather than a journal plate, reject.
+3. **Legible at thumbnail size** — shrink to 150px wide; if the structure disappears, it is too busy.
+4. **Margins survive cropping** — Telegram, Instagram and LinkedIn crop differently; nothing essential within 8% of any edge.
+
+**Variant A only**
+5. **Read every Arabic word aloud.** Not "does it look Arabic" — does it *say* the right thing.
+6. **Letters joined correctly** within each word, and the text running right to left.
+7. **No extra words** the model added on its own initiative — a common and easily missed failure.
+8. **Latin strings and digits exact**, character by character: the DOI, the GitHub URL, `t.me/src_quize_bot`.
+
+**Variant B only**
+9. **No lettering of any kind** — any glyph, in any script, invented or not → reject.
+10. **Reserved zones genuinely empty** — headline space must be flat field, not "mostly clear".
 
 Send the renders back and they will be checked against this list before any are used.
