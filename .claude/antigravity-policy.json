@@ -1,0 +1,5 @@
+{
+  "policy": "always",
+  "set_at": "2026-08-09",
+  "note": "Set by Mulham during the launch-campaign brainstorm. Creative/visual work (raster art, poster key art, divergent Arabic slogan/flavour drafts) goes to Antigravity via scripts/agy_gen.py without a per-task prompt. Two things do NOT change: (1) every delegation is ANNOUNCED in visible text before the run, never silent; (2) output is a draft, verified inline by Claude before it lands in the repo. Logic, code, deploy, and fact-checking stay in Claude."
+}
