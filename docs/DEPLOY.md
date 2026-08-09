@@ -121,14 +121,14 @@ In Telegram, talk to **@BotFather**:
 1. `/mybots` → select your bot → **Bot Settings** → **Menu Button** →
    **Edit menu button URL** → send `https://quiz.your-domain.com/app/`
    (note the trailing `/app/`).
-2. (Optional) `/setmenubuttontext` → e.g. `ابدأ المسابقة`.
+2. (Optional) `/setmenubuttontext` → e.g. `ابدأ الرحلة`.
 
 The bot's own `/start` button also opens this same URL (already coded in
 `app/bot.py` from `PUBLIC_URL`).
 
 ## Step 7 — Go live & smoke test
 
-- Open your bot in Telegram → **/start** → tap **ابدأ المسابقة 🎮**.
+- Open your bot in Telegram → **/start** → tap **ابدأ الرحلة 🚀**.
 - The RTL Mini App opens; play the journals quiz; finish to see the report
   with the real source screenshots.
 - Send **/leaderboard** in the chat — your score should appear.
