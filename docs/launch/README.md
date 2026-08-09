@@ -5,7 +5,7 @@ Everything needed to announce the game to the Arabic research community.
 | File | What it is |
 |---|---|
 | [`announcement-copy.md`](announcement-copy.md) | Copy for every channel, in two audience variants, plus the bot broadcast and the publishing schedule |
-| [`poster-prompts.md`](poster-prompts.md) | Five image prompts to run in Gemini, with the Arabic type to set afterwards and a review checklist |
+| [`poster-prompts.md`](poster-prompts.md) | Five posters, each with **two** prompt variants — Arabic baked in, or text-free — plus the type to set afterwards and a review checklist |
 | `assets/gameplay.mp4` · `assets/gameplay.gif` | An 18-second recording of real play, produced by `scripts/capture/` |
 
 ---
@@ -67,5 +67,15 @@ between runs — the beats and their pacing will not.
 - The five posters are **prompts only**; no images have been generated. Run them in
   Gemini and send the results back to be checked against the list at the end of
   `poster-prompts.md`.
+
+  Try the **text-baked variant (A)** first — if it spells correctly, the poster is finished in
+  one shot and only small areas need touching up in Canva. Fall back to the **text-free
+  variant (B)** whenever it cannot. The odds table at the top of `poster-prompts.md` says which
+  posters are worth the attempt: the hero and the differentiator carry one headline each and
+  have the best chance; the all-stations poster carries fourteen strings and will almost
+  certainly need variant B.
+
+  The rule that matters: **one malformed Arabic word means discard, not edit.** Shipping
+  convincing-looking nonsense to researchers costs far more than regenerating.
 - The publishing schedule is relative (ت−٢ / ت=٠ / ت+٢ / ت+٤ / ت+٧). Fix a launch date
   and the dates follow.
