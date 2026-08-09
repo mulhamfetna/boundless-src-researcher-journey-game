@@ -22,14 +22,19 @@ class Outcome:
     sent: int = 0
     blocked: int = 0
     failed: int = 0
+    # A chat that does not exist — e.g. an id that never messaged the bot. This
+    # is NOT a failure: nothing went wrong, there is simply nobody there. Mixing
+    # the two made a healthy broadcast look broken (#39).
+    unreachable: int = 0
 
     @property
     def total(self) -> int:
-        return self.sent + self.blocked + self.failed
+        return self.sent + self.blocked + self.failed + self.unreachable
 
     def summary_ar(self) -> str:
         return (
             f"تم الإرسال إلى {self.sent} مستخدمًا."
+            + (f"\nلم يبدأوا محادثة البوت: {self.unreachable}." if self.unreachable else "")
             + (f"\nحظروا البوت: {self.blocked}." if self.blocked else "")
             + (f"\nفشل الإرسال: {self.failed}." if self.failed else "")
         )
@@ -50,9 +55,10 @@ def broadcast(user_ids, text, *, send, sleep=time.sleep) -> Outcome:
     """Send `text` to every id, pausing between messages.
 
     `send(user_id, text)` should raise PermissionError when the user has blocked
-    the bot; any other exception counts as a plain failure. Neither stops the run.
+    the bot and LookupError when the chat does not exist; any other exception
+    counts as a plain failure. None of them stop the run.
     """
-    sent = blocked = failed = 0
+    sent = blocked = failed = unreachable = 0
     ids = list(user_ids)
     for i, uid in enumerate(ids):
         try:
@@ -63,8 +69,10 @@ def broadcast(user_ids, text, *, send, sleep=time.sleep) -> Outcome:
                 sent += 1
         except PermissionError:
             blocked += 1
+        except LookupError:
+            unreachable += 1
         except Exception:
             failed += 1
         if i < len(ids) - 1:
             sleep(SEND_INTERVAL_S)
-    return Outcome(sent=sent, blocked=blocked, failed=failed)
+    return Outcome(sent=sent, blocked=blocked, failed=failed, unreachable=unreachable)
