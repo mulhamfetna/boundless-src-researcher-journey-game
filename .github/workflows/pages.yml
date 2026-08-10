@@ -1,0 +1,61 @@
+# Publish the player handbook at
+# https://mulhamfetna.github.io/boundless-src-researcher-journey-game/
+#
+# A link beats an attachment for a launch: it pastes into a Telegram post, a
+# WhatsApp forward or a slide, opens on a phone with no download, and can be
+# corrected after publication without re-sending anything to anyone.
+#
+# The site is assembled here rather than served from /docs on purpose. That
+# folder also holds SERVER-SETUP.md and DEPLOY.md — already readable in a public
+# repo, but there is no reason to render operational notes as a browsable
+# website. Only the three files below are published.
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/handbook-player/player-handbook.html"
+      - "docs/handbook-player/player-handbook.pdf"
+      - "docs/launch/assets/gameplay.mp4"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two publishes race; do not cancel one midway, since a half-finished
+# deployment would leave the shared link broken.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: publish the handbook
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble the site
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          cp docs/handbook-player/player-handbook.html _site/index.html
+          cp docs/handbook-player/player-handbook.pdf  _site/player-handbook.pdf
+          cp docs/launch/assets/gameplay.mp4           _site/gameplay.mp4
+          # Jekyll would otherwise try to process this and skip nothing useful.
+          touch _site/.nojekyll
+          ls -lh _site
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

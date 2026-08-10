@@ -53,6 +53,13 @@ code,.mono{font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-siz
 .cover .orgs{font-size:11pt; color:var(--ivory)}
 .cover .orgs span{display:block; margin:.15em 0}
 .cover .meta{margin-top:auto; padding-top:12mm; color:var(--muted); font-size:9.5pt}
+/* Web-only: pointless inside the PDF, which is what it links to. */
+.cover .dl{
+  display:inline-block; margin-top:5mm; padding:.45em 1.4em; border-radius:999px;
+  border:1px solid var(--gold); color:var(--gold-bright); font-size:10.5pt;
+  text-decoration:none;
+}
+.cover .dl:hover{background:rgba(200,170,110,.12)}
 
 /* ---------- table of contents ---------- */
 .toc{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:6mm 8mm}
@@ -116,6 +123,7 @@ footer.doc{margin-top:9mm; padding-top:5mm; margin-bottom:0; border-top:1px soli
   body{background:var(--navy)}
   .page{max-width:none; padding:0}
   a{color:var(--teal-soft)}
+  .cover .dl{display:none}
   /* Keep a heading with the text it introduces. */
   h2,h3,h4{break-after:avoid-page}
   /* The closing note was landing alone on a page of its own. */
@@ -143,6 +151,7 @@ footer.doc{margin-top:9mm; padding-top:5mm; margin-bottom:0; border-top:1px soli
   <div class="meta">
     الإصدار الأول · <span class="mono">t.me/src_quize_bot</span><br />
     © ٢٠٢٦ — مرخَّص برخصة AGPL-3.0-or-later
+    <br /><a class="dl" href="player-handbook.pdf">⬇︎ تحميل نسخة PDF</a>
   </div>
 </section>
 
