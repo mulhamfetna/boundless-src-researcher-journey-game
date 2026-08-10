@@ -25,6 +25,8 @@ Everything below is verifiable. Keep it that way — an academic audience checks
 **الروابط الثابتة**
 - البوت: <https://t.me/src_quize_bot>
 - اللعبة: <https://src.mulhamfetna.com>
+- **دليل اللاعب:** <https://mulhamfetna.github.io/boundless-src-researcher-journey-game/>
+  (صفحة تُفتح على الهاتف مباشرة، وفيها زرّ تحميل نسخة PDF)
 - الشيفرة المصدرية: <https://github.com/mulhamfetna/boundless-src-researcher-journey-game>
 - DOI: <https://doi.org/10.5281/zenodo.21759627>
 
@@ -49,6 +51,7 @@ Everything below is verifiable. Keep it that way — an academic audience checks
 المهامّ تطبيقية بالكامل: تكشف مخالفات إقرار المساهمات وفق COPE/ICMJE، وترتّب مسار الإرسال من الفحص الفنّي حتى منح الـDOI، وتحدّد الفجوة البحثية في ملخّصات فعلية.
 
 ▶️ ابدأ من هنا: https://t.me/src_quize_bot
+📖 دليل اللاعب الكامل: https://mulhamfetna.github.io/boundless-src-researcher-journey-game/
 
 © باوندلس للخدمات الأكاديمية ومعسكر البحث العلمي
 ```
@@ -67,6 +70,7 @@ Everything below is verifiable. Keep it that way — an academic audience checks
 • مفتوحة المصدر (AGPL-3.0) وقابلة للاقتباس بمعرّف DOI
 
 ▶️ https://t.me/src_quize_bot
+📖 دليل اللاعب: https://mulhamfetna.github.io/boundless-src-researcher-journey-game/
 
 إعداد: باوندلس للخدمات الأكاديمية · معسكر البحث العلمي
 ```
@@ -86,6 +90,7 @@ Everything below is verifiable. Keep it that way — an academic audience checks
 يعمل داخل تيليجرام مباشرة — لا تحميل ولا حساب جديد، ومجاني بالكامل.
 
 ابدأ: https://t.me/src_quize_bot
+الدليل الكامل: https://mulhamfetna.github.io/boundless-src-researcher-journey-game/
 ```
 
 **للجمهور الأوسع:**
@@ -120,6 +125,7 @@ https://t.me/src_quize_bot
 • ويمكن لأي جهة تعليمية أن تشتقّه وتكيّفه لمحتوى معسكرها الخاص
 
 🔗 التجربة: https://t.me/src_quize_bot
+🔗 دليل اللاعب: https://mulhamfetna.github.io/boundless-src-researcher-journey-game/
 🔗 الشيفرة: https://github.com/mulhamfetna/boundless-src-researcher-journey-game
 🔗 الاقتباس: https://doi.org/10.5281/zenodo.21759627
 
@@ -197,6 +203,15 @@ Send with:
 ```
 
 ---
+
+## 7b. لماذا رابط لا ملفًا مرفقًا
+
+دليل اللاعب منشور كصفحة ويب، لا كملف يُرفَق:
+
+- الرابط يُلصَق في منشور تيليجرام أو رسالة واتساب أو منشور لينكدإن أو شريحة عرض، والملف لا يُلصَق.
+- يفتح على الهاتف مباشرة دون تحميل ودون تطبيق قارئ.
+- **وإن ظهر فيه خطأ بعد النشر، يُصحَّح في مكانه** — بينما الملف المرفق يبقى كما أُرسل عند كل من استلمه.
+- وفيه زرّ لتحميل نسخة PDF لمن يريد الملف فعلًا.
 
 ## 8. جدول النشر
 

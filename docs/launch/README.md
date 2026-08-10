@@ -7,6 +7,8 @@ Everything needed to announce the game to the Arabic research community.
 | [`announcement-copy.md`](announcement-copy.md) | Copy for every channel, in two audience variants, plus the bot broadcast and the publishing schedule |
 | [`poster-prompts.md`](poster-prompts.md) | Five posters, each with **two** prompt variants — Arabic baked in, or text-free — plus the type to set afterwards and a review checklist |
 | `assets/gameplay.mp4` · `assets/gameplay.gif` | An 18-second recording of real play, produced by `scripts/capture/` |
+| `assets/carousel/` | The nine carousel slides and the all-stations poster, **built from HTML** by `scripts/posters/build.mjs` — ready to post, no generation needed |
+| `posters/carousel.src.html` | Source for those slides; open `posters/carousel.html` in a browser to preview |
 
 ---
 
@@ -64,7 +66,11 @@ between runs — the beats and their pacing will not.
 
 ## Still open
 
-- The five posters are **prompts only**; no images have been generated. Run them in
+- **The carousel and the all-stations poster are finished** — real PNGs in `assets/carousel/`,
+  built from HTML so the Arabic is simply correct rather than gambled on. Nothing to generate,
+  nothing to proofread for invented glyphs.
+- The remaining posters (hero, differentiator, teaser, institutional) are **prompts only**;
+  no images have been generated. Run them in
   Gemini and send the results back to be checked against the list at the end of
   `poster-prompts.md`.
 
@@ -72,8 +78,8 @@ between runs — the beats and their pacing will not.
   one shot and only small areas need touching up in Canva. Fall back to the **text-free
   variant (B)** whenever it cannot. The odds table at the top of `poster-prompts.md` says which
   posters are worth the attempt: the hero and the differentiator carry one headline each and
-  have the best chance; the all-stations poster carries fourteen strings and will almost
-  certainly need variant B.
+  have the best chance; the teaser and the institutional poster carry more and are riskier —
+  both could be moved to the HTML builder too if you would rather not gamble on them.
 
   The rule that matters: **one malformed Arabic word means discard, not edit.** Shipping
   convincing-looking nonsense to researchers costs far more than regenerating.

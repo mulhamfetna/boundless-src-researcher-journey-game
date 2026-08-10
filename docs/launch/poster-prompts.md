@@ -12,6 +12,43 @@ swapped for B without redesigning anything.
 
 ---
 
+## Which route each asset takes
+
+Not everything here should be generated. Anything whose value is **text** is now built from
+HTML and rendered with headless Chrome (`scripts/posters/build.mjs`), because that removes the
+Arabic-spelling risk entirely: the text is the text, alignment is exact across slides, and a
+typo is a one-line fix and a re-run instead of another spin of the generation lottery.
+
+| Asset | Route | Where |
+|---|---|---|
+| **Carousel** — cover + 7 stations + CTA | ✅ **built in HTML** | `docs/launch/assets/carousel/slide-*.png` |
+| **All-stations poster** | ✅ **built in HTML** | `docs/launch/assets/carousel/poster-all-stations.png` |
+| **A — hero** (pipeline key art) | 🎨 generate | prompt below |
+| **B — differentiator** (paper + highlight) | 🎨 generate | prompt below |
+| **C — teaser** (predatory-journal cards) | 🎨 generate, **or ask for HTML** | prompt below |
+| **E — institutional** (open source + DOI) | 🎨 generate, **or ask for HTML** | prompt below |
+
+**A and B genuinely want generation** — they are illustrative key images, and painterly depth is
+something CSS cannot fake.
+
+**C and E are mostly type on a flat ground.** They carry five short lines and a DOI respectively,
+which is exactly where image models fail and exactly what HTML does perfectly. Say the word and
+they can be added to the HTML builder in the same style as the carousel; the prompts below stay
+as the alternative.
+
+Rebuild the HTML assets at any time:
+
+```bash
+node scripts/posters/build.mjs          # HTML + PNGs
+node scripts/posters/build.mjs --html   # HTML only, to preview in a browser
+```
+
+The builder **fails the build if any slide's content is cut off**, so a silent crop cannot ship —
+that is not hypothetical, the all-stations poster lost its final row and its footer that way
+before the check existed.
+
+---
+
 ## Read this first
 
 ### How likely is variant A to work?
@@ -25,7 +62,7 @@ sharply with the amount of text, so try A in this order and expect to fall back:
 | **A** — hero | 1 headline + wordmark | ✅ best odds — try this one first |
 | **B** — differentiator | 1 headline + 1 line | ✅ good |
 | **E** — institutional | 1 headline + 3 technical lines | ⚠️ moderate (Latin/digits are easier than Arabic) |
-| **D** — all stations | 7 names + 7 descriptions | ❌ low — expect to use variant B |
+| **D** — all stations | 7 names + 7 descriptions | ❌ — **now built in HTML instead**, see below |
 
 Generate **3–4 attempts** of each variant A before giving up on it. The same prompt produces
 very different spelling quality run to run.
@@ -249,90 +286,26 @@ cluttered composition, lens flare, stock-photo people
 
 ---
 
-# Poster D — «لوحة الرحلة» · All seven stations, one poster
-**Role:** the reference poster — forwardable, printable, pinnable. Replaces the carousel, so
-it works where carousels do not: WhatsApp, a printed handout, a slide.
-**Ratio:** 4:5 or 2:3 portrait. **Generate at the highest resolution available** — this one
-carries the most detail.
+# Poster D — «لوحة الرحلة» · All seven stations  →  **built in HTML, no prompt needed**
 
-> **Expect to use variant B here.** Fourteen separate Arabic strings is far beyond what image
-> models spell reliably. Variant A is included because it costs one attempt to find out, and
-> the payoff is a finished poster; but plan on setting this text yourself.
+Superseded. This poster carried fourteen separate Arabic strings — station names and
+descriptions — which is far beyond what an image model spells reliably, and the odds table above
+rated it ❌ for exactly that reason.
 
-### Variant A — text baked in
-```
-A large scientific-editorial reference poster on a deep navy field (#0a1428 to #0e1b33),
-portrait orientation. A single engraved gold (#c8aa6e) pathway ascends the composition from
-bottom right to top left in gentle steps, with fine tick marks along it like a measured
-scale. Seven station nodes sit along the path, each a precise hexagonal medallion in brushed
-gold with a small recessed centre, numbered in sequence. Beside each medallion, a clean
-horizontal label plate in slightly lighter navy with a thin gold hairline border, holding
-room for a title and one line of description. The medallions warm progressively: the lowest
-is plain gold, the highest carries a soft teal (#0ac8b9) inner glow. A barely visible
-technical grid and faint contour lines sit behind everything. Generous margins, strict
-alignment, museum-quality engraved print, subtle paper grain.
+It is now generated from HTML instead, along with the nine-slide carousel, by
+`scripts/posters/build.mjs`. Both read the **same** `STATIONS` array in that file, so the poster
+and the slides cannot drift apart, and correcting a station description is one edit followed by
+one command.
 
-TEXT REQUIREMENTS: render the Arabic text EXACTLY as written below, in fully connected
-right-to-left Arabic script, in a clean modern Arabic sans-serif (Cairo / Tajawal style).
-Do not translate it, do not transliterate it, do not invent additional words, and do not
-add any text that is not listed. Arabic letters must be joined correctly within each word.
-Spelling must match character for character.
+| Output | Size |
+|---|---|
+| `docs/launch/assets/carousel/poster-all-stations.png` | 1080×1620 (2:3) |
+| `docs/launch/assets/carousel/slide-01-cover.png` … `slide-09-cta.png` | 1080×1350 (4:5) |
 
-Headline across the top, in warm ivory (#f0e6d2):
-«رحلة الباحث — من الفكرة إلى النشر»
+4:5 is the tallest ratio Instagram, Facebook and Telegram all keep uncropped, so the slides need
+no per-platform variants.
 
-On the seven label plates, from the lowest node upward. Title in gold, description beneath
-it in muted ivory:
-1 «تصنيف المجلات العلمية» — «فحص رصانة المجلة وكشف المؤشّرات المفترسة»
-2 «أسس البحث واختيار الفجوة البحثية» — «استخراج فجوة بحثية حقيقية من الأدبيات»
-3 «أنواع الأوراق البحثية» — «مطابقة الهدف البحثي بنوع الورقة المناسب»
-4 «أجزاء الورقة البحثية» — «تقييم العنوان والملخّص والكلمات المفتاحية»
-5 «متطلبات النشر» — «تضارب المصالح وإقرار المساهمات وخطاب التغطية»
-6 «الإرسال والتتبع» — «من الفحص الفنّي حتى منح الـDOI»
-7 «الرحلة الكبرى» — «محطة ختامية تجمع المحطات الستّ»
-
-At the bottom edge, small and centred:
-«t.me/src_quize_bot»
-
-Style: scientific reference plate, editorial infographic, engraved diagram, matte print.
---no watermarks, signatures, human faces, characters, cartoon, anime, video-game art,
-neon cyberpunk, magic, glowing runes, fantasy, cluttered composition, lens flare,
-stock-photo people, Latin transliteration, mirrored or disconnected Arabic letters
-```
-
-### Variant B — text-free  *(the one to plan on)*
-Same first paragraph, then:
-```
-COMPOSITION REQUIREMENT: every label plate must be completely empty — flat panels with a
-hairline border and no marks inside. The medallion centres must be empty. The top sixth of
-the poster must remain an empty deep-navy field reserved for a headline, and the bottom edge
-must keep a clear empty strip. Alignment must be exact: all seven plates share the same left
-edge and the same height.
-
-Style: scientific reference plate, editorial infographic, engraved diagram, matte print.
---no text, letters, words, typography, watermarks, signatures, human faces, characters,
-cartoon, anime, video-game art, neon cyberpunk, magic, glowing runes, fantasy,
-cluttered composition, lens flare, stock-photo people
-```
-
-**Type to set in Canva (variant B)** — headline **«رحلة الباحث — من الفكرة إلى النشر»**, then:
-
-| # | المحطة | ما تتدرّب عليه |
-|---|---|---|
-| ١ | تصنيف المجلات العلمية | فحص رصانة المجلة وكشف المؤشّرات المفترسة |
-| ٢ | أسس البحث واختيار الفجوة البحثية | استخراج فجوة بحثية حقيقية من الأدبيات |
-| ٣ | أنواع الأوراق البحثية | مطابقة الهدف البحثي بنوع الورقة المناسب |
-| ٤ | أجزاء الورقة البحثية | تقييم العنوان والملخّص والكلمات المفتاحية |
-| ٥ | متطلبات النشر | تضارب المصالح وإقرار المساهمات وخطاب التغطية |
-| ٦ | الإرسال والتتبع | من الفحص الفنّي حتى منح الـDOI |
-| ٧ | الرحلة الكبرى | محطة ختامية تجمع المحطات الستّ |
-
-Footer: `t.me/src_quize_bot` · `© باوندلس للخدمات الأكاديمية ومعسكر البحث العلمي`
-
-> **Why the numbers matter:** the plates must be visually identical and exactly aligned, so
-> that setting seven rows of type in Canva is one repeated operation rather than seven
-> separate judgement calls. If a render's plates drift in size or spacing, discard it — an
-> uneven grid costs more to fix than to regenerate.
+To change the wording, edit `STATIONS` in `scripts/posters/build.mjs` and re-run it.
 
 ---
 
